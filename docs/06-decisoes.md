@@ -84,7 +84,6 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | G12 | Comportamento da criatura (distâncias, tempos, dano). | [03-mecanicas](03-mecanicas.md#a-criatura) |
 | G13 | Presas e caça (carne, munição, flechas, cabana abandonada com a espingarda). | [03-mecanicas](03-mecanicas.md#caça) |
 | G14 | Paleta e pós-processamento (granulado, vinheta, glow). | [04-arte-e-som](04-arte-e-som.md#estilo-visual-c4-a) |
-
 | G15 | Criatura alta e magra, sem rosto, olhos **branco-amarelados**. | [04-arte-e-som](04-arte-e-som.md#a-criatura) |
 | G16 | Organização das pastas do código, `src/config.ts` e limites de triângulos. | [05-arquitetura](05-arquitetura.md#organização-do-código) |
 | G17 | Galeria aberta por `/?galeria` e checklist de revisão de modelos. | [04-arte-e-som](04-arte-e-som.md#revisão-dos-modelos-a2-c) |
