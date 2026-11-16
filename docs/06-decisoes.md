@@ -131,6 +131,14 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | W3-A | Vento: balanço das copas calculado na placa de vídeo (shader). |
 | W4 | Triângulos: pinheiro ~300, carvalho ~500, árvore morta ~250, arbusto ~150, pedra ~80, galho ~24, tufo ~12. Na implementação, o arbusto ficou com 240–400 (com menos parecia cristal). |
 
+### Revisões da NBB-128 (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| Revisão 1 | O usuário mandou 10 imagens de referência ("inspiração, não igual"): vegetação com galhos recursivos e placas de folhas desenhadas por código. |
+| M-T1 | Limite de triângulos por árvore: de 600 (G16) para **1.500**. Semente 1: pinheiro 1.022, carvalho 698, árvore morta 1.316. Na NBB-129, a neblina permite limitar a distância de desenho. |
+| Revisão 2 | Texturas nas superfícies, para não ficarem "lisas": casca (troncos, galhos e galho caído), pedra e chão de floresta (terra, musgo, folhas secas e gravetos), todas desenhadas por código e com mapa de relevo (*normal map*). |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).
@@ -140,14 +148,6 @@ O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de
 | R1-B | Manter **todo o escopo** até 20/11, apesar do atraso. A ordem de corte (G9) continua como reserva, mas não é aplicada agora. |
 | X1-C | **Sem teste de carga e sem testes automáticos novos**, para ganhar tempo. A NBB-125 foi cancelada e o Babylon fica definitivo (muda T0-C). O Vitest e o teste existente continuam no CI, mas as regras novas não ganham testes (muda T6-A). O limite do passo da física, que seria feito no teste de carga, vai para a NBB-127. |
 | R2 | **Sem PRs:** commits direto na `main` (substitui O2-A). O usuário revisa pelos commits e pelo resumo no chat; o que Claude decidir sozinho vai no resumo e num comentário da issue no Linear. |
-
-### Revisões da NBB-128 (2026-11-16)
-
-| Código | Decisão |
-|---|---|
-| Revisão 1 | O usuário mandou 10 imagens de referência ("inspiração, não igual"): vegetação com galhos recursivos e placas de folhas desenhadas por código. |
-| M-T1 | Limite de triângulos por árvore: de 600 (G16) para **1.500**. Semente 1: pinheiro 1.022, carvalho 698, árvore morta 1.316. Na NBB-129, a neblina permite limitar a distância de desenho. |
-| Revisão 2 | Texturas nas superfícies, para não ficarem "lisas": casca (troncos, galhos e galho caído), pedra e chão de floresta (terra, musgo, folhas secas e gravetos), todas desenhadas por código e com mapa de relevo (*normal map*). |
 
 ## Pendentes (proposto)
 
