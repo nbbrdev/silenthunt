@@ -52,7 +52,7 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 **Implementação (NBB-133, CR1–CR4):**
 - **Corpo:** cerca de 2,3 m até o alto do crânio (3 m com as galhadas). Costelas marcadas, braços que passam dos joelhos, garras curvas e pernas com o joelho para trás, como a pata traseira de um cervo.
 - **Pele:** quase preta, seca e rachada (CR2).
-- **Cabeça (proposto, CR4a):** crânio de cervo claro com galhadas e os olhos no fundo das órbitas. Ele não tem expressão nenhuma: é o "sem alma" do CR4.
+- **Cabeça (CR4a):** crânio de cervo claro com galhadas e os olhos no fundo das órbitas. Ele não tem expressão nenhuma: é o "sem alma" do CR4.
 - **Esqueleto e animações:** uma só malha com skinning em 23 ossos, 3.610 triângulos (limite de 4.000). Animações: Andar, Espreitar, Atacar e Recuar (CR3).
 - **À noite:** só o crânio claro e os olhos aparecem.
 

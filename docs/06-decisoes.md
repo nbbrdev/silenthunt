@@ -198,10 +198,11 @@ O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de
 | CR2 | Pele **cinza-escura quase preta**, seca e rachada como casca de árvore, desenhada por código. Ela se camufla entre os troncos e na neblina. |
 | CR3 | Quatro animações: **Andar** (em pé, curvada, passos longos e lentos), **Espreitar** (baixa, nas quatro, devagar), **Atacar** (golpe com o braço longo) e **Recuar** (foge rápido nas quatro). |
 | CR4 | A criatura deve "enganar o cérebro": o jogador não consegue ler expressão nenhuma nela, é algo **sem alma**. |
+| CR4a | A cabeça é um **crânio de cervo** claro, sem pele, com **galhadas** e os olhos no fundo das órbitas (seguindo o CR1). Ele tem focinho e mandíbula, mas nenhuma expressão. Muda o CR4 (cabeça lisa sem boca) e o G15 ("sem rosto definido"). |
+| CR3a | "Atacar" é só o bote com o golpe (1 s). A corrida até o jogador fica para a IA (NBB-134). Muda o CR3, que juntava a corrida e o golpe. |
+
+O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 
 ## Pendentes (proposto)
 
-| Código | Proposta | Muda |
-|---|---|---|
-| CR4a | **(proposto)** A cabeça é um **crânio de cervo** claro, sem pele, com **galhadas** e os olhos no fundo das órbitas (seguindo as referências do CR1). O crânio não tem expressão, mas tem focinho e mandíbula. | CR4 previa cabeça lisa sem boca e G15 dizia "sem rosto definido" |
-| CR3a | **(proposto)** "Atacar" é só o bote com o golpe (1 s). A corrida até o jogador reaproveita o galope de "Recuar" na IA (NBB-134). | CR3 juntava a corrida e o golpe numa animação |
+Nenhuma no momento.
