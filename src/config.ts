@@ -1,6 +1,6 @@
 /**
  * Every tunable value of the game lives here (ADR-08, G16).
- * The values below belong to the NBB-124 demo scene and will be replaced by the real game values.
+ * Values marked "provisional" will be replaced by later issues.
  */
 export const CONFIG = {
   physics: {
@@ -41,7 +41,7 @@ export const CONFIG = {
     mouseSensitivity: 0.002,
     /** How far up or down the player can look, in radians (about 85°). */
     maxPitch: 1.48,
-    /** Where the player starts in the demo scene (J4). */
+    /** Where the player starts (inside the clearing around the origin, CONFIG.world). */
     spawn: { x: 0, z: -6 },
     stamina: {
       /** RF-42 (G6). */
@@ -50,14 +50,61 @@ export const CONFIG = {
       recoveryPerSecond: 20,
     },
   },
-  demo: {
+  /** The infinite forest (NBB-129). */
+  world: {
+    /** World seed used until the menu/save lets the player pick one (NBB-147, NBB-150). */
+    defaultSeed: 2026,
+    /** G5: square chunks of this size, loaded in this radius (in chunks) around the player. */
+    chunkSize: 64,
+    loadRadius: 2,
+    /** Chunks with collision (trunks, big rocks, terrain): the player can only reach these. */
+    colliderRadius: 1,
+    /** Distance between terrain vertices, in meters (MW1). */
+    terrainCell: 2,
+    /** MW1: gentle hills up to ± this height, about this far apart (meters). */
+    hillHeight: 6,
+    hillSpacing: 100,
+    /** MW4: nothing is drawn beyond this distance (the fog hides it anyway). */
+    drawDistance: 90,
+    /**
+     * Copies farther than this from the player are left out of the GPU lists (small things vanish
+     * in the fog sooner). Without it, all 25 loaded chunks were drawn: ~2.8 million triangles.
+     */
+    copyDistance: { tree: 90, medium: 70, small: 45 },
+    /** The lists of nearby copies are rebuilt after the player walks this far (meters). */
+    copyRefreshDistance: 8,
+    /** MW3-A: variations generated per model at startup, then repeated across the world. */
+    variantsPerModel: 8,
+    /** Each repeated copy gets a random size within ± this fraction. */
+    scaleJitter: 0.15,
+    /** MW2: average amounts per chunk (64 × 64 m). */
+    perChunk: { trees: 80, bushes: 40, rocks: 15, branches: 30, tufts: 150 },
+    /** MW2: share of each tree species. */
+    treeMix: { pine: 0.45, oak: 0.35, deadTree: 0.2 },
+    /** MW2: regions. Clearings keep this share of trees; dense woods multiply them. */
+    clearingTrees: 0.1,
+    denseTrees: 1.5,
+    /** Size of clearings and dense patches, in meters. */
+    regionSpacing: 120,
+    /** No trees, rocks or bushes this close to the starting point. */
+    spawnClearRadius: 6,
+    /** MW5: only rocks at least this big block the player. */
+    blockingRockSize: 0.6,
+    /** MW6: size of the ground-type patches, in meters. */
+    groundPatchSpacing: 35,
+    /** MW6: tint of the forest floor per ground type (multiplies the floor texture). */
+    groundTints: {
+      dirt: { r: 1, g: 1, b: 1 },
+      moss: { r: 0.8, g: 1.1, b: 0.75 },
+      leaves: { r: 1.05, g: 0.95, b: 0.8 },
+      twigs: { r: 0.95, g: 0.88, b: 0.8 },
+    },
+  },
+  /** Provisional fog and light of the world; replaced by the day/night cycle in NBB-130. */
+  atmosphere: {
     fogColor: { r: 0.42, g: 0.47, b: 0.5 },
     /** Exponential fog density: higher means thicker fog. */
     fogDensity: 0.04,
-    groundSize: 50,
-    boxSize: 1,
-    boxDropHeight: 8,
-    boxRestitution: 0.3,
   },
   /** Base colors of the procedural models (W2, inside the G14 palette). RGB from 0 to 1. */
   palette: {

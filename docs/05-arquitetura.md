@@ -52,6 +52,13 @@ tests/                    // testes do Vitest, espelhando src/
 - **Mudanças no mundo** (árvore cortada, pedra pega, construção) ficam numa lista por chunk. Só essa lista vai para o save.
 - **Precisão longe da origem:** muito longe do ponto (0, 0) os números de posição perdem precisão e o jogo "treme". Se for preciso, reposicionamos o mundo em volta do jogador (*floating origin*). Fica no Backlog até aparecer.
 
+### Como foi implementado (NBB-129)
+
+- `src/world/terrain.ts`: altura, tipo de chão e densidade de árvores em qualquer ponto, só a partir da semente (funções puras, sem malhas). Outros sistemas (ruído dos passos, IA) consultam por aqui.
+- `src/world/vegetation.ts`: 8 variações de cada modelo (MW3-A), desenhadas com *thin instances*. Cada variação guarda as cópias por chunk; só as cópias perto do jogador vão para a placa de vídeo (árvores até 90 m, arbustos e pedras até 70 m, capim e galhos até 45 m), e a lista é refeita a cada 8 m andados. Sem esse filtro eram ~2,8 milhões de triângulos por quadro; com ele, ~625 mil.
+- `src/world/chunks.ts`: carrega no máximo **um chunk por quadro** (o mais próximo primeiro), para não travar ao cruzar uma fronteira. O terreno usa coordenadas do mundo para normais e textura, então os chunks se encaixam sem emenda. **Colisão só nos 3 × 3 chunks em volta do jogador** (terreno, cápsulas nos troncos, esferas nas pedras grandes), num único corpo estático por chunk.
+- Ponto de partida numa clareira de 6 m de raio, sem árvores, pedras ou arbustos.
+
 ## Teste de carga (T0-C)
 
 > **Cancelado em 2026-11-16 (X1-C):** para ganhar tempo, o usuário decidiu seguir com o Babylon sem o teste de carga. A meta de 60 FPS continua valendo e é conferida no dia a dia pelo contador de FPS.

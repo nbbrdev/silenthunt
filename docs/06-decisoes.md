@@ -139,6 +139,17 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | M-T1 | Limite de triângulos por árvore: de 600 (G16) para **1.500**. Semente 1: pinheiro 1.022, carvalho 698, árvore morta 1.316. Na NBB-129, a neblina permite limitar a distância de desenho. |
 | Revisão 2 | Texturas nas superfícies, para não ficarem "lisas": casca (troncos, galhos e galho caído), pedra e chão de floresta (terra, musgo, folhas secas e gravetos), todas desenhadas por código e com mapa de relevo (*normal map*). |
 
+## NBB-129: Mundo infinito (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| MW1 | Relevo: colinas suaves de até ±6 m, espaçadas ~100 m; malha do chão a cada 2 m. |
+| MW2 | Por chunk: ~80 árvores (45% pinheiro, 35% carvalho, 20% morta), ~40 arbustos, ~15 pedras, ~30 galhos, ~150 tufos; clareiras (0,1×) e mata fechada (1,5×). |
+| MW3-A | 8 variações de cada modelo, geradas ao abrir o jogo e repetidas pelo mundo (*thin instances*) com rotação e tamanho ±15%. |
+| MW4 | Nada é desenhado além de 90 m. |
+| MW5 | Troncos e pedras grandes bloqueiam; arbustos, capim e galhos no chão não. |
+| MW6 | Tipos de chão com tom próprio (musgo mais verde, folhas mais marrons); manchas de galhos secos com mais galhos no chão. |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).

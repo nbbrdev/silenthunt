@@ -1,8 +1,9 @@
-import { Engine, type Scene } from "@babylonjs/core";
-import { createDemoScene } from "./core/demoScene";
+import { Engine, Vector3, type Scene } from "@babylonjs/core";
+import { CONFIG } from "./config";
 import { Input } from "./core/input";
 import { createHavokPlugin } from "./core/physics";
 import { Player } from "./player/player";
+import { createWorld } from "./world/worldScene";
 import { attachFpsCounter } from "./ui/fpsCounter";
 import "./style.css";
 
@@ -24,12 +25,25 @@ async function start(): Promise<void> {
     scene = createGalleryScene(engine);
   } else {
     const physics = await createHavokPlugin();
-    scene = createDemoScene(engine, physics);
+    const world = createWorld(engine, physics, CONFIG.world.defaultSeed);
+    scene = world.scene;
     input = new Input(canvas);
-    const player = new Player(scene, input);
+    const { spawn } = CONFIG.player;
+    const feet = new Vector3(spawn.x, world.terrain.heightAt(spawn.x, spawn.z), spawn.z);
+    const player = new Player(scene, input, feet);
+    scene.onBeforeRenderObservable.add(() => world.chunks.update(player.position));
     if (import.meta.env.DEV) {
       // Lets the browser console (and automated checks) read the player state: silentHunt.player().
-      Object.assign(window, { silentHunt: { player: () => player.debugState() } });
+      Object.assign(window, {
+        silentHunt: {
+          player: () => player.debugState(),
+          groundType: () => world.terrain.groundTypeAt(player.position.x, player.position.z),
+          activeMeshes: () => scene.getActiveMeshes().length,
+          trianglesDrawn: () => scene.getActiveIndices() / 3,
+          chunksWithColliders: () =>
+            scene.transformNodes.filter((node) => node.name.startsWith("chunkPhysics")).length,
+        },
+      });
     }
   }
 

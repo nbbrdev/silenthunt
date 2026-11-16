@@ -174,7 +174,9 @@ function paintGroundBase(data: Uint8ClampedArray): void {
   const fine = fractalNoise(32, 16, 16, 4);
   const { groundDirt, groundMoss } = CONFIG.palette;
   for (let i = 0; i < SIZE * SIZE; i++) {
-    const mossAmount = Math.min(1, Math.max(0, ((patches[i] ?? 0.5) - 0.52) / 0.2));
+    // Only a hint of moss: big patches would repeat in a visible grid every tile. Large-scale
+    // moss areas come from the terrain's ground types (vertex tint) instead.
+    const mossAmount = 0.35 * Math.min(1, Math.max(0, ((patches[i] ?? 0.5) - 0.55) / 0.25));
     const shade = 0.7 + (fine[i] ?? 0.5) * 0.6;
     const r = groundDirt.r + (groundMoss.r - groundDirt.r) * mossAmount;
     const g = groundDirt.g + (groundMoss.g - groundDirt.g) * mossAmount;

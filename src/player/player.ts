@@ -43,11 +43,12 @@ export class Player {
   private readonly scene: Scene;
   private readonly input: Input;
 
-  constructor(scene: Scene, input: Input) {
+  /** @param feet where the player's feet start (on the ground). */
+  constructor(scene: Scene, input: Input, feet: Vector3) {
     this.scene = scene;
     this.input = input;
-    const { spawn, capsuleRadius } = CONFIG.player;
-    const start = new Vector3(spawn.x, this.capsuleHeight / 2 + 0.05, spawn.z);
+    const { capsuleRadius } = CONFIG.player;
+    const start = feet.add(new Vector3(0, this.capsuleHeight / 2 + 0.05, 0));
 
     this.controller = new PhysicsCharacterController(
       start,
@@ -62,9 +63,16 @@ export class Player {
     this.camera = new FreeCamera("playerCamera", start.clone(), scene);
     this.camera.inputs.clear(); // We drive the camera ourselves.
     this.camera.minZ = 0.05;
+    // MW4: nothing beyond this is drawn; the fog already hides it.
+    this.camera.maxZ = CONFIG.world.drawDistance;
     scene.activeCamera = this.camera;
 
     scene.onBeforeRenderObservable.add(() => this.update());
+  }
+
+  /** Center of the player's collision capsule, in world coordinates. */
+  get position(): Vector3 {
+    return this.controller.getPosition();
   }
 
   /** True while the player is crouching. */
