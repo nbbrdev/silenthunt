@@ -215,6 +215,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | IA6 | A mais de 150 m do jogador, ela reaparece fora da vista, na distância de rondar. |
 | IA7-A | Sem colisão com o jogador: o golpe é decidido pela distância. |
 | IA8 | Paredes e portas (RF-54) vão para a issue de construção; sem testes das transições (X1-C); o golpe dispara um evento de dano que a NBB-136 vai usar; `silentHunt.creature()` e `silentHunt.creatureState()` só em desenvolvimento. |
+| IA9 | Detalhes da implementação, propostos por Claude e aprovados ("1 a 12 - Ok"): investigar a 3 m/s e olhar em volta por 5 s; bote a 2 m e dano só se o jogador ainda estiver a até 2,5 m no meio do golpe; recuo de 6 s a 1,5 m/s depois de encarada; tocha com o mesmo cone de 25° (no ataque hesita 1,2 s e foge; espreitando foge direto); recuar a 7 m/s até 15 m além da neblina e depois rondar; novo ponto de ronda ao chegar ou a cada 25 s; entardecer e amanhecer contam como dia; espreita do lado onde já está; ruídos só afetam ronda e investigação; começa atrás do jogador a 60–120 m; raio do corpo 0,4 m, desvio 2,5 m à frente, giro de 4 rad/s; `creatureStep()` e `faceCreature()` só em desenvolvimento. |
 
 ## Pendentes (proposto)
 
