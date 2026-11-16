@@ -2,6 +2,7 @@ import { Engine, Vector3, type Scene } from "@babylonjs/core";
 import { CONFIG } from "./config";
 import { Input } from "./core/input";
 import { createHavokPlugin } from "./core/physics";
+import { setupPostProcessing } from "./core/postProcessing";
 import { Player } from "./player/player";
 import { createWorld } from "./world/worldScene";
 import { attachFpsCounter } from "./ui/fpsCounter";
@@ -31,11 +32,21 @@ async function start(): Promise<void> {
     const { spawn } = CONFIG.player;
     const feet = new Vector3(spawn.x, world.terrain.heightAt(spawn.x, spawn.z), spawn.z);
     const player = new Player(scene, input, feet);
+    setupPostProcessing(scene, player.camera);
     scene.onBeforeRenderObservable.add(() => world.chunks.update(player.position));
     if (import.meta.env.DEV) {
+      const devInput = input;
+      // DN5: T toggles fast time (development only), to review dusk and night quickly.
+      scene.onBeforeRenderObservable.add(() => {
+        if (devInput.wasPressed("KeyT")) {
+          world.clock.speed = world.clock.speed === 1 ? CONFIG.dayNight.devFastForward : 1;
+        }
+      });
       // Lets the browser console (and automated checks) read the player state: silentHunt.player().
       Object.assign(window, {
         silentHunt: {
+          time: () => ({ phase: world.clock.phase, seconds: Math.round(world.clock.time) }),
+          setTime: (seconds: number) => world.clock.setTime(seconds),
           player: () => player.debugState(),
           groundType: () => world.terrain.groundTypeAt(player.position.x, player.position.z),
           activeMeshes: () => scene.getActiveMeshes().length,

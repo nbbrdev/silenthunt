@@ -150,6 +150,16 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | MW5 | Troncos e pedras grandes bloqueiam; arbustos, capim e galhos no chão não. |
 | MW6 | Tipos de chão com tom próprio (musgo mais verde, folhas mais marrons); manchas de galhos secos com mais galhos no chão. |
 
+## NBB-130: Dia, noite e neblina (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| DN1-A | Sem céu desenhado: a cor da neblina é o céu. |
+| DN2 | Noite com luar azulado fraco: silhuetas visíveis até ~15 m, quase preto além disso. |
+| DN3 | Cores da neblina: cinza-azulado de dia, cinza-alaranjado no entardecer e no amanhecer, azul quase preto à noite. Densidade calculada para a visibilidade do G11 (40 m de dia, 15 m à noite). |
+| DN4 | Granulado leve e vinheta moderada; brilho preparado para os olhos da criatura e o fogo. |
+| DN5 | Só em desenvolvimento: a tecla T acelera o tempo 20×. |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).

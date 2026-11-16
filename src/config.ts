@@ -100,11 +100,39 @@ export const CONFIG = {
       twigs: { r: 0.95, g: 0.88, b: 0.8 },
     },
   },
-  /** Provisional fog and light of the world; replaced by the day/night cycle in NBB-130. */
-  atmosphere: {
-    fogColor: { r: 0.42, g: 0.47, b: 0.5 },
-    /** Exponential fog density: higher means thicker fog. */
-    fogDensity: 0.04,
+  /** Day and night cycle (RF-05, G4) and its light and fog (NBB-130). */
+  dayNight: {
+    /** G4: the day lasts 10 min, including 1 min of dawn at the start and 1 min of dusk at the end. */
+    daySeconds: 600,
+    nightSeconds: 360,
+    dawnSeconds: 60,
+    duskSeconds: 60,
+    /** RF-05: the game starts in the morning (seconds after dawn begins). */
+    startSeconds: 90,
+    /** G11: how far the player can see in the fog, in meters. */
+    dayVisibility: 40,
+    nightVisibility: 15,
+    /** DN3: fog (and sky) colors. RGB from 0 to 1. */
+    dayFog: { r: 0.5, g: 0.55, b: 0.58 },
+    duskFog: { r: 0.52, g: 0.43, b: 0.37 },
+    nightFog: { r: 0.05, g: 0.065, b: 0.095 },
+    /** Light from the whole sky (soft, from every direction). */
+    dayAmbient: { intensity: 0.55, color: { r: 0.9, g: 0.95, b: 1 } },
+    nightAmbient: { intensity: 0.22, color: { r: 0.35, g: 0.45, b: 0.75 } },
+    /** Direct light: the sun by day, a faint bluish moon by night (DN2). */
+    sunIntensity: 0.75,
+    sunColor: { r: 1, g: 0.96, b: 0.88 },
+    duskSunColor: { r: 1, g: 0.65, b: 0.4 },
+    moonIntensity: 0.3,
+    moonColor: { r: 0.55, g: 0.65, b: 1 },
+    /** DN5: how much faster time runs while the dev key T is on. */
+    devFastForward: 20,
+  },
+  /** DN4 (G14): film grain, darker screen edges, and glow for the creature's eyes and fire. */
+  postProcessing: {
+    grainIntensity: 8,
+    vignetteWeight: 2.5,
+    glowIntensity: 0.8,
   },
   /** Base colors of the procedural models (W2, inside the G14 palette). RGB from 0 to 1. */
   palette: {
