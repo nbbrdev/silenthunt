@@ -235,6 +235,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | TM1-B | A criatura fica **1,3× maior**: cerca de 3 m até o alto do crânio e 3,9 m com as galhadas. O modelo inteiro é escalado (malha, ossos, olhos e animações); os triângulos não mudam. |
 | AP1-A | **De dia**, se o jogador chega a menos de 60% da distância da neblina (~22 m) ou corre na direção dela a menos de 30 m, ela foge para a neblina a 7 m/s e fica 60–90 s longe (como no "Recuar"). Nunca é alcançada. |
 | AP2-A | **À noite**, se o jogador chega a menos de 8 m sem tocha acesa, ela ataca na hora. Com a tocha encarada, continua fugindo (RF-24). |
+| AP3 | Detalhes propostos por Claude e aprovados ("1 a 5 - Ok"): raio do corpo de 0,5 m; bote a 2 m e dano a até 2,5 m; "correr na direção dela" = o jogador se aproximando a mais de 3 m/s; à noite, um ruído perto dela a traz até o jogador e a menos de 8 m ela ataca; qualquer tocha acesa impede o ataque imediato a menos de 8 m. |
 
 ## Pendentes (proposto)
 
