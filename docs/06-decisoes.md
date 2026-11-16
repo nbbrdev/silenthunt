@@ -203,6 +203,19 @@ O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de
 
 O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 
+## NBB-134: IA da criatura (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| IA1-A | Ela desvia das árvores "enxergando" os troncos e pedras grandes próximos (*steering*), com os dados que o mundo já guarda. Sem malha de navegação. |
+| IA2 | Velocidades: rondar 1,2 m/s; espreitar até 3 m/s (só o necessário para acompanhar); atacar e recuar 7 m/s. As animações aceleram com a velocidade. |
+| IA3 | Espreitar a 90% da distância que o jogador enxerga na neblina (cerca de 36 m de dia e 13 m à noite). |
+| IA4-B | "Olhada" = dentro de um cone de 25° no centro da tela e dentro da distância da neblina. Ela congela; encarada por mais de 4 s, recua devagar para a neblina. O relógio até o ataque continua contando. |
+| IA5 | De noite, ronda 20–40 s e passa a espreitar. De dia, a cada 2–4 min espreita de longe por 30 s, sem atacar. Ouve qualquer ruído que a alcance e vai investigar; de dia, só ruídos de 50 m ou mais. Vê num cone de 120° com o alcance do `VisibilitySystem`. |
+| IA6 | A mais de 150 m do jogador, ela reaparece fora da vista, na distância de rondar. |
+| IA7-A | Sem colisão com o jogador: o golpe é decidido pela distância. |
+| IA8 | Paredes e portas (RF-54) vão para a issue de construção; sem testes das transições (X1-C); o golpe dispara um evento de dano que a NBB-136 vai usar; `silentHunt.creature()` e `silentHunt.creatureState()` só em desenvolvimento. |
+
 ## Pendentes (proposto)
 
 Nenhuma no momento.

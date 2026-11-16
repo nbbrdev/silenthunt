@@ -42,6 +42,26 @@ tests/                    // testes do Vitest, espelhando src/
 - **Observables:** avisos que os sistemas escutam. Ex.: o `NoiseSystem` publica "ruído de 15 m em (x, z)" e as IAs próximas reagem; o relógio publica "anoiteceu".
 - **Lógica separada do Babylon sempre que possível:** regras como "qual o raio de ruído agora" ou "pode colocar esta parede aqui" ficam em funções puras (sem cena 3D), para o Vitest testar sem abrir o navegador.
 
+### A IA da criatura (NBB-134)
+
+- **Onde fica:** `src/ai/creatureBrain.ts` tem o `CreatureBrainBehavior`, pendurado no nó raiz da criatura.
+- **A cada quadro:**
+  1. **Percebe:** ruídos do `NoiseSystem`, se vê o jogador (`VisibilitySystem`) e se está sendo olhada.
+  2. **Escolhe o estado:** rondar, espreitar, investigar, atacar ou recuar.
+  3. **Move o corpo:** velocidade, desvio, altura do terreno, direção e animação.
+- **Valores:** todos em `CONFIG.creature`.
+- **Desvio (IA1-A):** `src/ai/steering.ts`, com funções puras. Pergunta ao `ChunkManager.obstaclesNear()` pelos troncos e pedras grandes num raio de ~3,5 m e desvia para o lado. Se mesmo assim entrar num tronco, é empurrada para fora. A mais de 100 m do jogador não desvia: ninguém vê e os chunks podem não estar carregados.
+- **Sem física (IA7-A):** a posição é calculada pelo cérebro e a altura vem do `Terrain.heightAt()`.
+- **Animações:** misturadas na troca (*blending*); a velocidade de cada uma acompanha a do corpo.
+- **Ganchos para depois:**
+  - `onPlayerHit` avisa o golpe; a NBB-136 tira a vida.
+  - A lista `fires` recebe as fogueiras da NBB-146.
+- **Só em desenvolvimento:**
+  - `silentHunt.creature()`: mostra o estado.
+  - `silentHunt.creatureState("atacar")`: força um estado.
+  - `silentHunt.creatureStep(s)`: simula `s` segundos sem desenhar.
+  - `silentHunt.faceCreature()`: vira a câmera para ela.
+
 ## Mundo infinito (M11-C)
 
 **(G5)**
