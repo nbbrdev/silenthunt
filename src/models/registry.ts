@@ -1,3 +1,4 @@
+import { torch } from "./items/torch";
 import { bush } from "./nature/bush";
 import { deadTree } from "./nature/deadTree";
 import { groundBranch } from "./nature/groundBranch";
@@ -16,4 +17,5 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   rock,
   groundBranch,
   groundTuft,
+  torch,
 ];

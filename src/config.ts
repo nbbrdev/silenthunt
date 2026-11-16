@@ -151,6 +151,32 @@ export const CONFIG = {
     /** NO3: seconds between footsteps per gait. */
     stepInterval: { crouch: 0.8, walk: 0.55, run: 0.35 },
   },
+  /** The torch (NBB-132). */
+  torch: {
+    /** RF-14 (G11): the light reaches about this far (meters). */
+    lightRange: 12,
+    lightIntensity: 3.2,
+    lightColor: { r: 1, g: 0.62, b: 0.3 },
+    /** TO3: how much the light trembles (0 = steady). */
+    flicker: 0.12,
+    /** RF-14: seconds a torch burns while lit. */
+    burnSeconds: 240,
+    /** TO4: in the last seconds the flame shrinks and sputters. */
+    dyingSeconds: 20,
+    /** TO2: where the torch is held, relative to the camera (meters: right, up, forward). */
+    heldOffset: { x: 0.3, y: -0.62, z: 0.75 },
+    /** Flame and fire colors. */
+    flameColor: { r: 1, g: 0.55, b: 0.18 },
+  },
+  /** RF-13 (G11, TO5): how far away the player can be seen. */
+  visibility: {
+    dark: 8,
+    day: 20,
+    /** With a lit torch, or next to a lit campfire (NBB-146). */
+    lit: 40,
+    /** Crouching halves the distance. */
+    crouchFactor: 0.5,
+  },
   /** HUD (NO1-A: Babylon GUI). */
   hud: {
     /** NO2: the noise meter is full at this radius (meters). */

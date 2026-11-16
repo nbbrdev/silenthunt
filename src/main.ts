@@ -5,7 +5,9 @@ import { createHavokPlugin } from "./core/physics";
 import { setupPostProcessing } from "./core/postProcessing";
 import { Footsteps } from "./player/footsteps";
 import { Player } from "./player/player";
+import { PlayerTorch } from "./player/torch";
 import { NoiseSystem } from "./systems/noise";
+import { VisibilitySystem } from "./systems/visibility";
 import { createHud } from "./ui/hud";
 import { createWorld } from "./world/worldScene";
 import { attachFpsCounter } from "./ui/fpsCounter";
@@ -39,6 +41,8 @@ async function start(): Promise<void> {
     scene.onBeforeRenderObservable.add(() => world.chunks.update(player.position));
     const noise = new NoiseSystem();
     const footsteps = new Footsteps(scene, player, world.terrain, world.chunks, noise);
+    const torch = new PlayerTorch(scene, player.camera, input);
+    const visibility = new VisibilitySystem(world.clock, player, torch);
     createHud(scene, noise, () => footsteps.currentRadius());
     if (import.meta.env.DEV) {
       const devInput = input;
@@ -62,6 +66,11 @@ async function start(): Promise<void> {
         silentHunt: {
           time: () => ({ phase: world.clock.phase, seconds: Math.round(world.clock.time) }),
           noise: () => ({ current: footsteps.currentRadius(), recent: [...recentNoise] }),
+          visibility: () => ({
+            seenFrom: Math.round(visibility.visibleDistance() * 10) / 10,
+            torchLit: torch.isLit,
+            torchSecondsLeft: Math.round(torch.remainingSeconds),
+          }),
           branchesNear: (radius: number) =>
             world.chunks.branchesNear(player.position.x, player.position.z, radius),
           stepOnBranchAt: (x: number, z: number) => world.chunks.stepOnBranch(x, z),

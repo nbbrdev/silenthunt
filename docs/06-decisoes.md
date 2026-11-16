@@ -170,6 +170,16 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | NO4-B | O galho seco estala (12 m) ao pisar a menos de 0,4 m de um galho visível no chão, uma vez por galho. O chão de "galhos secos" usa o multiplicador das folhas (×1,4). |
 | NO5 | Só em desenvolvimento: a tecla N desenha no chão o círculo de cada ruído. |
 
+## NBB-132: Tocha e visibilidade (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| TO1-A | Provisório: tochas ilimitadas até o crafting (NBB-144). Cada uma queima 4 min; acabou, o F acende outra. |
+| TO2 | A tocha aparece segurada no canto inferior direito; as mãos vêm na NBB-139. |
+| TO3 | Luz laranja de 12 m com cintilação leve; a chama usa o brilho (G14). |
+| TO4 | Nos últimos 20 s a chama diminui e falha antes de apagar. |
+| TO5 | `VisibilitySystem` calcula a que distância o jogador é visto (RF-13); não aparece na tela, só no console de desenvolvimento. |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).
