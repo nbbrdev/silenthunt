@@ -103,6 +103,15 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | V1-A | TypeScript 6.0 (o `typescript-eslint` ainda não suporta o 7); o Dependabot ignora o major 7. |
 | V2-A | ESLint 10 com `eslint-plugin-import-x` (o `eslint-plugin-import` original não suporta o ESLint 10). |
 
+## NBB-126: Galeria de modelos (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| GL1-B | Interface da galeria com o **Babylon GUI** (`@babylonjs/gui`), desenhada dentro da cena. |
+| GL2-A | Galeria pronta já, com um catálogo de modelos (`src/models/registry.ts`, uma linha por modelo); por enquanto mostra só a "Caixa de teste". |
+| GL3 | Três modos de luz provisórios (dia, noite, neblina), com os valores em `src/config.ts`. A luz de verdade vem na NBB-130. |
+| GL4 | Textos do painel: "Modelo", "Semente", "Dia", "Noite", "Neblina", "Animações", "Triângulos", "Voltar ao jogo". |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).

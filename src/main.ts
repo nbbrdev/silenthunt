@@ -1,4 +1,4 @@
-import { Engine } from "@babylonjs/core";
+import { Engine, type Scene } from "@babylonjs/core";
 import { createDemoScene } from "./core/demoScene";
 import { createHavokPlugin } from "./core/physics";
 import { attachFpsCounter } from "./ui/fpsCounter";
@@ -12,8 +12,17 @@ async function start(): Promise<void> {
   }
 
   const engine = new Engine(canvas, true);
-  const physics = await createHavokPlugin();
-  const scene = createDemoScene(engine, physics);
+  const isGallery = new URLSearchParams(window.location.search).has("galeria");
+
+  let scene: Scene;
+  // The gallery is a development tool (G17): in the production build `/?galeria` opens the game.
+  if (import.meta.env.DEV && isGallery) {
+    const { createGalleryScene } = await import("./ui/gallery");
+    scene = createGalleryScene(engine);
+  } else {
+    const physics = await createHavokPlugin();
+    scene = createDemoScene(engine, physics);
+  }
 
   attachFpsCounter(engine, fpsElement);
   // Imported only inside this branch so the Inspector (React + editors, ~28 MB) never reaches the

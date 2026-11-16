@@ -41,7 +41,7 @@ Cada modelo é uma função de TypeScript que **monta a malha** a partir de form
 
 ## Revisão dos modelos (A2-C)
 
-1. **Galeria** (issue 4): cena só de desenvolvimento, aberta por uma URL própria (ex.: `/?galeria`). Mostra um modelo por vez, com rotação pelo mouse, troca entre **dia / noite / neblina**, botão para cada animação, contagem de triângulos e uma **semente** para ver variações.
+1. **Galeria** (issue 4, NBB-126): cena só de desenvolvimento (`npm run dev`), aberta por `/?galeria`, com o painel feito no Babylon GUI (GL1-B). Cada modelo novo entra com uma linha em `src/models/registry.ts`. Mostra um modelo por vez, com rotação pelo mouse, troca entre **dia / noite / neblina**, botão para cada animação, contagem de triângulos e uma **semente** para ver variações.
 2. **Capturas no PR:** todo PR de modelo traz capturas dentro do jogo (dia, noite, neblina) e o checklist:
    - [ ] Escala correta em relação ao jogador
    - [ ] Estilo coerente com o resto (paleta, flat shading)
