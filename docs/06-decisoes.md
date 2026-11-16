@@ -120,6 +120,7 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | J2 | Olhos a 1,7 m (1,0 m agachado); pulo de 0,6 m. |
 | J3 | Sensibilidade do mouse fixa no `src/config.ts` até o menu de opções (NBB-150). |
 | J4 | Até o mundo existir, o jogador anda no chão de 50 m da cena de prova. |
+| J5-A | Agachar só com o C (alternar). O "Ctrl segurado" do G2 saiu, porque Ctrl+W fecha a aba do navegador e não pode ser bloqueado. |
 
 ## Replanejamento (2026-11-16)
 
@@ -133,6 +134,4 @@ O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de
 
 ## Pendentes (proposto)
 
-| Código | Assunto |
-|---|---|
-| J5 | Agachar segurando Ctrl (G2) conflita com Ctrl+W, que fecha a aba do navegador e não pode ser bloqueado. Por enquanto só o C (alternar) funciona. |
+Nenhuma no momento.
