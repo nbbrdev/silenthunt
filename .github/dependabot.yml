@@ -1,0 +1,40 @@
+# Atualizações automáticas de dependências (I7-A): semanais, minor/patch agrupados.
+version: 2
+
+updates:
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    open-pull-requests-limit: 10
+    labels: [dependencies]
+    commit-message:
+      prefix: chore
+      include: scope
+    groups:
+      npm-minor-e-patch:
+        update-types: [minor, patch]
+    # Majors ignorados de propósito (revisar periodicamente):
+    ignore:
+      # TypeScript 7 (reescrito em Go): o typescript-eslint ainda não suporta (NBB-124 V1-A).
+      # Remover quando o typescript-eslint suportar TS 7.
+      - dependency-name: typescript
+        update-types: ["version-update:semver-major"]
+
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+      time: "06:00"
+      timezone: America/Sao_Paulo
+    labels: [dependencies]
+    commit-message:
+      prefix: ci
+      include: scope
+    groups:
+      actions:
+        patterns: ["*"]

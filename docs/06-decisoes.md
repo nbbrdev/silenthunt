@@ -88,6 +88,21 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | G16 | Organização das pastas do código, `src/config.ts` e limites de triângulos. | [05-arquitetura](05-arquitetura.md#organização-do-código) |
 | G17 | Galeria aberta por `/?galeria` e checklist de revisão de modelos. | [04-arte-e-som](04-arte-e-som.md#revisão-dos-modelos-a2-c) |
 
+## NBB-124: Projeto base e CI (2026-11-12 e 2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| I1-A | Projeto criado com o gerador oficial do Vite (modelo `vanilla-ts`), sem os arquivos de exemplo. |
+| I2-A | `@babylonjs/core` e `@babylonjs/havok`; Inspector (`@babylonjs/inspector`) só em desenvolvimento, aberto com F9. |
+| I3-A | Regras do Codetomb: Prettier (ponto e vírgula, aspas duplas, vírgula final, 100 colunas), TypeScript `strict`, ESLint sem `any`, sem `!`, com `import type` e só pacotes declarados, `--max-warnings=0`. |
+| I4-A | Scripts `dev`, `build`, `preview`, `lint`, `typecheck`, `test`, `test:watch`, `format`, `format:check`; porta 5173. |
+| I5-A | Node 24 (`.nvmrc` e `engines`). |
+| I6-A | `.gitattributes` (LF; imagens, fontes, sons e `.wasm` binários) e `.gitignore` com `assets-private/`. |
+| I7-A | Workflows `ci`, `codeql` e `pr-title`, Dependabot (npm e GitHub Actions), `CODEOWNERS`, label `dependencies`. |
+| I8-A | Cena mínima de prova: chão, luz, neblina, câmera orbital, caixa caindo com Havok e contador de FPS. |
+| V1-A | TypeScript 6.0 (o `typescript-eslint` ainda não suporta o 7); o Dependabot ignora o major 7. |
+| V2-A | ESLint 10 com `eslint-plugin-import-x` (o `eslint-plugin-import` original não suporta o ESLint 10). |
+
 ## Pendentes (proposto)
 
 Nenhuma no momento.

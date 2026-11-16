@@ -1,0 +1,22 @@
+# Normaliza finais de linha para LF no repositório, em qualquer sistema operacional (I6-A).
+* text=auto eol=lf
+
+# Binários: imagens
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.webp binary
+*.ico binary
+
+# Binários: fontes
+*.woff binary
+*.woff2 binary
+*.ttf binary
+
+# Binários: sons
+*.mp3 binary
+*.ogg binary
+*.wav binary
+
+# Binário: motor de física (Havok)
+*.wasm binary
