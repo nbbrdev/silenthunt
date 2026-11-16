@@ -226,6 +226,15 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | SO2 | Passos da criatura a cada meio ciclo da animação (andar ~0,7 s, espreitar ~1 s e mais baixo, galope ~0,3 s e mais forte), parada sem som, tom variando ±10%, som 3D audível até 25 m (RF-25). |
 | SO3 | Respiração lenta e áspera em loop quando ela espreita a menos de 20 m; rosnado curto e grave ao começar o ataque (aviso para erguer a tocha); recuo em silêncio. |
 | SO4 | Volume mestre no `src/config.ts` (0,8); o controle pelo jogador vem no menu de opções (NBB-150). O áudio é liberado no clique que captura o mouse. |
+| SO5 | Sons escolhidos: P1 (passos, Cinetony), R1 (respiração, perspektywa_tn) e G1 (rosnado, yatoimtop), todos CC0. Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): halo de 20 cm, 6 cm à frente da órbita; 6 passos recortados e normalizados; volumes (passos 0,7 / 0,4 / 1, respiração 0,6 com 1,5 s de transição, rosnado 1); sons em mono, respiração com pontas suavizadas; `fogVisibility()` compartilhada; textura de ponto suave em `textures.ts`; som caindo em linha reta de 1 m a 25 m. |
+
+### Revisão da criatura no jogo (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| TM1-B | A criatura fica **1,3× maior**: cerca de 3 m até o alto do crânio e 3,9 m com as galhadas. O modelo inteiro é escalado (malha, ossos, olhos e animações); os triângulos não mudam. |
+| AP1-A | **De dia**, se o jogador chega a menos de 60% da distância da neblina (~22 m) ou corre na direção dela a menos de 30 m, ela foge para a neblina a 7 m/s e fica 60–90 s longe (como no "Recuar"). Nunca é alcançada. |
+| AP2-A | **À noite**, se o jogador chega a menos de 8 m sem tocha acesa, ela ataca na hora. Com a tocha encarada, continua fugindo (RF-24). |
 
 ## Pendentes (proposto)
 

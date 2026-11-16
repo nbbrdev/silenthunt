@@ -48,7 +48,7 @@ export interface CreatureSenses {
   visibility: VisibilitySystem;
 }
 
-/** Height of the creature's chest: what the player's eyes aim at to "look at" it. */
+/** Height of the creature's chest (at scale 1): what the player's eyes aim at to "look at" it. */
 const CHEST_HEIGHT = 1.5;
 /** Seconds into "Atacar" when the claws pass through the player (frame 15 of 30). */
 const STRIKE_HIT_SECONDS = 0.5;
@@ -100,6 +100,9 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   private strikeTime = -1;
   private hitLanded = false;
   private lookedAt = false;
+  /** AP1-A: how fast the player is coming toward it (meters per second, smoothed). */
+  private closingSpeed = 0;
+  private lastPlayerPosition: FlatVector | undefined;
 
   constructor(senses: CreatureSenses, animations: readonly AnimationGroup[], seed: number) {
     this.senses = senses;
@@ -215,7 +218,8 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       return false;
     }
     const camera = this.senses.player.camera;
-    const toChest = body.add(new Vector3(0, CHEST_HEIGHT, 0)).subtract(camera.globalPosition);
+    const chest = CHEST_HEIGHT * CONFIG.creature.scale;
+    const toChest = body.add(new Vector3(0, chest, 0)).subtract(camera.globalPosition);
     const distance = toChest.length();
     if (distance > this.fogVisibility() || distance < 1e-3) {
       return false;
@@ -310,6 +314,9 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     if (this.distanceToPlayer() > CONFIG.creature.relocateDistance) {
       this.placeOutOfSight(randomInRange(this.random, this.roamRange()));
     }
+    if (this.reactToApproach(seconds)) {
+      return;
+    }
     switch (this.currentState) {
       case "roam":
         this.updateRoam(seconds);
@@ -327,6 +334,52 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         this.updateRetreat(seconds);
         break;
     }
+  }
+
+  /**
+   * The player walking up to it (AP1-A, AP2-A). By day it never lets itself be reached: it
+   * flees into the fog. At night, coming close without a lit torch provokes the attack.
+   * Returns true when it changed state.
+   */
+  private reactToApproach(seconds: number): boolean {
+    const settings = CONFIG.creature;
+    const distance = this.distanceToPlayer();
+    // How fast the player moves toward it (meters per second), smoothed over a few frames. Only
+    // the player's own movement counts, not the creature's.
+    const player = this.senses.player.position;
+    const body = this.position();
+    if (this.lastPlayerPosition && seconds > 0 && distance > 1e-3) {
+      const towardX = (body.x - player.x) / distance;
+      const towardZ = (body.z - player.z) / distance;
+      const movedX = player.x - this.lastPlayerPosition.x;
+      const movedZ = player.z - this.lastPlayerPosition.z;
+      const closing = (movedX * towardX + movedZ * towardZ) / seconds;
+      this.closingSpeed += (closing - this.closingSpeed) * Math.min(1, seconds * 5);
+    }
+    this.lastPlayerPosition = { x: player.x, z: player.z };
+
+    const calm =
+      this.currentState === "roam" ||
+      this.currentState === "investigate" ||
+      this.currentState === "stalk";
+    if (!calm) {
+      return false;
+    }
+    if (!this.isNight) {
+      const tooClose = distance < this.fogVisibility() * settings.dayFleeFogFraction;
+      const chased =
+        distance < settings.dayFleeChaseDistance && this.closingSpeed > settings.chaseSpeed;
+      if (tooClose || chased) {
+        this.enter("retreat");
+        return true;
+      }
+      return false;
+    }
+    if (distance < settings.nightAttackDistance && !this.senses.torch.isLit) {
+      this.enter("attack");
+      return true;
+    }
+    return false;
   }
 
   private updateRoam(seconds: number): void {
@@ -557,7 +610,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     } else {
       this.facePlayer(seconds);
     }
-    this.play(animation, speed / settings.animationSpeed[animation]);
+    this.play(animation, speed / (settings.animationSpeed[animation] * settings.scale));
   }
 
   /** Stands still (the animation holds its pose), facing the player if `watch` is set. */

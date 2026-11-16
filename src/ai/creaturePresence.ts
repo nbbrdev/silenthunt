@@ -15,7 +15,7 @@ import { createRandom, randomRange } from "../core/random";
 import { fogVisibility } from "../world/atmosphere";
 import type { CreatureBrainBehavior } from "./creatureBrain";
 
-/** Height of the eyes above the creature's feet when standing (meters). */
+/** Height of the eyes above the creature's feet when standing (meters, at scale 1). */
 const EYE_HEIGHT = 2.2;
 
 /**
@@ -107,7 +107,7 @@ export class CreaturePresence {
 
   /** OL1-B: full brightness up to the fog distance, gone 30% beyond it. */
   private fadeEyes(): void {
-    const eyes = this.root.position.add(new Vector3(0, EYE_HEIGHT, 0));
+    const eyes = this.root.position.add(new Vector3(0, EYE_HEIGHT * CONFIG.creature.scale, 0));
     const distance = Vector3.Distance(eyes, this.camera.globalPosition);
     const fog = fogVisibility(this.clock.daylight);
     const beyond = fog * CONFIG.creature.eyes.fadeBeyondFog;

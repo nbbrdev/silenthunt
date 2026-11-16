@@ -42,6 +42,8 @@ export const creature: ModelGenerator = {
   label: "Criatura",
   create(scene: Scene, seed: number): GeneratedModel {
     const root = new TransformNode("creature", scene);
+    // TM1-B: everything below the root (mesh, bones, eyes, animated hips) grows together.
+    root.scaling.setAll(CONFIG.creature.scale);
     const defs = creatureBones();
     const { nodes, indexOf, skeleton } = buildSkeleton(scene, defs, root);
     const bone = (name: string): BoneDef => {

@@ -179,12 +179,24 @@ export const CONFIG = {
   },
   /** The creature's behavior (G12, RF-20 to RF-24, IA1–IA7). Distances in meters, times in seconds. */
   creature: {
+    /** TM1-B: size of the whole model (mesh, bones, eyes, animations): ~3 m to the skull. */
+    scale: 1.3,
     /** RF-21: how far from the player it wanders. */
     roamDistance: { day: [60, 120], night: [30, 60] },
     /** IA2 (meters per second). Investigating uses the stalking top speed. */
     speed: { roam: 1.2, stalkMax: 3, attack: 7, retreat: 7, backOff: 1.5 },
-    /** Speed at which each animation's feet match the ground (the animation speeds up with it). */
+    /**
+     * Speed at which each animation's feet match the ground at scale 1 (the animation speeds up
+     * with the body; a bigger creature takes longer strides, so these grow with `scale`).
+     */
     animationSpeed: { Andar: 1.2, Espreitar: 1, Recuar: 7 },
+    /** AP1-A: by day it flees when the player gets this close (fraction of the fog distance)... */
+    dayFleeFogFraction: 0.6,
+    /** ...or runs toward it (closing in faster than `chaseSpeed`) within this distance. */
+    dayFleeChaseDistance: 30,
+    chaseSpeed: 3,
+    /** AP2-A: at night it attacks at once when the player comes this close without a lit torch. */
+    nightAttackDistance: 8,
     /** IA3: stalks at this fraction of how far the player sees in the fog. */
     stalkFogFraction: 0.9,
     /** IA5: at night, roams this long before it finds the player and starts stalking. */
@@ -220,7 +232,7 @@ export const CONFIG = {
     torchHesitateDistance: 10,
     hesitateSeconds: 1.2,
     /** IA1: obstacle avoidance (body radius, how far ahead it looks for trunks, turn rate). */
-    bodyRadius: 0.4,
+    bodyRadius: 0.5,
     avoidDistance: 2.5,
     turnRate: 4,
     /** Avoidance is skipped this far from the player (nobody sees it, chunks may be unloaded). */
