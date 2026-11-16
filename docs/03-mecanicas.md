@@ -11,7 +11,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 | Andar | W A S D |
 | Olhar | Mouse |
 | Correr | Shift (segurar) |
-| Agachar | C (alterna) ou Ctrl (segurar) |
+| Agachar | C (alterna). ~~Ctrl (segurar)~~ suspenso: Ctrl+W fecha a aba do navegador (ver J5, proposto) |
 | Pular | Espaço |
 | Usar item / atacar | Botão esquerdo |
 | Mirar (arco, espingarda) | Botão direito (segurar) |

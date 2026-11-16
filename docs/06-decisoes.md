@@ -112,6 +112,15 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | GL3 | Três modos de luz provisórios (dia, noite, neblina), com os valores em `src/config.ts`. A luz de verdade vem na NBB-130. |
 | GL4 | Textos do painel: "Modelo", "Semente", "Dia", "Noite", "Neblina", "Animações", "Triângulos", "Voltar ao jogo". |
 
+## NBB-127: Jogador em primeira pessoa (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| J1 | Velocidades: andar 1,6 m/s, correr 4,5 m/s, agachado 0,9 m/s. |
+| J2 | Olhos a 1,7 m (1,0 m agachado); pulo de 0,6 m. |
+| J3 | Sensibilidade do mouse fixa no `src/config.ts` até o menu de opções (NBB-150). |
+| J4 | Até o mundo existir, o jogador anda no chão de 50 m da cena de prova. |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).
@@ -124,4 +133,6 @@ O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de
 
 ## Pendentes (proposto)
 
-Nenhuma no momento.
+| Código | Assunto |
+|---|---|
+| J5 | Agachar segurando Ctrl (G2) conflita com Ctrl+W, que fecha a aba do navegador e não pode ser bloqueado. Por enquanto só o C (alternar) funciona. |
