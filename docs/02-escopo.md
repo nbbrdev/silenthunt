@@ -19,7 +19,7 @@ Versões aprovadas no G8. Como o jogo não é publicado (T7), a tag só marca o 
 
 ## Issues por marco
 
-Cada linha vira **uma issue e um PR** (O2-A). Área entre colchetes. No Linear, a issue número *n* é a **NBB-(122 + n)**: a 1 é a NBB-123 e a 30 é a NBB-152.
+Cada linha vira **uma issue**, entregue por commits direto na `main` (R2, 2026-11-16; até então era um PR por issue, O2-A). Área entre colchetes. No Linear, a issue número *n* é a **NBB-(122 + n)**: a 1 é a NBB-123 e a 30 é a NBB-152.
 
 ### M0 · Base
 1. **Documentação inicial:** `docs/`, `CLAUDE.md`, README com "como rodar". [Docs]
@@ -65,7 +65,7 @@ Cada linha vira **uma issue e um PR** (O2-A). Área entre colchetes. No Linear, 
 
 ## Ordem de corte
 
-**(G9)** Se uma fase atrasar mais de meio dia, cortamos nesta ordem (o primeiro item é o primeiro a sair) e o item vai para o Backlog:
+**(G9)** Em 2026-11-16, com cerca de 3 dias de atraso, o usuário decidiu **manter todo o escopo** (R1-B); a lista abaixo continua como reserva. Se for preciso cortar, cortamos nesta ordem (o primeiro item é o primeiro a sair) e o item vai para o Backlog:
 
 1. Espingarda (19)
 2. Crafting além de tocha, fogueira, faca, arco e flechas (parte da 22)

@@ -1,0 +1,40 @@
+# Valida o título do PR em Conventional Commits: ele vira o commit na main (I7-A).
+name: PR title
+
+on:
+  pull_request_target:
+    types: [opened, edited, reopened, synchronize]
+
+permissions:
+  pull-requests: read
+
+jobs:
+  pr-title:
+    name: pr-title
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      # Não faz checkout do código do PR: só lê o título (seguro com pull_request_target).
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            perf
+            security
+            docs
+            refactor
+            test
+            chore
+            ci
+          requireScope: false
+          # PRs de pessoas terminam com o ID do Linear, ex.: "feat(ai): criatura espreita [NBB-134]".
+          subjectPattern: ^.+ \[NBB-\d+\]$
+          subjectPatternError: |
+            O título "{title}" precisa terminar com o ID da issue do Linear, ex.:
+            feat(ai): criatura espreita no limite da neblina [NBB-134]
+          # PRs do Dependabot não têm issue no Linear.
+          ignoreLabels: |
+            dependencies

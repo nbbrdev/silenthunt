@@ -1,0 +1,28 @@
+# Dependências
+node_modules/
+
+# Build
+dist/
+*.tsbuildinfo
+
+# Arquivos que não podem ser redistribuídos (música do Epidemic Sound, G10)
+assets-private/
+
+# Variáveis de ambiente (nunca commitar)
+.env
+.env.*
+
+# Testes
+coverage/
+
+# Logs
+npm-debug.log*
+
+# Sistema / editores
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+
+# Claude Code (configurações locais do usuário)
+.claude/settings.local.json
