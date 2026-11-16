@@ -122,6 +122,15 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | J4 | Até o mundo existir, o jogador anda no chão de 50 m da cena de prova. |
 | J5-A | Agachar só com o C (alternar). O "Ctrl segurado" do G2 saiu, porque Ctrl+W fecha a aba do navegador e não pode ser bloqueado. |
 
+## NBB-128: Modelos procedurais do mundo (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| W1 | Formas e tamanhos: pinheiro (cones empilhados, 8–14 m), carvalho (tronco que se divide e copa de bolhas, 6–10 m), árvore morta (tronco torto e galhos secos, 5–9 m), arbusto (0,6–1,2 m), pedra (0,3–1,5 m), galho seco no chão (0,5–1 m) e tufo de folhagem (0,2–0,5 m). |
+| W2 | Cores dentro da paleta G14 (pinheiro verde-escuro azulado, carvalho e arbusto verde-oliva, troncos marrom-acinzentados, madeira morta cinza-claro, pedras cinza com musgo no topo), com pequena variação por semente. |
+| W3-A | Vento: balanço das copas calculado na placa de vídeo (shader). |
+| W4 | Triângulos: pinheiro ~300, carvalho ~500, árvore morta ~250, arbusto ~150, pedra ~80, galho ~24, tufo ~12. Na implementação, o arbusto ficou com 240–400 (com menos parecia cristal). |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).

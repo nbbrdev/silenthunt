@@ -59,6 +59,33 @@ export const CONFIG = {
     boxDropHeight: 8,
     boxRestitution: 0.3,
   },
+  /** Base colors of the procedural models (W2, inside the G14 palette). RGB from 0 to 1. */
+  palette: {
+    bark: { r: 0.3, g: 0.25, b: 0.21 },
+    pineNeedles: { r: 0.11, g: 0.2, b: 0.19 },
+    oakLeaves: { r: 0.25, g: 0.3, b: 0.16 },
+    deadWood: { r: 0.52, g: 0.5, b: 0.47 },
+    rock: { r: 0.4, g: 0.4, b: 0.38 },
+    moss: { r: 0.22, g: 0.3, b: 0.16 },
+    grass: { r: 0.28, g: 0.34, b: 0.19 },
+    /** How much each face's color may drift from the base color (0 = none). */
+    variation: 0.08,
+  },
+  /** Size ranges of the procedural models, [min, max] (W1). Lengths in meters. */
+  models: {
+    pine: { height: [8, 14], layers: [4, 6] },
+    oak: { height: [6, 10], branches: [2, 3], blobs: [4, 6] },
+    deadTree: { height: [5, 9], branches: [3, 6] },
+    bush: { height: [0.6, 1.2], blobs: [3, 5] },
+    rock: { size: [0.3, 1.5] },
+    groundBranch: { length: [0.5, 1] },
+    groundTuft: { height: [0.2, 0.5], blades: [3, 5] },
+  },
+  /** Foliage sway (W3): sideways offset = strength × height² (meters), so the base stays still. */
+  wind: {
+    strength: 0.0008,
+    speed: 1.2,
+  },
   gallery: {
     /** Seed used when the gallery opens. */
     defaultSeed: 1,

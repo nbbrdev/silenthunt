@@ -61,6 +61,8 @@ export function createGalleryScene(engine: Engine): Scene {
   );
   camera.attachControl(true);
   camera.lowerRadiusLimit = 0.5;
+  // Never orbit below the horizon: the ground is only visible from above.
+  camera.upperBetaLimit = Math.PI / 2 - 0.05;
   camera.wheelPrecision = 30;
 
   // The sun comes from behind the camera's starting side, so the side you see first is lit.
@@ -177,14 +179,19 @@ export function createGalleryScene(engine: Engine): Scene {
       for (const group of state.model.animations) {
         group.dispose();
       }
-      state.model.root.dispose(false, true);
+      // Materials are shared by every model (getModelMaterials), so they are kept.
+      state.model.root.dispose(false, false);
     }
 
     const model = state.generator.create(scene, state.seed);
     state.model = model;
 
     const { min, max } = model.root.getHierarchyBoundingVectors(true);
-    camera.setTarget(min.add(max).scale(0.5));
+    // Keep the viewing angles: by default setTarget recomputes them from the old camera position,
+    // which put the camera under the ground for tall models.
+    camera.setTarget(min.add(max).scale(0.5), false, false, true);
+    camera.alpha = -Math.PI / 2;
+    camera.beta = Math.PI / 2.5;
     camera.radius = Math.max(max.subtract(min).length() * 1.5, 2);
 
     trianglesText.text = `Triângulos: ${countTriangles(model.root).toLocaleString("pt-BR")}`;
@@ -237,6 +244,22 @@ export function createGalleryScene(engine: Engine): Scene {
 
   applyLightMode();
   showModel();
+
+  // Lets the browser console (and automated checks) inspect the gallery: silentHunt.gallery().
+  Object.assign(window, {
+    silentHunt: {
+      gallery: () => ({
+        meshes: scene.meshes.map((mesh) => `${mesh.name}:${mesh.isEnabled()}:${mesh.isVisible}`),
+        camera: camera.position.asArray().map((value) => Math.round(value * 100) / 100),
+        target: camera.target.asArray().map((value) => Math.round(value * 100) / 100),
+        windInShader:
+          scene
+            .getMaterialByName("modelFoliage")
+            ?.getEffect()
+            ?.vertexSourceCode.includes("windSway") ?? false,
+      }),
+    },
+  });
   return scene;
 }
 
