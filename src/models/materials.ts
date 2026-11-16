@@ -8,6 +8,7 @@ import {
   type UniformBuffer,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { getSurfaceTextures, type SurfaceKind } from "./surfaceTextures";
 import { getFoliageTexture, type FoliageKind } from "./textures";
 
 /**
@@ -68,9 +69,11 @@ class WindPlugin extends MaterialPluginBase {
 }
 
 interface ModelMaterials {
-  /** Matte, vertex-colored, no wind: rocks, fallen branches. */
-  solid: StandardMaterial;
-  /** Trunks and branches of standing plants: matte, with wind. */
+  /** Rocks: rock texture with relief, no wind. */
+  stone: StandardMaterial;
+  /** Fallen branches: bark texture with relief, no wind. */
+  fallenWood: StandardMaterial;
+  /** Trunks and branches of standing plants: bark texture with relief, with wind. */
   wood: StandardMaterial;
   /** Leaf cards: foliage texture with cut-out transparency, wind, visible from both sides. */
   leaves: Record<FoliageKind, StandardMaterial>;
@@ -85,12 +88,14 @@ export function getModelMaterials(scene: Scene): ModelMaterials {
     return existing;
   }
 
-  const solid = createMatteMaterial("modelSolid", scene);
-  const wood = createMatteMaterial("modelWood", scene);
+  const stone = createSurfaceMaterial("modelStone", scene, "rock");
+  const fallenWood = createSurfaceMaterial("modelFallenWood", scene, "bark");
+  const wood = createSurfaceMaterial("modelWood", scene, "bark");
   new WindPlugin(wood);
 
   const materials = {
-    solid,
+    stone,
+    fallenWood,
     wood,
     leaves: {
       broadleaf: createLeafMaterial(scene, "broadleaf"),
@@ -116,6 +121,32 @@ function createLeafMaterial(scene: Scene, kind: FoliageKind): StandardMaterial {
   new WindPlugin(material);
   return material;
 }
+
+/** Matte material with a drawn surface texture and its relief (normal map). */
+function createSurfaceMaterial(name: string, scene: Scene, kind: SurfaceKind): StandardMaterial {
+  const material = createMatteMaterial(name, scene);
+  const textures = getSurfaceTextures(scene, kind);
+  material.diffuseTexture = textures.color;
+  material.bumpTexture = textures.normal;
+  return material;
+}
+
+/**
+ * Forest floor material (one per scene). The ground mesh must have its UVs tiled with
+ * `tileUVs(ground, size / CONFIG.surfaces.groundTileMeters, …)` so the texture repeats at the
+ * right scale.
+ */
+export function getGroundMaterial(scene: Scene): StandardMaterial {
+  const existing = groundByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const material = createSurfaceMaterial("forestFloor", scene, "ground");
+  groundByScene.set(scene, material);
+  return material;
+}
+
+const groundByScene = new WeakMap<Scene, StandardMaterial>();
 
 function createMatteMaterial(name: string, scene: Scene): StandardMaterial {
   const material = new StandardMaterial(name, scene);

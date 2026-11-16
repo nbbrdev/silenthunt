@@ -7,7 +7,6 @@ import {
   HemisphericLight,
   MeshBuilder,
   Scene,
-  StandardMaterial,
   Vector3,
   type AnimationGroup,
   type Engine,
@@ -23,7 +22,9 @@ import {
   TextBlock,
 } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { getGroundMaterial } from "../models/materials";
 import { MODEL_REGISTRY } from "../models/registry";
+import { tileUVs } from "../models/surfaceTextures";
 import type { GeneratedModel, ModelGenerator } from "../models/types";
 
 type LightMode = keyof typeof CONFIG.gallery.lightModes;
@@ -75,10 +76,9 @@ export function createGalleryScene(engine: Engine): Scene {
     { width: groundSize, height: groundSize },
     scene,
   );
-  const groundMaterial = new StandardMaterial("galleryGroundMaterial", scene);
-  groundMaterial.diffuseColor = new Color3(0.2, 0.25, 0.18);
-  groundMaterial.specularColor = Color3.Black();
-  ground.material = groundMaterial;
+  const groundTiles = groundSize / CONFIG.surfaces.groundTileMeters;
+  tileUVs(ground, groundTiles, groundTiles);
+  ground.material = getGroundMaterial(scene);
 
   const state: {
     generator: ModelGenerator;

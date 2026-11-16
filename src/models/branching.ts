@@ -1,5 +1,7 @@
 import { Mesh, MeshBuilder, Vector3, type Scene } from "@babylonjs/core";
+import { CONFIG } from "../config";
 import { randomInt, randomRange } from "../core/random";
+import { tileUVs } from "./surfaceTextures";
 
 /** One branch of a grown tree: a curved path that tapers from radiusStart to radiusEnd. */
 export interface BranchSegment {
@@ -132,12 +134,16 @@ export function growBranches(
   return segments;
 }
 
-/** Turns segments into tapered tubes. Thicker branches get more sides. */
+/**
+ * Turns segments into tapered tubes. Thicker branches get more sides. The bark texture is
+ * repeated by each branch's length and girth, so it keeps the same scale on trunk and twigs.
+ */
 export function branchTubes(segments: BranchSegment[], scene: Scene, name: string): Mesh[] {
+  const tile = CONFIG.surfaces.barkTileMeters;
   return segments.map((segment, index) => {
     const last = segment.path.length - 1;
     const sides = [8, 6, 5, 4][segment.depth] ?? 3;
-    return MeshBuilder.CreateTube(
+    const tube = MeshBuilder.CreateTube(
       `${name}${index}`,
       {
         path: segment.path,
@@ -148,6 +154,17 @@ export function branchTubes(segments: BranchSegment[], scene: Scene, name: strin
       },
       scene,
     );
+    let length = 0;
+    for (let i = 1; i < segment.path.length; i++) {
+      length += Vector3.Distance(
+        segment.path[i - 1] ?? Vector3.Zero(),
+        segment.path[i] ?? Vector3.Zero(),
+      );
+    }
+    const girth = Math.PI * (segment.radiusStart + segment.radiusEnd);
+    // Around the tube the repeat count must be whole, or the texture shows a seam.
+    tileUVs(tube, Math.max(1, Math.round(girth / tile)), Math.max(length / tile, 0.25));
+    return tube;
   });
 }
 

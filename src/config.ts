@@ -68,8 +68,23 @@ export const CONFIG = {
     rock: { r: 0.4, g: 0.4, b: 0.38 },
     moss: { r: 0.22, g: 0.3, b: 0.16 },
     grass: { r: 0.28, g: 0.34, b: 0.19 },
+    /** Forest floor texture colors (the ground has no vertex colors). */
+    groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
+    groundLitter: { r: 0.33, g: 0.25, b: 0.15 },
+    groundMoss: { r: 0.18, g: 0.24, b: 0.13 },
     /** How much each face's color may drift from the base color (0 = none). */
     variation: 0.08,
+  },
+  /** Surface textures drawn by code (bark, rock, forest floor), with relief (normal maps). */
+  surfaces: {
+    /** Size in meters that one repeat of the bark texture covers on a trunk. */
+    barkTileMeters: 0.8,
+    /** Size in meters that one repeat of the forest floor texture covers. */
+    groundTileMeters: 3,
+    /** Strength of the relief effect (normal map) per surface. */
+    barkRelief: 3,
+    rockRelief: 2,
+    groundRelief: 2.5,
   },
   /** Size ranges of the procedural models, [min, max] (W1). Lengths in meters. */
   models: {

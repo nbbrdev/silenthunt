@@ -28,6 +28,7 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 - **Placas de folhas** (`src/models/cards.ts`): quadrados com uma textura de folhas, agulhas ou capim **desenhada por código** num canvas (`src/models/textures.ts`, sem arquivos de imagem). Transparência por recorte (*alpha test*). As normais apontam para fora da copa, para ela ser iluminada como um volume.
 - **Sombreamento suave** na madeira e nas folhas; as faces chapadas (*flat shading*) ficaram só na pedra.
 - A cor continua vindo dos vértices (paleta G14 no `src/config.ts`); as texturas são em tons de cinza.
+- **Texturas de superfície** (revisão 2, `src/models/surfaceTextures.ts`): casca, pedra e chão de floresta, desenhadas por código com ruído fractal que se repete sem emendas. Cada uma tem um **mapa de relevo** (*normal map*) calculado a partir do próprio desenho, para rachaduras e grãos parecerem fundos sem custar triângulos. A casca se repete a cada 0,8 m e o chão a cada 3 m (`CONFIG.surfaces`). O chão tem cor própria (`groundDirt`, `groundLitter`, `groundMoss` na paleta).
 
 ### Lista de modelos
 

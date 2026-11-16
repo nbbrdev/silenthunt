@@ -10,6 +10,7 @@ import {
 import { directionAt, pointAt } from "../branching";
 import { assemble, paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
+import { tileUVs } from "../surfaceTextures";
 import type { GeneratedModel, ModelGenerator } from "../types";
 
 const MAIN_POINTS = 5;
@@ -91,7 +92,11 @@ export const groundBranch: ModelGenerator = {
       paint(part, wood, seed);
     }
 
-    const model = assemble("groundBranch", parts, getModelMaterials(scene).solid);
+    for (const part of parts) {
+      // Bark repeats about every 0.8 m along the stick, twice around it.
+      tileUVs(part, 2, Math.max(length / CONFIG.surfaces.barkTileMeters, 0.5));
+    }
+    const model = assemble("groundBranch", parts, getModelMaterials(scene).fallenWood);
     return { root: model, animations: [] };
   },
 };

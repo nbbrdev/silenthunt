@@ -17,6 +17,8 @@ import {
   type HavokPlugin,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { getGroundMaterial } from "../models/materials";
+import { tileUVs } from "../models/surfaceTextures";
 
 /**
  * Minimal scene that proves the stack works (NBB-124 I8-A): ground, light, fog and a box falling
@@ -42,9 +44,9 @@ export function createDemoScene(engine: Engine, physics: HavokPlugin): Scene {
     { width: demo.groundSize, height: demo.groundSize },
     scene,
   );
-  const groundMaterial = new StandardMaterial("groundMaterial", scene);
-  groundMaterial.diffuseColor = new Color3(0.2, 0.25, 0.18);
-  ground.material = groundMaterial;
+  const groundTiles = demo.groundSize / CONFIG.surfaces.groundTileMeters;
+  tileUVs(ground, groundTiles, groundTiles);
+  ground.material = getGroundMaterial(scene);
   // The visible ground is a flat plane; its collider is a 1 m thick slab just below it, so fast
   // objects in a long physics step (up to 0.1 s in Babylon) cannot pass through it.
   const groundBody = new PhysicsBody(ground, PhysicsMotionType.STATIC, false, scene);
