@@ -105,7 +105,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 
 **(G6)** (M9-A)
 
-- **RF-40** **Vida** 0–100. Volta 1 por segundo quando a fome está acima de 50.
+- **RF-40** **Vida** 0–100. Volta 1 por segundo quando a fome está acima de 50, **só de dia** (à noite o corpo não sara, VD7-B) e só 5 s depois do último dano (VD3-B).
 - **RF-41** **Fome** 100 → 0 em **2 ciclos de dia e noite** (32 min). Com fome 0, perde 1 de vida a cada 2 s.
 - **RF-42** **Fôlego** 0–100. Correr gasta 15 por segundo; recupera 20 por segundo parado ou andando. Sem fôlego, não corre.
 

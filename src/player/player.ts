@@ -54,6 +54,12 @@ export class Player {
 
   private readonly scene: Scene;
   private readonly input: Input;
+  /** VD2: camera shake left (seconds) and its strength (radians). */
+  private shakeSeconds = 0;
+  private shakeStrength = 0;
+
+  /** False while dead (VD4): no walking, looking, crouching or jumping. */
+  controlsEnabled = true;
 
   /** @param feet where the player's feet start (on the ground). */
   constructor(scene: Scene, input: Input, feet: Vector3) {
@@ -111,6 +117,23 @@ export class Player {
     };
   }
 
+  /** VD5: puts the player back on their feet at `feet`, standing and still. */
+  respawn(feet: Vector3): void {
+    if (this.crouched) {
+      this.setCrouched(false);
+    }
+    this.controller.setPosition(feet.add(new Vector3(0, this.capsuleHeight / 2 + 0.05, 0)));
+    this.controller.setVelocity(Vector3.Zero());
+    this.rising = false;
+    this.pitch = 0;
+  }
+
+  /** VD2: shakes the view for `seconds`, up to `strength` radians. */
+  shake(seconds: number, strength: number): void {
+    this.shakeSeconds = seconds;
+    this.shakeStrength = strength;
+  }
+
   /** Development only: turns the view to face the point (x, z), level with the horizon. */
   debugFace(x: number, z: number): void {
     const center = this.controller.getPosition();
@@ -126,23 +149,25 @@ export class Player {
       return;
     }
 
-    this.updateLook();
-    if (this.input.wasPressed("KeyC")) {
-      this.setCrouched(!this.crouched);
+    const controls = this.controlsEnabled;
+    if (controls) {
+      this.updateLook();
+      if (this.input.wasPressed("KeyC")) {
+        this.setCrouched(!this.crouched);
+      }
     }
 
     // Movement input in the player's own frame: x = right, z = forward.
-    const move = new Vector3(
-      Number(this.input.isDown("KeyD")) - Number(this.input.isDown("KeyA")),
-      0,
-      Number(this.input.isDown("KeyW")) - Number(this.input.isDown("KeyS")),
-    );
+    const axis = (positive: string, negative: string) =>
+      controls ? Number(this.input.isDown(positive)) - Number(this.input.isDown(negative)) : 0;
+    const move = new Vector3(axis("KeyD", "KeyA"), 0, axis("KeyW", "KeyS"));
     const isMoving = move.lengthSquared() > 0;
     if (isMoving) {
       move.normalize();
     }
 
-    const wantsToRun = this.input.isDown("ShiftLeft") || this.input.isDown("ShiftRight");
+    const wantsToRun =
+      controls && (this.input.isDown("ShiftLeft") || this.input.isDown("ShiftRight"));
     const isRunning = wantsToRun && isMoving && !this.crouched && canRun(this.stamina);
     this.stamina = updateStamina(this.stamina, isRunning, dt);
 
@@ -247,7 +272,7 @@ export class Player {
     }
     velocity.addInPlace(support.averageSurfaceVelocity);
 
-    if (this.input.wasPressed("Space")) {
+    if (this.controlsEnabled && this.input.wasPressed("Space")) {
       // Initial upward speed that reaches jumpHeight: v = sqrt(2 * g * h).
       velocity.y = Math.sqrt(2 * -CONFIG.physics.gravity * CONFIG.player.jumpHeight);
       this.rising = true;
@@ -276,6 +301,16 @@ export class Player {
     const center = this.controller.getPosition();
     const feetY = center.y - this.capsuleHeight / 2;
     this.camera.position.set(center.x, feetY + this.eyeHeight, center.z);
-    this.camera.rotation.set(this.pitch, this.yaw, 0);
+
+    // VD2: a short shake that fades out.
+    let shakePitch = 0;
+    let shakeYaw = 0;
+    if (this.shakeSeconds > 0) {
+      this.shakeSeconds = Math.max(0, this.shakeSeconds - dt);
+      const strength = this.shakeStrength * Math.min(1, this.shakeSeconds * 8);
+      shakePitch = (Math.random() * 2 - 1) * strength;
+      shakeYaw = (Math.random() * 2 - 1) * strength;
+    }
+    this.camera.rotation.set(this.pitch + shakePitch, this.yaw + shakeYaw, 0);
   }
 }

@@ -49,6 +49,17 @@ export const CONFIG = {
       runCostPerSecond: 15,
       recoveryPerSecond: 20,
     },
+    /** RF-40 (G6, NBB-136). */
+    health: {
+      max: 100,
+      /** Healing per second: only by day (VD7-B) and with hunger above `hungerToHeal`. */
+      regenPerSecond: 1,
+      hungerToHeal: 50,
+      /** VD3-B: healing starts this long after the last damage. */
+      regenDelaySeconds: 5,
+      /** VD2: below this, the screen edges pulse dark red. */
+      lowHealth: 30,
+    },
   },
   /** The infinite forest (NBB-129). */
   world: {
@@ -280,6 +291,17 @@ export const CONFIG = {
     noiseMeterWidthPx: 220,
     /** How fast a step "pulse" fades, per second. */
     noisePulseFade: 3,
+    /** VD1-C: health bar at the bottom left, shown only while health is not full. */
+    healthBarWidthPx: 160,
+    healthBarHideAfterSeconds: 3,
+    healthBarColor: "#9e2b25",
+    /** VD2: red flash on every hit, camera shake, and the slow dark-red pulse at low health. */
+    damageFlashSeconds: 0.4,
+    damageShakeSeconds: 0.25,
+    damageShakeRadians: 0.03,
+    lowHealthPulseSeconds: 1.6,
+    /** VD4: the death screen fades to black in this long. */
+    deathFadeSeconds: 1.5,
   },
   /** DN4 (G14): film grain, darker screen edges, and glow for the creature's eyes and fire. */
   postProcessing: {

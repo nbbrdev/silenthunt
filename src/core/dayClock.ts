@@ -19,10 +19,22 @@ export class DayClock {
 
   private seconds: number;
   private currentPhase: DayPhase;
+  /** Game seconds lived since the start (jumps made with setTime do not count). */
+  private elapsedSeconds = 0;
 
   constructor(startSeconds = CONFIG.dayNight.startSeconds) {
     this.seconds = startSeconds % cycleLength();
     this.currentPhase = phaseAt(this.seconds);
+  }
+
+  /** Game seconds since the game started (VD4 counts the days survived with it). */
+  get elapsed(): number {
+    return this.elapsedSeconds;
+  }
+
+  /** Length of a whole day and night cycle (seconds). */
+  get cycleSeconds(): number {
+    return cycleLength();
   }
 
   /** Seconds since dawn began, within the current cycle. */
@@ -70,6 +82,7 @@ export class DayClock {
 
   /** Advances the clock by real seconds (multiplied by `speed`). */
   update(realSeconds: number): void {
+    this.elapsedSeconds += realSeconds * this.speed;
     this.setTime(this.seconds + realSeconds * this.speed);
   }
 

@@ -237,6 +237,18 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | AP2-A | **À noite**, se o jogador chega a menos de 8 m sem tocha acesa, ela ataca na hora. Com a tocha encarada, continua fugindo (RF-24). |
 | AP3 | Detalhes propostos por Claude e aprovados ("1 a 5 - Ok"): raio do corpo de 0,5 m; bote a 2 m e dano a até 2,5 m; "correr na direção dela" = o jogador se aproximando a mais de 3 m/s; à noite, um ruído perto dela a traz até o jogador e a menos de 8 m ela ataca; qualquer tocha acesa impede o ataque imediato a menos de 8 m. |
 
+## NBB-136: Vida, dano e morte (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| VD1-C | Barra de vida fina no canto inferior esquerdo, no estilo do medidor de ruído. Só aparece quando a vida não está cheia e some 3 s depois de encher. |
+| VD2 | A cada golpe: clarão vermelho nas bordas (0,4 s) e tremor curto da câmera (0,25 s). Com vida abaixo de 30, bordas escuras e avermelhadas pulsando devagar. Sem som novo. |
+| VD3-B | Até a fome existir, ela conta como cheia. A recuperação só começa 5 s depois do último dano. |
+| VD4 | Tela de morte: escurece em 1,5 s, "Você morreu", "Sobreviveu N dia(s)" e o botão "Renascer"; o mouse é liberado. |
+| VD5 | Renascer: ponto inicial (a cama vem na NBB-146), vida cheia, o relógio segue, a criatura é mandada para longe e a tocha é mantida. |
+| VD6 | Sem testes da lógica de vida (X1-C); `silentHunt.health()` e `silentHunt.damage(n)` só em desenvolvimento. |
+| VD7-B | **A vida só volta de dia** (1 por segundo, com fome acima de 50); **à noite o corpo não sara**. Sem isso a criatura nunca mataria: um golpe sararia antes de ela voltar. Muda o RF-40. |
+
 ## Pendentes (proposto)
 
 Nenhuma no momento.

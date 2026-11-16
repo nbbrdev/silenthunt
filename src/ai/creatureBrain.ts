@@ -154,6 +154,12 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.attachedNode = null;
   }
 
+  /** VD5: sends it far away, out of sight, to roam again (when the player dies or respawns). */
+  sendAway(): void {
+    this.placeOutOfSight(randomInRange(this.random, this.roamRange()));
+    this.enter("roam");
+  }
+
   /** Development only (IA8): forces a state, e.g. to watch the attack without waiting. */
   forceState(state: CreatureState): void {
     if (state === "investigate") {

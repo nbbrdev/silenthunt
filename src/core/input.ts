@@ -9,6 +9,7 @@ export class Input {
   private mouseX = 0;
   private mouseY = 0;
   private readonly canvas: HTMLCanvasElement;
+  private lockEnabled = true;
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -30,8 +31,9 @@ export class Input {
     });
 
     canvas.addEventListener("click", () => {
-      if (!this.isPointerLocked) {
-        void canvas.requestPointerLock();
+      if (this.pointerLockEnabled && !this.isPointerLocked) {
+        // Browsers may refuse, e.g. right after the mouse was released: one more click works.
+        canvas.requestPointerLock().catch(() => undefined);
       }
     });
     document.addEventListener("mousemove", (event) => {
@@ -40,6 +42,21 @@ export class Input {
         this.mouseY += event.movementY;
       }
     });
+  }
+
+  /**
+   * Whether clicking the game captures the mouse. Off on screens that need the mouse pointer
+   * (the death screen, VD4).
+   */
+  get pointerLockEnabled(): boolean {
+    return this.lockEnabled;
+  }
+
+  set pointerLockEnabled(enabled: boolean) {
+    this.lockEnabled = enabled;
+    if (!enabled && this.isPointerLocked) {
+      document.exitPointerLock();
+    }
   }
 
   get isPointerLocked(): boolean {

@@ -8,10 +8,13 @@ import { createHavokPlugin } from "./core/physics";
 import { creature } from "./models/creature/creature";
 import { setupPostProcessing } from "./core/postProcessing";
 import { Footsteps } from "./player/footsteps";
+import { PlayerHealth } from "./player/health";
 import { Player } from "./player/player";
 import { PlayerTorch } from "./player/torch";
 import { NoiseSystem } from "./systems/noise";
 import { VisibilitySystem } from "./systems/visibility";
+import { createDamageEffects } from "./ui/damageEffects";
+import { DeathScreen } from "./ui/deathScreen";
 import { createHud } from "./ui/hud";
 import { createWorld } from "./world/worldScene";
 import { attachFpsCounter } from "./ui/fpsCounter";
@@ -47,7 +50,12 @@ async function start(): Promise<void> {
     const footsteps = new Footsteps(scene, player, world.terrain, world.chunks, noise);
     const torch = new PlayerTorch(scene, player.camera, input);
     const visibility = new VisibilitySystem(world.clock, player, torch);
-    createHud(scene, noise, () => footsteps.currentRadius());
+    const health = new PlayerHealth(world.clock);
+    scene.onBeforeRenderObservable.add(() =>
+      health.update(Math.min(engine.getDeltaTime() / 1000, 0.1)),
+    );
+    const hud = createHud(scene, noise, () => footsteps.currentRadius(), health);
+    createDamageEffects(hud, scene, health, player);
 
     // The creature (NBB-133) and its brain (NBB-134).
     const creatureModel = creature.create(scene, CONFIG.world.defaultSeed);
@@ -79,11 +87,27 @@ async function start(): Promise<void> {
       .then((audio) => presence.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons da criatura não carregados:", error));
 
+    // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
+    creatureBrain.onPlayerHit.add((damage) => health.damage(damage));
+    const gameInput = input;
+    let lifeStart = world.clock.elapsed;
+    const deathScreen = new DeathScreen(hud, scene, () => {
+      // VD5: back at the start, full health, the creature far away; the clock and torch go on.
+      player.respawn(feet);
+      health.revive();
+      creatureBrain.sendAway();
+      player.controlsEnabled = true;
+      gameInput.pointerLockEnabled = true;
+      lifeStart = world.clock.elapsed;
+    });
+    health.onDied.add(() => {
+      player.controlsEnabled = false;
+      gameInput.pointerLockEnabled = false;
+      creatureBrain.sendAway();
+      deathScreen.show(Math.floor((world.clock.elapsed - lifeStart) / world.clock.cycleSeconds));
+    });
+
     if (import.meta.env.DEV) {
-      // IA8: until health exists (NBB-136), the strike only shows up in the console.
-      creatureBrain.onPlayerHit.add((damage) =>
-        console.info(`[criatura] golpe: ${damage} de dano`),
-      );
       const devInput = input;
       const { enableNoiseRings } = await import("./core/devNoiseRings");
       enableNoiseRings(scene, noise, devInput);
@@ -116,6 +140,12 @@ async function start(): Promise<void> {
           setTime: (seconds: number) => world.clock.setTime(seconds),
           player: () => player.debugState(),
           creature: () => creatureBrain.debugState(),
+          /** VD6: health, and a way to take damage without the creature. */
+          health: () => Math.round(health.value * 10) / 10,
+          damage: (amount: number) => {
+            health.damage(amount);
+            return Math.round(health.value * 10) / 10;
+          },
           faceCreature: () => {
             const { x, z } = creatureModel.root.position;
             player.debugFace(x, z);
