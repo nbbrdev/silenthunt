@@ -10,7 +10,7 @@ Versões aprovadas no G8. Como o jogo não é publicado (T7), a tag só marca o 
 
 | Marco | Dias | Objetivo | Versão |
 |---|---|---|---|
-| M0 · Base | 12–13/11 | Projeto rodando, teste de carga aprovado (T0-C), galeria | `v0.1.0` |
+| M0 · Base | 12–13/11 | Projeto rodando, ~~teste de carga aprovado (T0-C)~~, galeria | `v0.1.0` |
 | M1 · Floresta sombria | 13–14/11 | Andar na floresta infinita com neblina, dia e noite, ruído e tocha | `v0.2.0` |
 | M2 · Ser caçado | 14–15/11 | Criatura completa: espreita, passos, olhos, ataque, fogo afasta | `v0.3.0` |
 | M3 · Caçar | 15–17/11 | Coelho e cervo, faca, arco, espingarda, fome, cozinhar | `v0.4.0` |
@@ -24,7 +24,7 @@ Cada linha vira **uma issue**, entregue por commits direto na `main` (R2, 2026-1
 ### M0 · Base
 1. **Documentação inicial:** `docs/`, `CLAUDE.md`, README com "como rodar". [Docs]
 2. **Projeto base:** Vite + TypeScript + Babylon + Havok, ESLint, Prettier, Vitest; CI no GitHub (formatação, lint, tipos, testes, build), `pr-title`, CodeQL, Dependabot. [Infra]
-3. **Teste de carga (T0-C):** chunks procedurais com terreno, árvores provisórias e neblina; contador de FPS; relatório com a medição e a decisão Babylon ou Godot. [Frontend]
+3. ~~**Teste de carga (T0-C):** chunks procedurais com terreno, árvores provisórias e neblina; contador de FPS; relatório com a medição e a decisão Babylon ou Godot. [Frontend]~~ Cancelada em 2026-11-16 (X1-C): seguimos com o Babylon sem medir.
 4. **Galeria de modelos (A2-C):** cena de desenvolvimento para girar modelos, trocar dia/noite/neblina e tocar animações. [Frontend]
 
 ### M1 · Floresta sombria

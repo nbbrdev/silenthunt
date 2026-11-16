@@ -10,7 +10,7 @@ Repo: `nbbrdev/silenthunt` (público) · Linear: time "Nbbr dev" (chave `NBB`), 
 - Mudou `docs/`? Atualize o Linear Doc correspondente na mesma sessão, e vice-versa.
 
 ## Fase atual
-**M0 · Base** (meta: `v0.1.0`; previsto para 13/11, atrasado). Ordem: NBB-123 (docs) → NBB-124 (projeto base e CI) → NBB-125 (teste de carga: decide Babylon ou Godot) → NBB-126 (galeria). Em 2026-11-16 o usuário decidiu manter todo o escopo até 20/11 (R1-B).
+**M0 · Base** (meta: `v0.1.0`; previsto para 13/11, atrasado). NBB-123 (docs) e NBB-124 (projeto base e CI) concluídas; NBB-125 (teste de carga) cancelada (X1-C); próxima: NBB-126 (galeria). Em 2026-11-16 o usuário decidiu manter todo o escopo até 20/11 (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C).
 
 Lembretes:
 - A conta ativa do `gh` foi trocada para `nbbrdev` em 2026-11-12 (vale para todos os terminais).
@@ -25,7 +25,7 @@ Stack de ferramentas: Node 24, npm, Vite, Vitest, ESLint, Prettier.
 - Explicações de uma decisão vão **no chat**, num turno que termina com a pergunta em texto.
 - Responda sempre em **pt-BR**.
 - **Eu implemento, ele revisa — sem PRs (R2, 2026-11-16):** commits direto na `main`, um ou mais por issue. Ao terminar uma issue, explicar no chat o que mudou e por quê e listar os **pontos decididos por mim** (também num comentário da issue no Linear). Ajustes pedidos viram novos commits.
-- **Antes de cada push:** formatação, lint, tipos, testes e build verdes localmente (não há PR para barrar erros).
+- **Antes de cada push:** formatação, lint, tipos, testes existentes e build verdes localmente (não há PR para barrar erros). Não escrever testes novos (X1-C).
 
 ## Regras de trabalho (definidas pelo usuário)
 1. **Sempre use as ferramentas Write e Edit para criar ou editar arquivos.** Nada de scripts Python, `sed`, `awk`, heredocs ou redirecionamento de shell para modificar arquivos. Exceção: geradores e CLIs oficiais (`npm create vite`, `npm install`) e o Prettier; arquivos binários só com autorização do usuário.

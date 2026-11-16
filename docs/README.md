@@ -15,7 +15,7 @@ Porta de entrada. Esta pasta é a **fonte da verdade** do conteúdo do jogo; cad
 
 | Marco | Objetivo | Status |
 |---|---|---|
-| M0 · Base | Projeto, teste de carga, galeria | A fazer |
+| M0 · Base | Projeto, galeria (teste de carga cancelado, X1-C) | Em andamento |
 | M1 · Floresta sombria | Mundo, neblina, dia e noite, ruído, tocha | A fazer |
 | M2 · Ser caçado | Criatura | A fazer |
 | M3 · Caçar | Presas e armas | A fazer |

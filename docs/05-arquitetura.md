@@ -6,11 +6,11 @@
 |---|---|---|
 | Linguagem | TypeScript 6.0, modo `strict` (T1-A, V1-A, I3-A) | O Babylon é escrito em TypeScript; os tipos evitam erros num projeto grande. O 7 espera o suporte do `typescript-eslint`. |
 | Build e servidor local | Vite 8 (T1-A) | Sobe o jogo localmente em segundos e gera os arquivos finais. |
-| Motor 3D | Babylon.js 9 (`@babylonjs/core`) (T0-C) | Escolha do usuário, validada pelo teste de carga. |
+| Motor 3D | Babylon.js 9 (`@babylonjs/core`) (T0-C, X1-C) | Escolha do usuário; definitivo desde 2026-11-16, sem teste de carga. |
 | Física | Havok (`@babylonjs/havok`) (T2-B) | Motor de física oficial do Babylon (colisões, controle do personagem, flechas). |
 | Organização | Behaviors + Observables do Babylon (T5a-C) | Nativo, sem biblioteca extra. |
 | Save | IndexedDB (T3-A) | Banco de dados do próprio navegador; sem servidor. |
-| Testes | Vitest (T6-A) | Testes rápidos da lógica (ruído, IA, receitas, save, geração). |
+| Testes | Vitest (T6-A, X1-C) | Instalado e rodando no CI, mas **sem testes novos** desde 2026-11-16 (X1-C), para ganhar tempo. |
 | Qualidade | ESLint 10 (`typescript-eslint`, `import-x`) + Prettier (I3-A, V2-A) | Padrão de código e formatação; o CI (`ci.yml`) roda formatação, lint, tipos, testes, build e auditoria. |
 | Depuração | Babylon Inspector, só em desenvolvimento, tecla F9 (I2-A) | Mostra malhas, luzes, FPS e triângulos. Carregado só dentro de `import.meta.env.DEV`, para não entrar no build. |
 | Ambiente | Node 24, npm | Já instalados na máquina do usuário. |
@@ -54,12 +54,14 @@ tests/                    // testes do Vitest, espelhando src/
 
 ## Teste de carga (T0-C)
 
-**(G5)** Issue 3, logo no M0:
+> **Cancelado em 2026-11-16 (X1-C):** para ganhar tempo, o usuário decidiu seguir com o Babylon sem o teste de carga. A meta de 60 FPS continua valendo e é conferida no dia a dia pelo contador de FPS.
 
-- Cena com os 25 chunks carregados, **~80 árvores por chunk** (≈ 2.000 árvores), terreno, neblina, luz de noite com uma tocha e 3 modelos animados provisórios andando.
-- Jogador andando sem parar numa direção por 2 minutos (carregando e descartando chunks).
-- **Aprovado** se, no computador do usuário, em tela cheia: **média ≥ 60 FPS** e **sem travadas acima de 100 ms** ao trocar de chunk.
-- Reprovado: apresentamos ao usuário otimizações possíveis ou a troca para o Godot (decisão dele).
+~~**(G5)** Issue 3, logo no M0:~~
+
+- ~~Cena com os 25 chunks carregados, **~80 árvores por chunk** (≈ 2.000 árvores), terreno, neblina, luz de noite com uma tocha e 3 modelos animados provisórios andando.~~
+- ~~Jogador andando sem parar numa direção por 2 minutos (carregando e descartando chunks).~~
+- ~~**Aprovado** se, no computador do usuário, em tela cheia: **média ≥ 60 FPS** e **sem travadas acima de 100 ms** ao trocar de chunk.~~
+- ~~Reprovado: apresentamos ao usuário otimizações possíveis ou a troca para o Godot (decisão dele).~~
 
 ## Limites de desempenho (G16)
 
@@ -79,7 +81,7 @@ Um registro no IndexedDB com: versão do formato, semente, hora do dia, jogador 
 
 | ADR | Decisão | Status |
 |---|---|---|
-| ADR-01 | Babylon.js no navegador, validado por teste de carga; Godot como plano B (T0-C) | Aceito |
+| ADR-01 | Babylon.js no navegador. ~~Validado por teste de carga; Godot como plano B (T0-C).~~ Definitivo sem teste de carga (X1-C, 2026-11-16) | Aceito |
 | ADR-02 | Havok para física (T2-B) | Aceito |
 | ADR-03 | Behaviors + Observables em vez de ECS (T5a-C) | Aceito |
 | ADR-04 | Modelos 100% procedurais em TypeScript (A1-A) | Aceito |
