@@ -15,6 +15,15 @@ import type { DayClock } from "../core/dayClock";
  */
 const FOG_REACH = Math.sqrt(-Math.log(0.05));
 
+/**
+ * G11: how far one sees through the fog (meters), from night (0) to full daylight (1). The
+ * creature uses it too: it stalks at the edge of the fog (IA3) and its eyes fade there (OL1-B).
+ */
+export function fogVisibility(daylight: number): number {
+  const { dayVisibility, nightVisibility } = CONFIG.dayNight;
+  return nightVisibility + (dayVisibility - nightVisibility) * daylight;
+}
+
 type RGB = { readonly r: number; readonly g: number; readonly b: number };
 
 /**
@@ -57,9 +66,7 @@ export class Atmosphere {
     this.scene.clearColor = Color4.FromColor3(tinted);
 
     // G11: visibility in meters becomes fog density.
-    const visibility =
-      settings.nightVisibility + (settings.dayVisibility - settings.nightVisibility) * daylight;
-    this.scene.fogDensity = FOG_REACH / visibility;
+    this.scene.fogDensity = FOG_REACH / fogVisibility(daylight);
 
     // Soft light from the sky.
     const { dayAmbient, nightAmbient } = settings;

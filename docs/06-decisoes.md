@@ -217,6 +217,16 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | IA8 | Paredes e portas (RF-54) vão para a issue de construção; sem testes das transições (X1-C); o golpe dispara um evento de dano que a NBB-136 vai usar; `silentHunt.creature()` e `silentHunt.creatureState()` só em desenvolvimento. |
 | IA9 | Detalhes da implementação, propostos por Claude e aprovados ("1 a 12 - Ok"): investigar a 3 m/s e olhar em volta por 5 s; bote a 2 m e dano só se o jogador ainda estiver a até 2,5 m no meio do golpe; recuo de 6 s a 1,5 m/s depois de encarada; tocha com o mesmo cone de 25° (no ataque hesita 1,2 s e foge; espreitando foge direto); recuar a 7 m/s até 15 m além da neblina e depois rondar; novo ponto de ronda ao chegar ou a cada 25 s; entardecer e amanhecer contam como dia; espreita do lado onde já está; ruídos só afetam ronda e investigação; começa atrás do jogador a 60–120 m; raio do corpo 0,4 m, desvio 2,5 m à frente, giro de 4 rad/s; `creatureStep()` e `faceCreature()` só em desenvolvimento. |
 
+## NBB-135: Olhos e passos da criatura (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| OL1-B | Os olhos ignoram a neblina, mas esmaecem com a distância: brilho cheio até a distância da neblina, sumindo até 30% além dela. Cada olho ganha um halo suave para ser percebido de longe. |
+| SO1-A | Sons do **Freesound com licença CC0**: Claude propõe 2–3 candidatos por som, o usuário escolhe e Claude baixa a prévia em MP3 de alta qualidade para `public/sounds/` (anotada no `CREDITS.md`). |
+| SO2 | Passos da criatura a cada meio ciclo da animação (andar ~0,7 s, espreitar ~1 s e mais baixo, galope ~0,3 s e mais forte), parada sem som, tom variando ±10%, som 3D audível até 25 m (RF-25). |
+| SO3 | Respiração lenta e áspera em loop quando ela espreita a menos de 20 m; rosnado curto e grave ao começar o ataque (aviso para erguer a tocha); recuo em silêncio. |
+| SO4 | Volume mestre no `src/config.ts` (0,8); o controle pelo jogador vem no menu de opções (NBB-150). O áudio é liberado no clique que captura o mouse. |
+
 ## Pendentes (proposto)
 
 Nenhuma no momento.

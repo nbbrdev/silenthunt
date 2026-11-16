@@ -1,20 +1,19 @@
 import {
   Color3,
   Color4,
-  DynamicTexture,
   MeshBuilder,
   ParticleSystem,
   StandardMaterial,
   Vector3,
   type Mesh,
   type Scene,
-  type Texture,
 } from "@babylonjs/core";
 import { CONFIG } from "../../config";
 import { getGlowLayer } from "../../core/postProcessing";
 import { assemble, paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
 import { tileUVs } from "../surfaceTextures";
+import { getSoftDotTexture } from "../textures";
 import type { GeneratedModel, ModelGenerator } from "../types";
 
 /** Height of the flame's center above the bottom of the handle (meters). */
@@ -115,34 +114,4 @@ function getFlameMaterial(scene: Scene): StandardMaterial {
   material.fogEnabled = false;
   flameByScene.set(scene, material);
   return material;
-}
-
-const dotByScene = new WeakMap<Scene, Texture>();
-
-/** Soft round dot (white center fading to transparent) for fire particles, drawn by code. */
-function getSoftDotTexture(scene: Scene): Texture {
-  const existing = dotByScene.get(scene);
-  if (existing) {
-    return existing;
-  }
-  const size = 64;
-  const texture = new DynamicTexture("softDot", { width: size, height: size }, scene, false);
-  const context = texture.getContext();
-  const image = context.getImageData(0, 0, size, size);
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      const distance = Math.hypot(x - size / 2 + 0.5, y - size / 2 + 0.5) / (size / 2);
-      const alpha = Math.max(0, 1 - distance) ** 2;
-      const index = (y * size + x) * 4;
-      image.data[index] = 255;
-      image.data[index + 1] = 255;
-      image.data[index + 2] = 255;
-      image.data[index + 3] = alpha * 255;
-    }
-  }
-  context.putImageData(image, 0, 0);
-  texture.hasAlpha = true;
-  texture.update();
-  dotByScene.set(scene, texture);
-  return texture;
 }

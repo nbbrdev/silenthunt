@@ -225,6 +225,41 @@ export const CONFIG = {
     turnRate: 4,
     /** Avoidance is skipped this far from the player (nobody sees it, chunks may be unloaded). */
     avoidanceRange: 100,
+    /** OL1-B: the eyes shine through the fog, fading out this fraction beyond the fog distance. */
+    eyes: {
+      fadeBeyondFog: 0.3,
+      /** Halo around each eye: size (meters), how far in front of the socket, brightness. */
+      haloSize: 0.2,
+      haloForward: 0.06,
+      haloStrength: 0.9,
+    },
+    /** SO2, SO3 (RF-25): its sounds, all 3D. Volumes go from 0 to 1. */
+    sounds: {
+      /** SO1-A: files in `public/sounds/creature/` (CC0, from Freesound; see CREDITS.md). */
+      files: {
+        steps: ["step-1.mp3", "step-2.mp3", "step-3.mp3", "step-4.mp3"],
+        breath: "breath.mp3",
+        growl: "growl.mp3",
+      },
+      /** Heard up to this distance (meters), fading linearly. */
+      hearingDistance: 25,
+      /** One footstep every half cycle of the animation (seconds at normal speed). */
+      stepEvery: { Andar: 0.7, Espreitar: 1, Recuar: 0.3 },
+      stepVolume: { Andar: 0.7, Espreitar: 0.4, Recuar: 1 },
+      /** Each step's pitch varies by up to ±10%, so they do not sound repeated. */
+      pitchJitter: 0.1,
+      /** SO3: slow raspy breathing while it stalks closer than this (meters). */
+      breathDistance: 20,
+      breathVolume: 0.6,
+      /** Seconds for the breathing to fade in or out. */
+      breathFade: 1.5,
+      /** SO3: short low growl when the attack begins. */
+      growlVolume: 1,
+    },
+  },
+  /** SO4: sound. The player's volume control comes with the options menu (NBB-150). */
+  audio: {
+    masterVolume: 0.8,
   },
   /** HUD (NO1-A: Babylon GUI). */
   hud: {

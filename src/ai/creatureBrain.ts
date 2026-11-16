@@ -15,6 +15,7 @@ import type { Player } from "../player/player";
 import type { PlayerTorch } from "../player/torch";
 import type { NoiseEvent, NoiseSystem } from "../systems/noise";
 import type { VisibilitySystem } from "../systems/visibility";
+import { fogVisibility } from "../world/atmosphere";
 import type { ChunkManager, Obstacle } from "../world/chunks";
 import type { Terrain } from "../world/terrain";
 import { avoidObstacles, normalized, pushOutOfObstacles, type FlatVector } from "./steering";
@@ -67,6 +68,8 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   readonly onPlayerHit = new Observable<number>();
   /** Lit campfires (NBB-146 fills this): it never gets closer than `fireKeepAway` (RF-24). */
   readonly fires: Vector3[] = [];
+  /** Fired on every state change (its sounds react to it, NBB-135). */
+  readonly onStateChanged = new Observable<CreatureState>();
 
   private readonly senses: CreatureSenses;
   private readonly animations: Map<string, AnimationGroup>;
@@ -84,6 +87,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   private targetAge = 0;
   private heading = 0;
   private currentAnimation: AnimationGroup | undefined;
+  private currentGait: { animation: AnimationName; speedRatio: number } = {
+    animation: "Andar",
+    speedRatio: 0,
+  };
   /** IA4-B: how long the player has been staring at it, and the backing off that follows. */
   private stareTime = 0;
   private backOffTime = 0;
@@ -107,6 +114,16 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   get state(): CreatureState {
     return this.currentState;
+  }
+
+  /** The animation it moves with and how fast it plays (0 = standing still): drives the steps. */
+  get gait(): { animation: AnimationName; speedRatio: number } {
+    return this.currentGait;
+  }
+
+  /** Horizontal distance to the player (meters). */
+  get playerDistance(): number {
+    return this.distanceToPlayer();
   }
 
   init(): void {
@@ -182,8 +199,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   /** How far the player sees through the fog right now (the same formula as the Atmosphere). */
   private fogVisibility(): number {
-    const { dayVisibility, nightVisibility } = CONFIG.dayNight;
-    return nightVisibility + (dayVisibility - nightVisibility) * this.senses.clock.daylight;
+    return fogVisibility(this.senses.clock.daylight);
   }
 
   private distanceToPlayer(): number {
@@ -257,6 +273,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.hesitateTime = 0;
     this.strikeTime = -1;
     this.hitLanded = false;
+    this.onStateChanged.notifyObservers(state);
     switch (state) {
       case "roam":
         this.stateLimit = randomInRange(
@@ -612,12 +629,14 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       previous?.stop();
     }
     if (speedRatio <= 0.01) {
+      this.currentGait = { animation: name, speedRatio: 0 };
       if (group.isPlaying) {
         group.pause();
       }
       return;
     }
     group.speedRatio = Math.min(speedRatio, 3);
+    this.currentGait = { animation: name, speedRatio: group.speedRatio };
     if (!group.isPlaying) {
       group.play(loop);
     }

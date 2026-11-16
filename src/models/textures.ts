@@ -1,6 +1,39 @@
 import { DynamicTexture, Texture, type ICanvasRenderingContext, type Scene } from "@babylonjs/core";
 import { createRandom, randomRange } from "../core/random";
 
+const dotByScene = new WeakMap<Scene, Texture>();
+
+/**
+ * Soft round dot (white center fading to transparent), drawn by code: the torch's fire particles
+ * and the halo around the creature's eyes.
+ */
+export function getSoftDotTexture(scene: Scene): Texture {
+  const existing = dotByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const size = 64;
+  const texture = new DynamicTexture("softDot", { width: size, height: size }, scene, false);
+  const context = texture.getContext();
+  const image = context.getImageData(0, 0, size, size);
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const distance = Math.hypot(x - size / 2 + 0.5, y - size / 2 + 0.5) / (size / 2);
+      const alpha = Math.max(0, 1 - distance) ** 2;
+      const index = (y * size + x) * 4;
+      image.data[index] = 255;
+      image.data[index + 1] = 255;
+      image.data[index + 2] = 255;
+      image.data[index + 3] = alpha * 255;
+    }
+  }
+  context.putImageData(image, 0, 0);
+  texture.hasAlpha = true;
+  texture.update();
+  dotByScene.set(scene, texture);
+  return texture;
+}
+
 /**
  * Leaf textures drawn by code on a canvas (no image files: the challenge forbids ready-made
  * models, and these are generated like the meshes). They are grayscale with transparency; the

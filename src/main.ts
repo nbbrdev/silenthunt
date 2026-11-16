@@ -1,6 +1,8 @@
 import { Engine, Vector3, type Scene } from "@babylonjs/core";
 import { CreatureBrainBehavior, STATE_NAMES } from "./ai/creatureBrain";
+import { CreaturePresence } from "./ai/creaturePresence";
 import { CONFIG } from "./config";
+import { createGameAudio } from "./core/audio";
 import { Input } from "./core/input";
 import { createHavokPlugin } from "./core/physics";
 import { creature } from "./models/creature/creature";
@@ -64,6 +66,18 @@ async function start(): Promise<void> {
       CONFIG.world.defaultSeed,
     );
     creatureModel.root.addBehavior(creatureBrain);
+    // NBB-135: its eyes and sounds. The game runs even if the sounds fail to load.
+    const presence = new CreaturePresence(
+      scene,
+      creatureModel.root,
+      creatureBrain,
+      player.camera,
+      world.clock,
+      CONFIG.world.defaultSeed,
+    );
+    createGameAudio(player.camera)
+      .then((audio) => presence.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons da criatura não carregados:", error));
 
     if (import.meta.env.DEV) {
       // IA8: until health exists (NBB-136), the strike only shows up in the console.

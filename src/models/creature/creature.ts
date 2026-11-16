@@ -1,5 +1,6 @@
 import {
   Color3,
+  Constants,
   Mesh,
   MeshBuilder,
   StandardMaterial,
@@ -14,6 +15,7 @@ import { createRandom } from "../../core/random";
 import { branchTubes, growBranches } from "../branching";
 import { assemble, paint, toColor } from "../lowPoly";
 import { getSurfaceTextures, tileUVs } from "../surfaceTextures";
+import { getSoftDotTexture } from "../textures";
 import type { GeneratedModel, ModelGenerator } from "../types";
 import { buildCreatureAnimations } from "./animations";
 import { buildSkeleton, creatureBones, type BoneDef } from "./skeleton";
@@ -267,6 +269,19 @@ export const creature: ModelGenerator = {
       // The head node sits on the head joint, so the eye's local position is relative to it.
       ball.position = eye.subtract(head).add(new Vector3(0, 0, -0.01));
       getGlowLayer(scene).addIncludedOnlyMesh(ball);
+
+      // OL1-B: a soft halo, so two points of light can be noticed from the edge of the fog. It
+      // sits a little in front of the socket, or the skull around the eye would hide it.
+      const halo = MeshBuilder.CreatePlane(
+        `creatureEyeHalo${index}`,
+        { size: CONFIG.creature.eyes.haloSize },
+        scene,
+      );
+      halo.material = getEyeHaloMaterial(scene);
+      halo.parent = ball;
+      halo.position = new Vector3(0, 0, CONFIG.creature.eyes.haloForward);
+      halo.billboardMode = Mesh.BILLBOARDMODE_ALL;
+      halo.isPickable = false;
     }
 
     return { root, animations: buildCreatureAnimations(scene, nodes) };
@@ -382,6 +397,32 @@ function getEyeMaterial(scene: Scene): StandardMaterial {
   material.diffuseColor = Color3.Black();
   material.specularColor = Color3.Black();
   material.disableLighting = true;
+  // OL1-B: the eyes shine through the fog (their fading with distance is done in the game).
+  material.fogEnabled = false;
   eyeMaterialByScene.set(scene, material);
+  return material;
+}
+
+const haloMaterialByScene = new WeakMap<Scene, StandardMaterial>();
+
+/** Additive soft glow around each eye, unaffected by fog and light (OL1-B). */
+function getEyeHaloMaterial(scene: Scene): StandardMaterial {
+  const existing = haloMaterialByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const material = new StandardMaterial("creatureEyeHalo", scene);
+  material.emissiveColor = toColor(CONFIG.palette.creatureEyes).scale(
+    CONFIG.creature.eyes.haloStrength,
+  );
+  material.diffuseColor = Color3.Black();
+  material.specularColor = Color3.Black();
+  material.disableLighting = true;
+  material.opacityTexture = getSoftDotTexture(scene);
+  material.alphaMode = Constants.ALPHA_ADD;
+  material.disableDepthWrite = true;
+  material.backFaceCulling = false;
+  material.fogEnabled = false;
+  haloMaterialByScene.set(scene, material);
   return material;
 }
