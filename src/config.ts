@@ -237,7 +237,7 @@ export const CONFIG = {
     sounds: {
       /** SO1-A: files in `public/sounds/creature/` (CC0, from Freesound; see CREDITS.md). */
       files: {
-        steps: ["step-1.mp3", "step-2.mp3", "step-3.mp3", "step-4.mp3"],
+        steps: ["step-1.mp3", "step-2.mp3", "step-3.mp3", "step-4.mp3", "step-5.mp3", "step-6.mp3"],
         breath: "breath.mp3",
         growl: "growl.mp3",
       },

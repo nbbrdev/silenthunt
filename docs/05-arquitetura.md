@@ -56,6 +56,11 @@ tests/                    // testes do Vitest, espelhando src/
 - **Ganchos para depois:**
   - `onPlayerHit` avisa o golpe; a NBB-136 tira a vida.
   - A lista `fires` recebe as fogueiras da NBB-146.
+- **Presença (NBB-135):** `src/ai/creaturePresence.ts`.
+  - **Olhos:** esmaece os olhos com a distância (a neblina é desligada neles).
+  - **Sons:** passos no ritmo da animação (`brain.gait`), respiração ao espreitar perto e rosnado quando o estado vira "atacar" (`onStateChanged`).
+  - **Motor de áudio:** o `AudioEngineV2` do Babylon (`src/core/audio.ts`) escuta pela câmera.
+  - **Arquivos:** em `public/sounds/`, com a origem no `CREDITS.md`. Se não carregarem, o jogo segue sem eles.
 - **Só em desenvolvimento:**
   - `silentHunt.creature()`: mostra o estado.
   - `silentHunt.creatureState("atacar")`: força um estado.
