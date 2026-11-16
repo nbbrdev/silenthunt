@@ -10,7 +10,7 @@ Repo: `nbbrdev/silenthunt` (público) · Linear: time "Nbbr dev" (chave `NBB`), 
 - Mudou `docs/`? Atualize o Linear Doc correspondente na mesma sessão, e vice-versa.
 
 ## Fase atual
-**M0 · Base** (meta: `v0.1.0`; previsto para 13/11, atrasado). NBB-123 (docs) e NBB-124 (projeto base e CI) concluídas; NBB-125 (teste de carga) cancelada (X1-C); próxima: NBB-126 (galeria). Em 2026-11-16 o usuário decidiu manter todo o escopo até 20/11 (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C).
+**M1 · Floresta sombria** (meta: `v0.2.0`). O M0 terminou em 2026-11-16 (NBB-123, NBB-124 e NBB-126 concluídas; NBB-125 cancelada, X1-C). Ordem do M1: NBB-127 (jogador) → NBB-128 (modelos do mundo) → NBB-129 (mundo infinito) → NBB-130 (dia, noite e neblina) → NBB-131 (ruído) → NBB-132 (tocha). Em 2026-11-16 o usuário decidiu manter todo o escopo até 20/11 (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C).
 
 Lembretes:
 - A conta ativa do `gh` foi trocada para `nbbrdev` em 2026-11-12 (vale para todos os terminais).
