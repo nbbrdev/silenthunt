@@ -49,6 +49,13 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 
 **(G15)** É a "cara" do jogo e o modelo mais revisado: **alta e magra** (cerca de 2,5 m), membros longos, anda curvada e às vezes sobre quatro apoios, sem rosto definido, só **dois olhos brilhantes branco-amarelados** (destacam na neblina azulada e não se confundem com o laranja do fogo). A silhueta precisa ser reconhecível na neblina.
 
+**Implementação (NBB-133, CR1–CR4):**
+- **Corpo:** cerca de 2,3 m até o alto do crânio (3 m com as galhadas). Costelas marcadas, braços que passam dos joelhos, garras curvas e pernas com o joelho para trás, como a pata traseira de um cervo.
+- **Pele:** quase preta, seca e rachada (CR2).
+- **Cabeça (proposto, CR4a):** crânio de cervo claro com galhadas e os olhos no fundo das órbitas. Ele não tem expressão nenhuma: é o "sem alma" do CR4.
+- **Esqueleto e animações:** uma só malha com skinning em 23 ossos, 3.610 triângulos (limite de 4.000). Animações: Andar, Espreitar, Atacar e Recuar (CR3).
+- **À noite:** só o crânio claro e os olhos aparecem.
+
 ## Revisão dos modelos (A2-C)
 
 1. **Galeria** (issue 4, NBB-126): cena só de desenvolvimento (`npm run dev`), aberta por `/?galeria`, com o painel feito no Babylon GUI (GL1-B). Cada modelo novo entra com uma linha em `src/models/registry.ts`. Mostra um modelo por vez, com rotação pelo mouse, troca entre **dia / noite / neblina**, botão para cada animação, contagem de triângulos e uma **semente** para ver variações.

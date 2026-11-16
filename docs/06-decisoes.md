@@ -190,6 +190,18 @@ O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de
 | X1-C | **Sem teste de carga e sem testes automáticos novos**, para ganhar tempo. A NBB-125 foi cancelada e o Babylon fica definitivo (muda T0-C). O Vitest e o teste existente continuam no CI, mas as regras novas não ganham testes (muda T6-A). O limite do passo da física, que seria feito no teste de carga, vai para a NBB-127. |
 | R2 | **Sem PRs:** commits direto na `main` (substitui O2-A). O usuário revisa pelos commits e pelo resumo no chat; o que Claude decidir sozinho vai no resumo e num comentário da issue no Linear. |
 
+## NBB-133: Modelo da criatura (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| CR1 | O usuário mandou 4 imagens de referência (wendigo com crânio de cervo e galhadas), como inspiração, não para copiar. |
+| CR2 | Pele **cinza-escura quase preta**, seca e rachada como casca de árvore, desenhada por código. Ela se camufla entre os troncos e na neblina. |
+| CR3 | Quatro animações: **Andar** (em pé, curvada, passos longos e lentos), **Espreitar** (baixa, nas quatro, devagar), **Atacar** (golpe com o braço longo) e **Recuar** (foge rápido nas quatro). |
+| CR4 | A criatura deve "enganar o cérebro": o jogador não consegue ler expressão nenhuma nela, é algo **sem alma**. |
+
 ## Pendentes (proposto)
 
-Nenhuma no momento.
+| Código | Proposta | Muda |
+|---|---|---|
+| CR4a | **(proposto)** A cabeça é um **crânio de cervo** claro, sem pele, com **galhadas** e os olhos no fundo das órbitas (seguindo as referências do CR1). O crânio não tem expressão, mas tem focinho e mandíbula. | CR4 previa cabeça lisa sem boca e G15 dizia "sem rosto definido" |
+| CR3a | **(proposto)** "Atacar" é só o bote com o golpe (1 s). A corrida até o jogador reaproveita o galope de "Recuar" na IA (NBB-134). | CR3 juntava a corrida e o golpe numa animação |
