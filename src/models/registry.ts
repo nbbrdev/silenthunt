@@ -1,3 +1,4 @@
+import { creature } from "./creature/creature";
 import { torch } from "./items/torch";
 import { bush } from "./nature/bush";
 import { deadTree } from "./nature/deadTree";
@@ -18,4 +19,5 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   groundBranch,
   groundTuft,
   torch,
+  creature,
 ];

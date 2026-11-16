@@ -36,6 +36,11 @@ const LIGHT_MODE_LABELS: Record<LightMode, string> = {
 };
 
 const PANEL_WIDTH_PX = 260;
+/**
+ * Starting camera angle around the model: a 3/4 view from the front. Models face +Z (Babylon's
+ * forward), so the old −π/2 showed them from behind.
+ */
+const START_ALPHA = Math.PI / 2 - 0.6;
 const BUTTON_COLOR = "#333333";
 const SELECTED_BUTTON_COLOR = "#5a6b4a";
 
@@ -54,7 +59,7 @@ export function createGalleryScene(engine: Engine): Scene {
 
   const camera = new ArcRotateCamera(
     "galleryCamera",
-    -Math.PI / 2,
+    START_ALPHA,
     Math.PI / 2.5,
     5,
     Vector3.Zero(),
@@ -66,9 +71,13 @@ export function createGalleryScene(engine: Engine): Scene {
   camera.upperBetaLimit = Math.PI / 2 - 0.05;
   camera.wheelPrecision = 30;
 
-  // The sun comes from behind the camera's starting side, so the side you see first is lit.
+  // The sun shines from the camera's starting side, so the side you see first is lit.
   const ambient = new HemisphericLight("galleryAmbient", new Vector3(0, 1, 0), scene);
-  const sun = new DirectionalLight("gallerySun", new Vector3(0.4, -1, 0.6), scene);
+  const sun = new DirectionalLight(
+    "gallerySun",
+    new Vector3(-Math.cos(START_ALPHA), -1.2, -Math.sin(START_ALPHA)),
+    scene,
+  );
 
   const groundSize = CONFIG.gallery.groundSize;
   const ground = MeshBuilder.CreateGround(
@@ -190,7 +199,7 @@ export function createGalleryScene(engine: Engine): Scene {
     // Keep the viewing angles: by default setTarget recomputes them from the old camera position,
     // which put the camera under the ground for tall models.
     camera.setTarget(min.add(max).scale(0.5), false, false, true);
-    camera.alpha = -Math.PI / 2;
+    camera.alpha = START_ALPHA;
     camera.beta = Math.PI / 2.5;
     camera.radius = Math.max(max.subtract(min).length() * 1.5, 2);
 
@@ -258,6 +267,31 @@ export function createGalleryScene(engine: Engine): Scene {
             ?.getEffect()
             ?.vertexSourceCode.includes("windSway") ?? false,
       }),
+      /** Points the camera from a given angle (e.g. view(0, 1.55) = side view at ground level). */
+      view: (alpha: number, beta: number) => {
+        camera.alpha = alpha;
+        camera.beta = beta;
+      },
+      /** Lowest and highest point of the model with the current animation pose applied. */
+      posedBounds: (...nodeNames: string[]) => {
+        const round = (value: number) => Math.round(value * 100) / 100;
+        let minY = Infinity;
+        let maxY = -Infinity;
+        for (const mesh of state.model?.root.getChildMeshes(false) ?? []) {
+          mesh.refreshBoundingInfo({ applySkeleton: true });
+          const box = mesh.getBoundingInfo().boundingBox;
+          minY = Math.min(minY, box.minimumWorld.y);
+          maxY = Math.max(maxY, box.maximumWorld.y);
+        }
+        // World positions of named nodes (e.g. the creature's joints, "creatureBone-toeL").
+        const nodes = Object.fromEntries(
+          nodeNames.map((name) => [
+            name,
+            scene.getTransformNodeByName(name)?.getAbsolutePosition().asArray().map(round),
+          ]),
+        );
+        return { minY: round(minY), maxY: round(maxY), nodes };
+      },
     },
   });
   return scene;

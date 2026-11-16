@@ -200,6 +200,11 @@ export const CONFIG = {
     rock: { r: 0.4, g: 0.4, b: 0.38 },
     moss: { r: 0.22, g: 0.3, b: 0.16 },
     grass: { r: 0.28, g: 0.34, b: 0.19 },
+    /** The creature (CR2, CR4): near-black dry skin, bleached deer skull, antlers, eyes (G15). */
+    creatureSkin: { r: 0.1, g: 0.09, b: 0.085 },
+    creatureBone: { r: 0.76, g: 0.72, b: 0.64 },
+    creatureAntler: { r: 0.5, g: 0.44, b: 0.35 },
+    creatureEyes: { r: 1, g: 0.94, b: 0.7 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },
