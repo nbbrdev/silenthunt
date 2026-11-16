@@ -53,7 +53,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   | Disparo do arco | 8 m |
   | Disparo da espingarda | 150 m |
 
-- **RF-11** O chão multiplica os raios de movimento (G3): musgo ×0,7; terra ×1,0; folhas secas ×1,4. Pisar num **galho seco** dá um estalo único de **12 m**, mesmo agachado.
+- **RF-11** O chão multiplica os raios de movimento (G3): musgo ×0,7; terra ×1,0; folhas secas ×1,4; galhos secos ×1,4 (NO4). Pisar num **galho seco** visível no chão (a menos de 0,4 m dele) dá um estalo único de **12 m**, mesmo agachado; cada galho estala uma vez só (NO4-B).
 - **RF-12** O **medidor de ruído** no HUD (M2-A) mostra o raio atual como uma barra discreta que pulsa a cada passo.
 
 ### Visibilidade (M3-B)

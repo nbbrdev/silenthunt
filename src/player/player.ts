@@ -1,6 +1,7 @@
 import {
   CharacterSupportedState,
   FreeCamera,
+  Observable,
   PhysicsCharacterController,
   Quaternion,
   Vector3,
@@ -10,6 +11,9 @@ import {
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import { canRun, updateStamina } from "./stamina";
+
+/** How the player is moving: decides how loud each footstep is (RF-10). */
+export type Gait = "still" | "crouch" | "walk" | "run";
 
 const UP = Vector3.Up();
 const DOWN = Vector3.Down();
@@ -28,6 +32,14 @@ export class Player {
   readonly camera: FreeCamera;
   /** Current stamina, from 0 to CONFIG.player.stamina.max (RF-42). */
   stamina: number = CONFIG.player.stamina.max;
+  /** Fired when the player touches the ground after a jump or fall (it makes noise, RF-10). */
+  readonly onLanded = new Observable<void>();
+  /** How the player is moving right now (drives the footstep noise). */
+  gait: Gait = "still";
+  /** True while standing on the ground (not jumping or falling). */
+  grounded = true;
+
+  private airborneSeconds = 0;
 
   private readonly controller: PhysicsCharacterController;
   private readonly gravity = new Vector3(0, CONFIG.physics.gravity, 0);
@@ -73,6 +85,12 @@ export class Player {
   /** Center of the player's collision capsule, in world coordinates. */
   get position(): Vector3 {
     return this.controller.getPosition();
+  }
+
+  /** Point on the ground under the player (bottom of the capsule). */
+  get feet(): Vector3 {
+    const center = this.controller.getPosition();
+    return new Vector3(center.x, center.y - this.capsuleHeight / 2, center.z);
   }
 
   /** True while the player is crouching. */
@@ -130,7 +148,30 @@ export class Player {
     this.controller.setVelocity(velocity);
     this.controller.integrate(dt, support, this.gravity);
 
+    this.updateGait(isRunning, dt);
     this.updateCamera(dt);
+  }
+
+  /** Works out the gait and detects landings (both used by the footstep noise, NBB-131). */
+  private updateGait(isRunning: boolean, dt: number): void {
+    if (!this.grounded) {
+      this.airborneSeconds += dt;
+    } else {
+      // A tiny hop over a bump is not a landing: only real jumps and falls count.
+      if (this.airborneSeconds > 0.25) {
+        this.onLanded.notifyObservers();
+      }
+      this.airborneSeconds = 0;
+    }
+    const velocity = this.controller.getVelocity();
+    const horizontalSpeed = Math.hypot(velocity.x, velocity.z);
+    if (!this.grounded || horizontalSpeed < 0.3) {
+      this.gait = "still";
+    } else if (this.crouched) {
+      this.gait = "crouch";
+    } else {
+      this.gait = isRunning ? "run" : "walk";
+    }
   }
 
   private updateLook(): void {
@@ -156,6 +197,7 @@ export class Player {
       this.rising = false;
     }
     const grounded = support.supportedState === CharacterSupportedState.SUPPORTED && !this.rising;
+    this.grounded = grounded;
     this.controller.acceleration = grounded
       ? CONFIG.player.groundResponse
       : CONFIG.player.airResponse;

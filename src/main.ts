@@ -3,7 +3,10 @@ import { CONFIG } from "./config";
 import { Input } from "./core/input";
 import { createHavokPlugin } from "./core/physics";
 import { setupPostProcessing } from "./core/postProcessing";
+import { Footsteps } from "./player/footsteps";
 import { Player } from "./player/player";
+import { NoiseSystem } from "./systems/noise";
+import { createHud } from "./ui/hud";
 import { createWorld } from "./world/worldScene";
 import { attachFpsCounter } from "./ui/fpsCounter";
 import "./style.css";
@@ -34,8 +37,20 @@ async function start(): Promise<void> {
     const player = new Player(scene, input, feet);
     setupPostProcessing(scene, player.camera);
     scene.onBeforeRenderObservable.add(() => world.chunks.update(player.position));
+    const noise = new NoiseSystem();
+    const footsteps = new Footsteps(scene, player, world.terrain, world.chunks, noise);
+    createHud(scene, noise, () => footsteps.currentRadius());
     if (import.meta.env.DEV) {
       const devInput = input;
+      const { enableNoiseRings } = await import("./core/devNoiseRings");
+      enableNoiseRings(scene, noise, devInput);
+      const recentNoise: string[] = [];
+      noise.onNoise.add((event) => {
+        recentNoise.push(`${event.source} ${event.radius.toFixed(1)} m`);
+        if (recentNoise.length > 12) {
+          recentNoise.shift();
+        }
+      });
       // DN5: T toggles fast time (development only), to review dusk and night quickly.
       scene.onBeforeRenderObservable.add(() => {
         if (devInput.wasPressed("KeyT")) {
@@ -46,6 +61,10 @@ async function start(): Promise<void> {
       Object.assign(window, {
         silentHunt: {
           time: () => ({ phase: world.clock.phase, seconds: Math.round(world.clock.time) }),
+          noise: () => ({ current: footsteps.currentRadius(), recent: [...recentNoise] }),
+          branchesNear: (radius: number) =>
+            world.chunks.branchesNear(player.position.x, player.position.z, radius),
+          stepOnBranchAt: (x: number, z: number) => world.chunks.stepOnBranch(x, z),
           setTime: (seconds: number) => world.clock.setTime(seconds),
           player: () => player.debugState(),
           groundType: () => world.terrain.groundTypeAt(player.position.x, player.position.z),

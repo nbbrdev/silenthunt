@@ -59,6 +59,8 @@ export class ChunkManager {
   private readonly chunks = new Map<string, Chunk>();
   private readonly queue: { cx: number; cz: number }[] = [];
   private centerKey = "";
+  /** Branches already stepped on ("chunkKey:placementIndex"). */
+  private readonly snappedBranches = new Set<string>();
 
   constructor(
     scene: Scene,
@@ -70,6 +72,58 @@ export class ChunkManager {
     this.terrain = terrain;
     this.library = library;
     this.groundMaterial = groundMaterial;
+  }
+
+  /**
+   * NO4-B: true if the feet at (x, z) are on a visible dry branch that has not snapped yet. Each
+   * branch snaps only once ("estalo único", RF-11); it is remembered even if its chunk unloads.
+   */
+  stepOnBranch(x: number, z: number): boolean {
+    const { chunkSize } = CONFIG.world;
+    const reach = CONFIG.noise.branchStepDistance;
+    const cx = Math.floor(x / chunkSize);
+    const cz = Math.floor(z / chunkSize);
+    for (let dz = -1; dz <= 1; dz++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const chunk = this.chunks.get(chunkKey(cx + dx, cz + dz));
+        if (!chunk) {
+          continue;
+        }
+        for (let i = 0; i < chunk.placements.length; i++) {
+          const placement = chunk.placements[i];
+          if (!placement || placement.kind !== "groundBranch") {
+            continue;
+          }
+          const id = `${chunk.key}:${i}`;
+          if (this.snappedBranches.has(id)) {
+            continue;
+          }
+          const distanceX = placement.x - x;
+          const distanceZ = placement.z - z;
+          if (distanceX * distanceX + distanceZ * distanceZ <= reach * reach) {
+            this.snappedBranches.add(id);
+            return true;
+          }
+        }
+      }
+    }
+    return false;
+  }
+
+  /** Positions of the dry branches lying within `radius` of (x, z) (debugging and tests). */
+  branchesNear(x: number, z: number, radius: number): { x: number; z: number }[] {
+    const found: { x: number; z: number }[] = [];
+    for (const chunk of this.chunks.values()) {
+      for (const placement of chunk.placements) {
+        if (
+          placement.kind === "groundBranch" &&
+          (placement.x - x) ** 2 + (placement.z - z) ** 2 <= radius * radius
+        ) {
+          found.push({ x: placement.x, z: placement.z });
+        }
+      }
+    }
+    return found;
   }
 
   /** Loads everything around `position` right away (used before the game starts). */

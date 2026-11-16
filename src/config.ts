@@ -128,6 +128,37 @@ export const CONFIG = {
     /** DN5: how much faster time runs while the dev key T is on. */
     devFastForward: 20,
   },
+  /** Noise (M1-B, NBB-131): every action is a circle of sound; whoever is inside hears it. */
+  noise: {
+    /** RF-10 (G3): radius in meters per action. */
+    radius: {
+      crouchStep: 2,
+      walkStep: 6,
+      runStep: 15,
+      landing: 8,
+      chop: 25,
+      build: 20,
+      knife: 3,
+      bow: 8,
+      shotgun: 150,
+    },
+    /** RF-11 (G3): the ground multiplies movement noise. Twigs ground = leaves (NO4). */
+    groundMultiplier: { moss: 0.7, dirt: 1, leaves: 1.4, twigs: 1.4 },
+    /** RF-11: stepping on a visible dry branch snaps it: one loud crack (NO4-B). */
+    branchSnapRadius: 12,
+    /** NO4-B: the feet step on a branch when this close (meters) to its middle. */
+    branchStepDistance: 0.4,
+    /** NO3: seconds between footsteps per gait. */
+    stepInterval: { crouch: 0.8, walk: 0.55, run: 0.35 },
+  },
+  /** HUD (NO1-A: Babylon GUI). */
+  hud: {
+    /** NO2: the noise meter is full at this radius (meters). */
+    noiseMeterMax: 20,
+    noiseMeterWidthPx: 220,
+    /** How fast a step "pulse" fades, per second. */
+    noisePulseFade: 3,
+  },
   /** DN4 (G14): film grain, darker screen edges, and glow for the creature's eyes and fire. */
   postProcessing: {
     grainIntensity: 8,

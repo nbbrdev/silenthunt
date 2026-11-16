@@ -160,6 +160,16 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | DN4 | Granulado leve e vinheta moderada; brilho preparado para os olhos da criatura e o fogo. |
 | DN5 | Só em desenvolvimento: a tecla T acelera o tempo 20×. |
 
+## NBB-131: Ruído e medidor no HUD (2026-11-16)
+
+| Código | Decisão |
+|---|---|
+| NO1-A | HUD feito com o Babylon GUI (o mesmo da galeria). |
+| NO2 | Medidor de ruído: barra fina e discreta embaixo no centro, branca e semitransparente; cresce com o raio e pulsa a cada passo. |
+| NO3 | Um ruído por passo: a cada 0,55 s andando, 0,35 s correndo e 0,8 s agachado. |
+| NO4-B | O galho seco estala (12 m) ao pisar a menos de 0,4 m de um galho visível no chão, uma vez por galho. O chão de "galhos secos" usa o multiplicador das folhas (×1,4). |
+| NO5 | Só em desenvolvimento: a tecla N desenha no chão o círculo de cada ruído. |
+
 ## Replanejamento (2026-11-16)
 
 O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).
