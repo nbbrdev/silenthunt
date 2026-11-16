@@ -56,7 +56,7 @@ Todas as decisões tomadas com o usuário, com o código usado na conversa. Deci
 | D2 | Desafio informal, avaliado por pessoas, pelos 3 temas: sobrevivência, floresta sombria, furtividade e caça. |
 | D3 | GitHub, sem exigência do desafio; os avaliadores rodam o jogo localmente. |
 | O1-A | Todo o escopo decidido entra na versão do dia 20 (com uma ordem de corte como plano reserva, ver G9). |
-| O2-A | Um PR pequeno por issue; o usuário revisa antes do merge, várias vezes por dia. |
+| ~~O2-A~~ | ~~Um PR pequeno por issue; o usuário revisa antes do merge, várias vezes por dia.~~ Substituída por R2 em 2026-11-16 (commits direto na `main`). |
 | O3-A | Nome: **Silent Hunt**. |
 | O4-A | Textos do jogo em pt-BR. |
 | O5-A | Repositório público; a música do Epidemic Sound fica fora do Git. |
@@ -102,6 +102,15 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | I8-A | Cena mínima de prova: chão, luz, neblina, câmera orbital, caixa caindo com Havok e contador de FPS. |
 | V1-A | TypeScript 6.0 (o `typescript-eslint` ainda não suporta o 7); o Dependabot ignora o major 7. |
 | V2-A | ESLint 10 com `eslint-plugin-import-x` (o `eslint-plugin-import` original não suporta o ESLint 10). |
+
+## Replanejamento (2026-11-16)
+
+O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de atraso).
+
+| Código | Decisão |
+|---|---|
+| R1-B | Manter **todo o escopo** até 20/11, apesar do atraso. A ordem de corte (G9) continua como reserva, mas não é aplicada agora. |
+| R2 | **Sem PRs:** commits direto na `main` (substitui O2-A). O usuário revisa pelos commits e pelo resumo no chat; o que Claude decidir sozinho vai no resumo e num comentário da issue no Linear. |
 
 ## Pendentes (proposto)
 

@@ -10,7 +10,7 @@ Repo: `nbbrdev/silenthunt` (público) · Linear: time "Nbbr dev" (chave `NBB`), 
 - Mudou `docs/`? Atualize o Linear Doc correspondente na mesma sessão, e vice-versa.
 
 ## Fase atual
-**M0 · Base** (meta: `v0.1.0`, 13/11). Ordem: NBB-123 (docs) → NBB-124 (projeto base e CI) → NBB-125 (teste de carga: decide Babylon ou Godot) → NBB-126 (galeria).
+**M0 · Base** (meta: `v0.1.0`; previsto para 13/11, atrasado). Ordem: NBB-123 (docs) → NBB-124 (projeto base e CI) → NBB-125 (teste de carga: decide Babylon ou Godot) → NBB-126 (galeria). Em 2026-11-16 o usuário decidiu manter todo o escopo até 20/11 (R1-B).
 
 Lembretes:
 - A conta ativa do `gh` foi trocada para `nbbrdev` em 2026-11-12 (vale para todos os terminais).
@@ -24,7 +24,8 @@ Stack de ferramentas: Node 24, npm, Vite, Vitest, ESLint, Prettier.
 - Decisão que ele não confirmou fica como **proposto** nos docs.
 - Explicações de uma decisão vão **no chat**, num turno que termina com a pergunta em texto.
 - Responda sempre em **pt-BR**.
-- **Eu implemento, ele revisa:** um PR pequeno por issue, com explicação do que e por quê; merge (squash) só após o OK dele.
+- **Eu implemento, ele revisa — sem PRs (R2, 2026-11-16):** commits direto na `main`, um ou mais por issue. Ao terminar uma issue, explicar no chat o que mudou e por quê e listar os **pontos decididos por mim** (também num comentário da issue no Linear). Ajustes pedidos viram novos commits.
+- **Antes de cada push:** formatação, lint, tipos, testes e build verdes localmente (não há PR para barrar erros).
 
 ## Regras de trabalho (definidas pelo usuário)
 1. **Sempre use as ferramentas Write e Edit para criar ou editar arquivos.** Nada de scripts Python, `sed`, `awk`, heredocs ou redirecionamento de shell para modificar arquivos. Exceção: geradores e CLIs oficiais (`npm create vite`, `npm install`) e o Prettier; arquivos binários só com autorização do usuário.
@@ -33,10 +34,10 @@ Stack de ferramentas: Node 24, npm, Vite, Vitest, ESLint, Prettier.
 ## Regras inegociáveis
 - **Regra do desafio: nenhum modelo 3D pronto.** Todo modelo é gerado por código TypeScript (`src/models/`). Sons prontos e texturas geradas por IA são permitidos.
 - **Licenças:** só sons CC0, CC-BY (com crédito no `CREDITS.md`) ou do Epidemic Sound. Arquivos que não podem ser redistribuídos (música do Epidemic Sound) ficam em `assets-private/`, fora do Git.
-- **Modelos são revisados pelo usuário** na galeria (`/?galeria`) e por capturas no PR (dia, noite, neblina), quantas vezes for preciso.
+- **Modelos são revisados pelo usuário** na galeria (`/?galeria`) e por capturas no chat e na issue (dia, noite, neblina), quantas vezes for preciso.
 - **Todos os valores ajustáveis** (raios, tempos, dano, receitas) ficam em `src/config.ts`.
 - **Desempenho:** respeitar os limites de triângulos de `docs/05-arquitetura.md`; meta de 60 FPS.
 - **Repo público:** nenhum segredo ou dado pessoal em código, docs ou testes.
-- Commits e **títulos de PR** em Conventional Commits, pt-BR, com o ID do Linear.
+- Commits em Conventional Commits, pt-BR, com o ID do Linear (ex.: `feat(ai): criatura espreita [NBB-134]`).
 - O agente **nunca** cria tags nem releases: quem marca o fim de cada fase é o usuário.
 - Regras numeradas (RF, ADR) nunca são renumeradas.
