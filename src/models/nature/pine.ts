@@ -1,11 +1,20 @@
-import { Mesh, MeshBuilder, type Scene } from "@babylonjs/core";
+import { Vector3, type Scene } from "@babylonjs/core";
 import { CONFIG } from "../../config";
 import { createRandom, randomInRange, randomInt, randomRange } from "../../core/random";
-import { assemble, bake, jitter, paint, toColor } from "../lowPoly";
+import { branchTubes, directionAt, pointAt, type BranchSegment } from "../branching";
+import { CardBuilder } from "../cards";
+import { paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
+import { plantModel } from "../plant";
 import type { GeneratedModel, ModelGenerator } from "../types";
 
-/** Pine (W1): thin straight trunk with 4–6 stacked, slightly crooked cone "skirts". ~300 tris. */
+/** Golden angle: spreads branches evenly around the trunk, like real conifers. */
+const GOLDEN_ANGLE = 2.39996;
+
+/**
+ * Pine (W1, revised with the user's references): straight trunk with spiraling side branches
+ * that droop more at the bottom, covered in needle cards, narrowing to a pointed top.
+ */
 export const pine: ModelGenerator = {
   id: "pine",
   label: "Pinheiro",
@@ -13,51 +22,87 @@ export const pine: ModelGenerator = {
     const random = createRandom(seed);
     const settings = CONFIG.models.pine;
     const height = randomInRange(random, settings.height);
-    const layerCount = randomInt(random, settings.layers);
 
-    // The trunk stops below the top so its tip never pokes out of the last cone.
-    const trunkHeight = height * 0.85;
-    const trunk = MeshBuilder.CreateCylinder(
-      "pineTrunk",
-      { height: trunkHeight, diameterTop: 0.1, diameterBottom: height * 0.035, tessellation: 6 },
-      scene,
-    );
-    trunk.position.y = trunkHeight / 2;
-    paint(bake(trunk), toColor(CONFIG.palette.bark), seed);
+    const trunkPath: Vector3[] = [];
+    for (let i = 0; i < 5; i++) {
+      const t = i / 4;
+      trunkPath.push(
+        new Vector3(
+          randomRange(random, -0.04, 0.04) * height * t,
+          t * height,
+          randomRange(random, -0.04, 0.04) * height * t,
+        ),
+      );
+    }
+    const segments: BranchSegment[] = [
+      { path: trunkPath, radiusStart: height * 0.025, radiusEnd: 0.02, depth: 0, isTip: false },
+    ];
 
-    const parts: Mesh[] = [trunk];
-    const firstLayerY = height * 0.22;
-    const span = height - firstLayerY;
-    const layerHeight = (span / layerCount) * 1.8; // Layers overlap like real pine branches.
-    for (let i = 0; i < layerCount; i++) {
-      const t = layerCount === 1 ? 0 : i / (layerCount - 1);
-      const radius = (height * 0.22 * (1 - t) + height * 0.07 * t) * randomRange(random, 0.85, 1.1);
-      const layer = MeshBuilder.CreateCylinder(
-        `pineLayer${i}`,
-        {
-          height: layerHeight,
-          diameterTop: 0,
-          diameterBottom: radius * 2,
-          tessellation: 8,
-          subdivisions: 2,
-          cap: Mesh.CAP_START,
-        },
-        scene,
-      );
-      const layerBottom = firstLayerY + (span - layerHeight) * t;
-      layer.position.y = layerBottom + layerHeight / 2;
-      layer.rotation.set(
-        randomRange(random, -0.06, 0.06),
-        random() * Math.PI,
-        randomRange(random, -0.06, 0.06),
-      );
-      bake(layer);
-      jitter(layer, radius * 0.08, seed + i * 13);
-      paint(layer, toColor(CONFIG.palette.pineNeedles), seed + i);
-      parts.push(layer);
+    const cards = new CardBuilder();
+    const branchCount = randomInt(random, settings.branches);
+    for (let i = 0; i < branchCount; i++) {
+      const t = 0.18 + (i / branchCount) * 0.78 + randomRange(random, -0.02, 0.02);
+      const azimuth = i * GOLDEN_ANGLE + randomRange(random, -0.3, 0.3);
+      const length = (1 - t) * height * 0.32 + 0.35;
+      // Low branches droop, high ones point slightly up.
+      const droop = -0.35 + t * 0.5;
+      const direction = new Vector3(Math.cos(azimuth), droop, Math.sin(azimuth)).normalize();
+      const start = pointAt(trunkPath, t);
+      const middle = start.add(direction.scale(length * 0.5));
+      const end = start.add(direction.scale(length)).add(new Vector3(0, -length * 0.15, 0));
+      const radius = height * 0.012 * (1 - t) + 0.015;
+      const branchPath = [start, middle, end];
+      segments.push({
+        path: branchPath,
+        radiusStart: radius,
+        radiusEnd: radius * 0.25,
+        depth: 3,
+        isTip: true,
+      });
+
+      // Needle cards lie mostly flat along the branch, building up the layered look.
+      const cardCount = randomInt(random, settings.needleCardsPerBranch);
+      for (let c = 0; c < cardCount; c++) {
+        const along = randomRange(random, 0.3, 1);
+        const size = length * randomRange(random, 0.65, 0.95);
+        const normal = new Vector3(
+          randomRange(random, -0.4, 0.4),
+          1,
+          randomRange(random, -0.4, 0.4),
+        );
+        cards.addCard(
+          pointAt(branchPath, along).add(new Vector3(0, -size * 0.1, 0)),
+          size,
+          size,
+          normal,
+          directionAt(branchPath, along),
+        );
+      }
     }
 
-    const tree = assemble("pine", parts, getModelMaterials(scene).foliage);
-    return { root: tree, animations: [] };
+    // A small cluster closes the pointed top.
+    for (let i = 0; i < 3; i++) {
+      const angle = (i / 3) * Math.PI;
+      cards.addCard(
+        new Vector3(0, height * 0.96, 0),
+        height * 0.09,
+        height * 0.12,
+        new Vector3(Math.cos(angle), 0, Math.sin(angle)),
+        Vector3.Up(),
+      );
+    }
+
+    const woodParts = branchTubes(segments, scene, "pineBranch");
+    const bark = toColor(CONFIG.palette.bark);
+    woodParts.forEach((part, i) => paint(part, bark, seed + i));
+
+    const needles = cards.build("pineNeedles", scene, new Vector3(0, height * 0.45, 0));
+    paint(needles, toColor(CONFIG.palette.pineNeedles), seed + 500);
+
+    const materials = getModelMaterials(scene);
+    return plantModel("pine", woodParts, materials.wood, {
+      mesh: needles,
+      material: materials.leaves.needles,
+    });
   },
 };

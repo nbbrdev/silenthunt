@@ -33,7 +33,8 @@ export const rock: ModelGenerator = {
       seed,
     );
 
-    const model = assemble("rock", [stone], getModelMaterials(scene).solid);
+    // Rocks keep the faceted look: it reads as chipped stone.
+    const model = assemble("rock", [stone], getModelMaterials(scene).solid, { flatShaded: true });
     return { root: model, animations: [] };
   },
 };

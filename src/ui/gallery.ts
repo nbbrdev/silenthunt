@@ -254,7 +254,7 @@ export function createGalleryScene(engine: Engine): Scene {
         target: camera.target.asArray().map((value) => Math.round(value * 100) / 100),
         windInShader:
           scene
-            .getMaterialByName("modelFoliage")
+            .getMaterialByName("modelWood")
             ?.getEffect()
             ?.vertexSourceCode.includes("windSway") ?? false,
       }),

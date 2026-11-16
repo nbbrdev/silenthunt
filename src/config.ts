@@ -73,13 +73,19 @@ export const CONFIG = {
   },
   /** Size ranges of the procedural models, [min, max] (W1). Lengths in meters. */
   models: {
-    pine: { height: [8, 14], layers: [4, 6] },
-    oak: { height: [6, 10], branches: [2, 3], blobs: [4, 6] },
-    deadTree: { height: [5, 9], branches: [3, 6] },
-    bush: { height: [0.6, 1.2], blobs: [3, 5] },
+    /** Conifer: straight trunk, drooping side branches covered in needle cards. */
+    pine: { height: [8, 14], branches: [26, 34], needleCardsPerBranch: [6, 9] },
+    /** Broadleaf: trunk forks into limbs (recursive), leaf cards at the outer twigs. */
+    oak: { height: [6, 10], depth: 3, leafCardsPerTwig: [8, 12] },
+    /** Gnarled bare tree with root flares; sometimes a second trunk from the base. */
+    deadTree: { height: [5, 9], depth: 3, roots: [4, 6], secondTrunkChance: 0.35 },
+    /** Dome of leaf cards around a few twigs. */
+    bush: { height: [0.6, 1.2], leafCards: [35, 55] },
     rock: { size: [0.3, 1.5] },
-    groundBranch: { length: [0.5, 1] },
-    groundTuft: { height: [0.2, 0.5], blades: [3, 5] },
+    /** Knobbly stick with 0–2 short forks. */
+    groundBranch: { length: [0.5, 1], forks: [0, 2] },
+    /** 2–3 crossed grass cards. */
+    groundTuft: { height: [0.2, 0.5], cards: [2, 3] },
   },
   /** Foliage sway (W3): sideways offset = strength × height² (meters), so the base stays still. */
   wind: {

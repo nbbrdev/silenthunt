@@ -70,16 +70,23 @@ export function paint(
 }
 
 /**
- * Joins the parts into one mesh with flat (faceted) shading: the low-poly look of C4-A.
- * The parts are disposed.
+ * Joins the parts into one mesh (the parts are disposed). `flatShaded` gives the faceted
+ * low-poly look (rocks); wood and leaves look better smooth.
  */
-export function assemble(name: string, parts: Mesh[], material: Material): Mesh {
+export function assemble(
+  name: string,
+  parts: Mesh[],
+  material: Material,
+  options: { flatShaded?: boolean } = {},
+): Mesh {
   const merged = Mesh.MergeMeshes(parts, true, true);
   if (!merged) {
     throw new Error(`Could not merge the parts of ${name}.`);
   }
   merged.name = name;
-  merged.convertToFlatShadedMesh();
+  if (options.flatShaded) {
+    merged.convertToFlatShadedMesh();
+  }
   merged.material = material;
   return merged;
 }

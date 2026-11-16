@@ -1,13 +1,14 @@
 import {
   Color3,
+  Material,
   MaterialPluginBase,
   StandardMaterial,
-  type Material,
   type MaterialDefines,
   type Scene,
   type UniformBuffer,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { getFoliageTexture, type FoliageKind } from "./textures";
 
 /**
  * Sways vertices sideways on the GPU (W3). The offset grows with the square of the vertex height
@@ -69,13 +70,15 @@ class WindPlugin extends MaterialPluginBase {
 interface ModelMaterials {
   /** Matte, vertex-colored, no wind: rocks, fallen branches. */
   solid: StandardMaterial;
-  /** Same look, with wind and visible from both sides: trees, bushes, grass. */
-  foliage: StandardMaterial;
+  /** Trunks and branches of standing plants: matte, with wind. */
+  wood: StandardMaterial;
+  /** Leaf cards: foliage texture with cut-out transparency, wind, visible from both sides. */
+  leaves: Record<FoliageKind, StandardMaterial>;
 }
 
 const materialsByScene = new WeakMap<Scene, ModelMaterials>();
 
-/** Shared materials for the procedural models (one pair per scene, reused by every model). */
+/** Shared materials for the procedural models (one set per scene, reused by every model). */
 export function getModelMaterials(scene: Scene): ModelMaterials {
   const existing = materialsByScene.get(scene);
   if (existing) {
@@ -83,13 +86,35 @@ export function getModelMaterials(scene: Scene): ModelMaterials {
   }
 
   const solid = createMatteMaterial("modelSolid", scene);
-  const foliage = createMatteMaterial("modelFoliage", scene);
-  foliage.backFaceCulling = false;
-  new WindPlugin(foliage);
+  const wood = createMatteMaterial("modelWood", scene);
+  new WindPlugin(wood);
 
-  const materials = { solid, foliage };
+  const materials = {
+    solid,
+    wood,
+    leaves: {
+      broadleaf: createLeafMaterial(scene, "broadleaf"),
+      needles: createLeafMaterial(scene, "needles"),
+      grass: createLeafMaterial(scene, "grass"),
+    },
+  };
   materialsByScene.set(scene, materials);
   return materials;
+}
+
+function createLeafMaterial(scene: Scene, kind: FoliageKind): StandardMaterial {
+  const material = createMatteMaterial(`modelLeaves-${kind}`, scene);
+  material.diffuseTexture = getFoliageTexture(scene, kind);
+  // Alpha test: each pixel is either fully drawn or skipped (cheap, no sorting problems).
+  material.transparencyMode = Material.MATERIAL_ALPHATEST;
+  // Babylon 9 may run the alpha test after all alpha computations; without this flag that alpha
+  // ignores the texture and nothing is cut out (the cards rendered as black squares).
+  material.useAlphaFromDiffuseTexture = true;
+  // Needles are thin: a lower cut-off keeps them from vanishing on distant (shrunk) textures.
+  material.alphaCutOff = kind === "needles" ? 0.25 : 0.4;
+  material.backFaceCulling = false;
+  new WindPlugin(material);
+  return material;
 }
 
 function createMatteMaterial(name: string, scene: Scene): StandardMaterial {

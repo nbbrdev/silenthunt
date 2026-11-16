@@ -67,7 +67,7 @@ tests/                    // testes do Vitest, espelhando src/
 
 | Item | Limite |
 |---|---|
-| Árvore | até 600 triângulos |
+| Árvore | até 600 triângulos; **até 1.500 (proposto, M-T1)** depois da revisão da NBB-128 |
 | Animal | até 2.500 triângulos |
 | Criatura | até 4.000 triângulos |
 | Peça de construção | até 200 triângulos |

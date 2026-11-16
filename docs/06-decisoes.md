@@ -143,4 +143,6 @@ O M0 estava previsto para 12–13/11 e só avançou em 16/11 (cerca de 3 dias de
 
 ## Pendentes (proposto)
 
-Nenhuma no momento.
+| Código | Assunto |
+|---|---|
+| M-T1 | Limite de triângulos por árvore: de 600 (G16) para **1.500**. Com a técnica nova da revisão da NBB-128 (galhos recursivos e placas de folhas), a semente 1 dá: pinheiro 1.022, carvalho 698, árvore morta 1.316. Risco: milhares de árvores no mundo (NBB-129) pesam mais; a neblina permite limitar a distância de desenho. |

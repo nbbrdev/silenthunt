@@ -20,6 +20,15 @@ Cada modelo é uma função de TypeScript que **monta a malha** a partir de form
 - **Semente:** o mesmo gerador cria variações (cada árvore sai diferente, mas sempre igual para a mesma semente).
 - **Animais e criatura (A5-B):** malha do corpo + **esqueleto** (ossos) + **skinning** (cada vértice segue um ou mais ossos com um "peso"). As animações são quadros-chave (*keyframes*) dos ossos, também escritos em código.
 
+### Vegetação (revisão da NBB-128, 2026-11-16)
+
+Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais naturais. A vegetação passou a usar:
+
+- **Crescimento recursivo de galhos** (`src/models/branching.ts`): cada galho gera 2–3 filhos mais curtos e finos, com curvas aleatórias, até as pontas. Opcionais: um filho "líder" que continua a direção (afina o tronco sem corte reto) e galhinhos finos nas pontas.
+- **Placas de folhas** (`src/models/cards.ts`): quadrados com uma textura de folhas, agulhas ou capim **desenhada por código** num canvas (`src/models/textures.ts`, sem arquivos de imagem). Transparência por recorte (*alpha test*). As normais apontam para fora da copa, para ela ser iluminada como um volume.
+- **Sombreamento suave** na madeira e nas folhas; as faces chapadas (*flat shading*) ficaram só na pedra.
+- A cor continua vindo dos vértices (paleta G14 no `src/config.ts`); as texturas são em tons de cinza.
+
 ### Lista de modelos
 
 | Modelo | Animações | Issue |

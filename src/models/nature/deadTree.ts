@@ -1,13 +1,17 @@
-import { Mesh, MeshBuilder, Vector3, type Scene } from "@babylonjs/core";
+import { Color3, Vector3, type Scene } from "@babylonjs/core";
 import { CONFIG } from "../../config";
 import { createRandom, randomInRange, randomInt, randomRange } from "../../core/random";
-import { assemble, paint, toColor } from "../lowPoly";
+import { branchTubes, growBranches, type BranchSegment } from "../branching";
+import { paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
+import { plantModel } from "../plant";
 import type { GeneratedModel, ModelGenerator } from "../types";
 
-const TRUNK_POINTS = 7;
-
-/** Dead tree (W1): crooked bare trunk with 3–6 dry branches, no leaves. ~200 tris. */
+/**
+ * Dead tree (W1, revised with the user's references): gnarled, twisting bare branches that
+ * split again and again into sharp tips, root flares at the base, moss near the ground and,
+ * sometimes, a second trunk.
+ */
 export const deadTree: ModelGenerator = {
   id: "dead-tree",
   label: "Árvore morta",
@@ -15,72 +19,72 @@ export const deadTree: ModelGenerator = {
     const random = createRandom(seed);
     const settings = CONFIG.models.deadTree;
     const height = randomInRange(random, settings.height);
-    const wood = toColor(CONFIG.palette.deadWood);
-    const baseRadius = height * 0.045;
-    const topRadius = height * 0.01;
+    const rules = {
+      maxDepth: settings.depth,
+      children: [2, 3],
+      spread: [0.5, 1.05],
+      lengthFactor: [0.55, 0.8],
+      childStart: [0.45, 1],
+      upward: 0.22,
+      twist: 0.22,
+      // 4 points per branch keeps the tree under ~1,200 triangles.
+      pathPoints: 4,
+      twigsPerTip: 2,
+    } as const;
 
-    // The trunk wanders a little more the higher it goes.
-    const trunkPath: Vector3[] = [];
-    let x = 0;
-    let z = 0;
-    for (let i = 0; i < TRUNK_POINTS; i++) {
-      const t = i / (TRUNK_POINTS - 1);
-      x += randomRange(random, -1, 1) * height * 0.04 * t;
-      z += randomRange(random, -1, 1) * height * 0.04 * t;
-      trunkPath.push(new Vector3(x, t * height, z));
-    }
-    const trunk = MeshBuilder.CreateTube(
-      "deadTrunk",
-      {
-        path: trunkPath,
-        radiusFunction: (i) => baseRadius + (topRadius - baseRadius) * (i / (TRUNK_POINTS - 1)),
-        tessellation: 6,
-        cap: Mesh.CAP_START,
-      },
-      scene,
+    const segments: BranchSegment[] = growBranches(
+      random,
+      Vector3.Zero(),
+      new Vector3(randomRange(random, -0.15, 0.15), 1, randomRange(random, -0.15, 0.15)),
+      height * 0.45,
+      height * 0.055,
+      rules,
     );
-    paint(trunk, wood, seed);
-    const parts: Mesh[] = [trunk];
 
-    const branchCount = randomInt(random, settings.branches);
-    for (let i = 0; i < branchCount; i++) {
-      const along = randomRange(random, 0.4, 0.9) * (TRUNK_POINTS - 1);
-      const index = Math.floor(along);
-      const from = trunkPath[index] ?? Vector3.Zero();
-      const to = trunkPath[Math.min(index + 1, TRUNK_POINTS - 1)] ?? from;
-      const start = Vector3.Lerp(from, to, along - index);
-
-      const azimuth = random() * Math.PI * 2;
-      const length = height * randomRange(random, 0.15, 0.3);
-      const outward = new Vector3(
-        Math.cos(azimuth),
-        randomRange(random, 0.3, 0.9),
-        Math.sin(azimuth),
+    if (random() < settings.secondTrunkChance) {
+      const angle = random() * Math.PI * 2;
+      segments.push(
+        ...growBranches(
+          random,
+          new Vector3(Math.cos(angle) * height * 0.03, 0, Math.sin(angle) * height * 0.03),
+          new Vector3(Math.cos(angle) * 0.35, 1, Math.sin(angle) * 0.35),
+          height * 0.3,
+          height * 0.035,
+          { ...rules, maxDepth: Math.max(settings.depth - 1, 1) },
+        ),
       );
-      outward.normalize();
-      const bend = new Vector3(
-        randomRange(random, -0.3, 0.3),
-        randomRange(random, 0, 0.3),
-        randomRange(random, -0.3, 0.3),
-      );
-      const middle = start.add(outward.scale(length * 0.5));
-      const end = start.add(outward.add(bend).normalize().scale(length));
-      const branchRadius = baseRadius * 0.35 * (1 - along / TRUNK_POINTS);
-
-      const branch = MeshBuilder.CreateTube(
-        `deadBranch${i}`,
-        {
-          path: [start, middle, end],
-          radiusFunction: (point) => branchRadius * (1 - point * 0.45),
-          tessellation: 5,
-        },
-        scene,
-      );
-      paint(branch, wood, seed + i);
-      parts.push(branch);
     }
 
-    const tree = assemble("deadTree", parts, getModelMaterials(scene).foliage);
-    return { root: tree, animations: [] };
+    // Root flares: short thick roots spreading out and down into the ground.
+    const rootCount = randomInt(random, settings.roots);
+    for (let i = 0; i < rootCount; i++) {
+      const angle = (i / rootCount) * Math.PI * 2 + randomRange(random, -0.3, 0.3);
+      const roots = growBranches(
+        random,
+        new Vector3(0, height * 0.07, 0),
+        new Vector3(Math.cos(angle), -0.55, Math.sin(angle)),
+        height * randomRange(random, 0.1, 0.17),
+        height * 0.032,
+        { ...rules, maxDepth: 0, twist: 0.15, upward: -0.1, pathPoints: 4, twigsPerTip: 0 },
+      );
+      for (const root of roots) {
+        segments.push({ ...root, depth: 1 });
+      }
+    }
+
+    const woodParts = branchTubes(segments, scene, "deadBranch");
+    const wood = toColor(CONFIG.palette.deadWood);
+    const moss = toColor(CONFIG.palette.moss);
+    const mossTop = height * 0.14;
+    woodParts.forEach((part, i) =>
+      paint(
+        part,
+        (_x, y) =>
+          y < mossTop ? Color3.Lerp(wood, moss, Math.min(1, (1 - y / mossTop) * 0.85)) : wood,
+        seed + i,
+      ),
+    );
+
+    return plantModel("deadTree", woodParts, getModelMaterials(scene).wood);
   },
 };
