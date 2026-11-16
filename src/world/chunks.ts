@@ -31,6 +31,13 @@ interface Placement {
   scale: number;
 }
 
+/** Something that blocks walking, seen from above: a circle on the ground. */
+export interface Obstacle {
+  x: number;
+  z: number;
+  radius: number;
+}
+
 interface ChunkColliders {
   node: TransformNode;
   body: PhysicsBody;
@@ -120,6 +127,43 @@ export class ChunkManager {
           (placement.x - x) ** 2 + (placement.z - z) ** 2 <= radius * radius
         ) {
           found.push({ x: placement.x, z: placement.z });
+        }
+      }
+    }
+    return found;
+  }
+
+  /**
+   * IA1: the things that block walking (tree trunks and big rocks, as in MW5) within `radius` of
+   * (x, z), as circles on the ground. The creature steers around them.
+   */
+  obstaclesNear(x: number, z: number, radius: number): Obstacle[] {
+    const { chunkSize, blockingRockSize } = CONFIG.world;
+    const found: Obstacle[] = [];
+    const reach = Math.ceil(radius / chunkSize);
+    const cx = Math.floor(x / chunkSize);
+    const cz = Math.floor(z / chunkSize);
+    for (let dz = -reach; dz <= reach; dz++) {
+      for (let dx = -reach; dx <= reach; dx++) {
+        const chunk = this.chunks.get(chunkKey(cx + dx, cz + dz));
+        for (const placement of chunk?.placements ?? []) {
+          const { kind, variant, scale } = placement;
+          let obstacleRadius: number;
+          if (kind === "pine" || kind === "oak" || kind === "deadTree") {
+            obstacleRadius = this.library.trunkRadius(kind, variant) * scale;
+          } else if (kind === "rock") {
+            const size = this.library.size(kind, variant) * scale;
+            if (size < blockingRockSize) {
+              continue;
+            }
+            obstacleRadius = size * 0.42;
+          } else {
+            continue;
+          }
+          const reachSquared = (radius + obstacleRadius) ** 2;
+          if ((placement.x - x) ** 2 + (placement.z - z) ** 2 <= reachSquared) {
+            found.push({ x: placement.x, z: placement.z, radius: obstacleRadius });
+          }
         }
       }
     }

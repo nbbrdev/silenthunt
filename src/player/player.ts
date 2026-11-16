@@ -111,6 +111,14 @@ export class Player {
     };
   }
 
+  /** Development only: turns the view to face the point (x, z), level with the horizon. */
+  debugFace(x: number, z: number): void {
+    const center = this.controller.getPosition();
+    this.yaw = Math.atan2(x - center.x, z - center.z);
+    this.pitch = 0;
+    this.camera.rotation.set(this.pitch, this.yaw, 0);
+  }
+
   private update(): void {
     const frameSeconds = this.scene.getEngine().getDeltaTime() / 1000;
     const dt = Math.min(frameSeconds, CONFIG.physics.maxPlayerStepSeconds);

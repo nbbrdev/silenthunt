@@ -177,7 +177,7 @@ export function buildCreatureAnimations(
     ["Atacar", attackKeys()],
     ["Recuar", retreatKeys()],
   ];
-  return clips.map(([name, keys]) => {
+  const groups = clips.map(([name, keys]) => {
     const group = new AnimationGroup(name, scene);
     for (const [boneName, node] of nodes) {
       if (boneName === "root") {
@@ -217,8 +217,12 @@ export function buildCreatureAnimations(
       );
       group.addTargetedAnimation(hips, pelvis);
     }
-    // Back to the rest pose when the animation stops.
+    // Back to the rest pose when the animation stops, unless another one took over (the game
+    // starts the next animation before stopping the old one, and blends between them).
     group.onAnimationGroupEndObservable.add(() => {
+      if (groups.some((other) => other !== group && other.isPlaying)) {
+        return;
+      }
       for (const node of nodes.values()) {
         node.rotation.setAll(0);
       }
@@ -228,4 +232,5 @@ export function buildCreatureAnimations(
     });
     return group;
   });
+  return groups;
 }

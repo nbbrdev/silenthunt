@@ -177,6 +177,55 @@ export const CONFIG = {
     /** Crouching halves the distance. */
     crouchFactor: 0.5,
   },
+  /** The creature's behavior (G12, RF-20 to RF-24, IA1–IA7). Distances in meters, times in seconds. */
+  creature: {
+    /** RF-21: how far from the player it wanders. */
+    roamDistance: { day: [60, 120], night: [30, 60] },
+    /** IA2 (meters per second). Investigating uses the stalking top speed. */
+    speed: { roam: 1.2, stalkMax: 3, attack: 7, retreat: 7, backOff: 1.5 },
+    /** Speed at which each animation's feet match the ground (the animation speeds up with it). */
+    animationSpeed: { Andar: 1.2, Espreitar: 1, Recuar: 7 },
+    /** IA3: stalks at this fraction of how far the player sees in the fog. */
+    stalkFogFraction: 0.9,
+    /** IA5: at night, roams this long before it finds the player and starts stalking. */
+    nightRoamSeconds: [20, 40],
+    /** IA5: by day, stalks from afar every 2–4 min, for 30 s, without attacking. */
+    dayStalkEvery: [120, 240],
+    dayStalkSeconds: 30,
+    /** RF-22: at night, attacks after stalking this long. */
+    attackAfterSeconds: [20, 40],
+    /** RF-21: after the strike, flees and only roams again after this long. */
+    retreatSeconds: [60, 90],
+    /** RF-23: health taken by the strike. */
+    damage: 40,
+    /** Starts the strike at this distance; the hit lands if the player is still this close. */
+    strikeDistance: 2,
+    hitDistance: 2.5,
+    /** IA4-B: the player "looks at" it within this cone (degrees) at the center of the screen. */
+    lookConeDegrees: 25,
+    /** IA4-B: stared at this long, it backs away into the fog for `backOffSeconds`. */
+    stareSeconds: 4,
+    backOffSeconds: 6,
+    /** IA5: it sees the player inside this cone (degrees), as far as the VisibilitySystem says. */
+    viewConeDegrees: 120,
+    /** IA5: by day it only investigates noises at least this big (the shotgun). */
+    dayNoiseMinRadius: 50,
+    /** Looks around this long where the noise was, then goes back to roaming. */
+    investigateLookSeconds: 5,
+    /** IA6: farther than this from the player, it reappears out of sight at roaming distance. */
+    relocateDistance: 150,
+    /** RF-24: never closer than this to a lit campfire (NBB-146). */
+    fireKeepAway: 8,
+    /** RF-24: a lit torch looked at closer than this makes it hesitate, then flee. */
+    torchHesitateDistance: 10,
+    hesitateSeconds: 1.2,
+    /** IA1: obstacle avoidance (body radius, how far ahead it looks for trunks, turn rate). */
+    bodyRadius: 0.4,
+    avoidDistance: 2.5,
+    turnRate: 4,
+    /** Avoidance is skipped this far from the player (nobody sees it, chunks may be unloaded). */
+    avoidanceRange: 100,
+  },
   /** HUD (NO1-A: Babylon GUI). */
   hud: {
     /** NO2: the noise meter is full at this radius (meters). */

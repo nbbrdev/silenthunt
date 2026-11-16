@@ -1,7 +1,9 @@
 import { Engine, Vector3, type Scene } from "@babylonjs/core";
+import { CreatureBrainBehavior, STATE_NAMES } from "./ai/creatureBrain";
 import { CONFIG } from "./config";
 import { Input } from "./core/input";
 import { createHavokPlugin } from "./core/physics";
+import { creature } from "./models/creature/creature";
 import { setupPostProcessing } from "./core/postProcessing";
 import { Footsteps } from "./player/footsteps";
 import { Player } from "./player/player";
@@ -44,7 +46,30 @@ async function start(): Promise<void> {
     const torch = new PlayerTorch(scene, player.camera, input);
     const visibility = new VisibilitySystem(world.clock, player, torch);
     createHud(scene, noise, () => footsteps.currentRadius());
+
+    // The creature (NBB-133) and its brain (NBB-134).
+    const creatureModel = creature.create(scene, CONFIG.world.defaultSeed);
+    const creatureBrain = new CreatureBrainBehavior(
+      {
+        scene,
+        player,
+        torch,
+        clock: world.clock,
+        terrain: world.terrain,
+        chunks: world.chunks,
+        noise,
+        visibility,
+      },
+      creatureModel.animations,
+      CONFIG.world.defaultSeed,
+    );
+    creatureModel.root.addBehavior(creatureBrain);
+
     if (import.meta.env.DEV) {
+      // IA8: until health exists (NBB-136), the strike only shows up in the console.
+      creatureBrain.onPlayerHit.add((damage) =>
+        console.info(`[criatura] golpe: ${damage} de dano`),
+      );
       const devInput = input;
       const { enableNoiseRings } = await import("./core/devNoiseRings");
       enableNoiseRings(scene, noise, devInput);
@@ -76,6 +101,24 @@ async function start(): Promise<void> {
           stepOnBranchAt: (x: number, z: number) => world.chunks.stepOnBranch(x, z),
           setTime: (seconds: number) => world.clock.setTime(seconds),
           player: () => player.debugState(),
+          creature: () => creatureBrain.debugState(),
+          faceCreature: () => {
+            const { x, z } = creatureModel.root.position;
+            player.debugFace(x, z);
+          },
+          creatureStep: (seconds: number) => {
+            creatureBrain.simulate(seconds);
+            return creatureBrain.debugState();
+          },
+          /** IA8: forces a state by its pt-BR name ("rondar", "espreitar", "atacar"...). */
+          creatureState: (name: string) => {
+            const state = STATE_NAMES[name];
+            if (!state) {
+              return `Estados: ${Object.keys(STATE_NAMES).join(", ")}`;
+            }
+            creatureBrain.forceState(state);
+            return state;
+          },
           groundType: () => world.terrain.groundTypeAt(player.position.x, player.position.z),
           activeMeshes: () => scene.getActiveMeshes().length,
           trianglesDrawn: () => scene.getActiveIndices() / 3,
