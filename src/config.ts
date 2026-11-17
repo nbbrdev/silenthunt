@@ -323,6 +323,13 @@ export const CONFIG = {
     creatureBone: { r: 0.76, g: 0.72, b: 0.64 },
     creatureAntler: { r: 0.5, g: 0.44, b: 0.35 },
     creatureEyes: { r: 1, g: 0.94, b: 0.7 },
+    /** CO4: the prey. Gray-brown rabbit with a light tail; muted red-brown doe, light belly. */
+    rabbitFur: { r: 0.42, g: 0.35, b: 0.28 },
+    rabbitLight: { r: 0.78, g: 0.74, b: 0.68 },
+    deerFur: { r: 0.5, g: 0.33, b: 0.22 },
+    deerLight: { r: 0.78, g: 0.7, b: 0.6 },
+    /** Noses, hooves and eyes. */
+    animalDark: { r: 0.06, g: 0.05, b: 0.05 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },
@@ -340,6 +347,9 @@ export const CONFIG = {
     barkRelief: 3,
     rockRelief: 2,
     groundRelief: 2.5,
+    furRelief: 1.2,
+    /** Size in meters that one repeat of the fur texture covers on an animal. */
+    furTileMeters: 0.25,
   },
   /** Size ranges of the procedural models, [min, max] (W1). Lengths in meters. */
   models: {

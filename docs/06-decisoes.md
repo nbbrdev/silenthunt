@@ -250,6 +250,21 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | VD7-B | **A vida só volta de dia** (1 por segundo, com fome acima de 50); **à noite o corpo não sara**. Sem isso a criatura nunca mataria: um golpe sararia antes de ela voltar. Muda o RF-40. |
 | VD8 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok"): barra de 160 px vermelho-escura na altura do medidor de ruído; bordas em degradê desenhado por código (clarão vermelho vivo; vida baixa pulsando entre 50% e 90% a cada 1,6 s); tremor de até ~1,7°; tela de morte em bege-acinzentado com botão escuro, dias contados pelo tempo jogado desde o começo ou o último renascer; amanhecer e entardecer contam como dia; controles travados e criatura mandada para longe na morte e ao renascer; renasce em pé olhando reto; recusa da captura do mouse tratada; `DayClock.elapsed` e `cycleSeconds`. |
 
+## Cronograma (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| CT1-A | Manter todo o escopo (R1-B) e reavaliar no fim de 18/11: se o M3 não estiver pronto, cortar os itens 1 e 2 da ordem de corte (espingarda e crafting além do básico). |
+
+## NBB-137: Modelos do coelho e do cervo (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| CO1 | O usuário mandou referências: cervos realistas (veado-vermelho e corça) e coelhos selvagens marrons (orelhas longas, patas traseiras grandes, cauda branca). Inspiração, não cópia. |
+| CO2 | Coelho com ~40 cm de comprimento; cervo com ~1,8 m de comprimento e 1,1 m na cernelha. |
+| CO3 | Só corças, **sem galhada**: a galhada fica exclusiva da criatura, então um vulto com galhos na cabeça na neblina é sempre ela. |
+| CO4 | Coelho marrom-acinzentado com cauda clara; cervo marrom-avermelhado apagado com barriga e traseira claras; cores na paleta do `config.ts`. |
+
 ## Pendentes (proposto)
 
 Nenhuma no momento.

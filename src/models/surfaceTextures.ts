@@ -12,7 +12,7 @@ export interface SurfaceTextures {
   normal: Texture;
 }
 
-export type SurfaceKind = "bark" | "rock" | "ground";
+export type SurfaceKind = "bark" | "rock" | "ground" | "fur";
 
 const SIZE = 512;
 const surfacesByScene = new WeakMap<Scene, Map<SurfaceKind, SurfaceTextures>>();
@@ -38,6 +38,9 @@ export function getSurfaceTextures(scene: Scene, kind: SurfaceKind): SurfaceText
   } else if (kind === "rock") {
     paintRock(image.data);
     relief = CONFIG.surfaces.rockRelief;
+  } else if (kind === "fur") {
+    paintFur(image.data);
+    relief = CONFIG.surfaces.furRelief;
   } else {
     paintGroundBase(image.data);
     relief = CONFIG.surfaces.groundRelief;
@@ -163,6 +166,21 @@ function paintRock(data: Uint8ClampedArray): void {
   for (let i = 0; i < SIZE * SIZE; i++) {
     const speckle = random() < 0.04 ? randomRange(random, -40, 30) : 0;
     setGray(data, i, 125 + (grain[i] ?? 0.5) * 120 + speckle);
+  }
+}
+
+// --- Fur -----------------------------------------------------------------------------------
+
+/**
+ * Fur for the animals (NBB-137): fine short strands along the body (texture V runs along the
+ * tube) and soft patches. Grayscale: each animal's colors come from the vertex colors.
+ */
+function paintFur(data: Uint8ClampedArray): void {
+  const strands = fractalNoise(41, 96, 8, 3);
+  const patches = fractalNoise(42, 4, 4, 3);
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const height = (strands[i] ?? 0.5) * 0.7 + (patches[i] ?? 0.5) * 0.3;
+    setGray(data, i, 150 + height * 105);
   }
 }
 

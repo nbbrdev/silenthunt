@@ -1,3 +1,5 @@
+import { deer } from "./animals/deer";
+import { rabbit } from "./animals/rabbit";
 import { creature } from "./creature/creature";
 import { torch } from "./items/torch";
 import { bush } from "./nature/bush";
@@ -20,4 +22,6 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   groundTuft,
   torch,
   creature,
+  rabbit,
+  deer,
 ];

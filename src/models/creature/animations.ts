@@ -1,22 +1,5 @@
-import {
-  Animation,
-  AnimationGroup,
-  Vector3,
-  type Scene,
-  type TransformNode,
-} from "@babylonjs/core";
-
-/** Rotation offsets per bone (radians, x/y/z), relative to the rest pose. */
-type Pose = Record<string, readonly [number, number, number]>;
-
-interface Key {
-  frame: number;
-  pose: Pose;
-  /** How much the hips drop (meters, negative = lower), for crouched gaits. */
-  hipDrop?: number;
-}
-
-const FPS = 30;
+import type { AnimationGroup, Scene, TransformNode } from "@babylonjs/core";
+import { blend, buildPoseAnimations, type Key, type Pose } from "../rig/poses";
 
 /**
  * Sign conventions (rotation about X): +x tilts the spine/neck forward; for bones pointing down
@@ -64,18 +47,6 @@ const LOW: Pose = {
   handL: [-0.3, 0, 0],
   handR: [-0.3, 0, 0],
 };
-
-/** Merges poses: later ones add to earlier ones bone by bone. */
-function blend(...poses: Pose[]): Pose {
-  const result: Record<string, [number, number, number]> = {};
-  for (const pose of poses) {
-    for (const [bone, [x, y, z]] of Object.entries(pose)) {
-      const current = result[bone] ?? [0, 0, 0];
-      result[bone] = [current[0] + x, current[1] + y, current[2] + z];
-    }
-  }
-  return result;
-}
 
 /**
  * One step of a gait: legs and arms swing in opposite pairs, `phase` = 1 or −1. On all fours
@@ -177,60 +148,5 @@ export function buildCreatureAnimations(
     ["Atacar", attackKeys()],
     ["Recuar", retreatKeys()],
   ];
-  const groups = clips.map(([name, keys]) => {
-    const group = new AnimationGroup(name, scene);
-    for (const [boneName, node] of nodes) {
-      if (boneName === "root") {
-        continue;
-      }
-      const rotation = new Animation(
-        `${name}-${boneName}`,
-        "rotation",
-        FPS,
-        Animation.ANIMATIONTYPE_VECTOR3,
-        Animation.ANIMATIONLOOPMODE_CYCLE,
-      );
-      rotation.setKeys(
-        keys.map((key) => {
-          const [x, y, z] = key.pose[boneName] ?? [0, 0, 0];
-          return { frame: key.frame, value: new Vector3(x, y, z) };
-        }),
-      );
-      group.addTargetedAnimation(rotation, node);
-    }
-    const pelvis = nodes.get("pelvis");
-    const pelvisRest = pelvis?.position.clone();
-    if (pelvis && pelvisRest) {
-      const rest = pelvisRest;
-      const hips = new Animation(
-        `${name}-hips`,
-        "position",
-        FPS,
-        Animation.ANIMATIONTYPE_VECTOR3,
-        Animation.ANIMATIONLOOPMODE_CYCLE,
-      );
-      hips.setKeys(
-        keys.map((key) => ({
-          frame: key.frame,
-          value: rest.add(new Vector3(0, key.hipDrop ?? 0, 0)),
-        })),
-      );
-      group.addTargetedAnimation(hips, pelvis);
-    }
-    // Back to the rest pose when the animation stops, unless another one took over (the game
-    // starts the next animation before stopping the old one, and blends between them).
-    group.onAnimationGroupEndObservable.add(() => {
-      if (groups.some((other) => other !== group && other.isPlaying)) {
-        return;
-      }
-      for (const node of nodes.values()) {
-        node.rotation.setAll(0);
-      }
-      if (pelvis && pelvisRest) {
-        pelvis.position.copyFrom(pelvisRest);
-      }
-    });
-    return group;
-  });
-  return groups;
+  return buildPoseAnimations(scene, nodes, clips, "pelvis");
 }
