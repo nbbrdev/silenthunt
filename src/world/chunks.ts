@@ -18,6 +18,7 @@ import {
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { createRandom, hashPosition, randomInt, randomRange } from "../core/random";
+import { cabinWallCircles, cabinsInChunk, cabinsNear } from "./cabinSites";
 import type { Terrain } from "./terrain";
 import type { VegetationKind, VegetationLibrary } from "./vegetation";
 
@@ -44,7 +45,12 @@ export interface Obstacle {
   x: number;
   z: number;
   radius: number;
+  /** How tall it is above the ground: arrows and shots above it fly past (0: nothing to hit). */
+  height: number;
 }
+
+/** Trunks stop arrows and shots up to this height above the ground (meters). */
+const TRUNK_BLOCK_HEIGHT = 6;
 
 interface ChunkColliders {
   node: TransformNode;
@@ -165,20 +171,35 @@ export class ChunkManager {
         for (const placement of chunk?.placements ?? []) {
           const { kind, variant, scale } = placement;
           let obstacleRadius: number;
+          let height: number;
           if (kind === "pine" || kind === "oak" || kind === "deadTree") {
             obstacleRadius = this.library.trunkRadius(kind, variant) * scale;
+            height = TRUNK_BLOCK_HEIGHT;
           } else if (kind === "rock") {
             const size = this.library.size(kind, variant) * scale;
             if (size < blockingRockSize) {
               continue;
             }
+            // The same sphere as its collider: centered 0.1·size up, 0.42·size wide.
             obstacleRadius = size * 0.42;
+            height = size * 0.52;
           } else {
             continue;
           }
           const reachSquared = (radius + obstacleRadius) ** 2;
           if ((placement.x - x) ** 2 + (placement.z - z) ** 2 <= reachSquared) {
-            found.push({ x: placement.x, z: placement.z, radius: obstacleRadius });
+            found.push({ x: placement.x, z: placement.z, radius: obstacleRadius, height });
+          }
+        }
+        // ES1: cabin walls block like trunks.
+        for (const site of cabinsInChunk(cx + dx, cz + dz, this.terrain.seed)) {
+          if (Math.hypot(site.x - x, site.z - z) > radius + 4) {
+            continue;
+          }
+          for (const circle of cabinWallCircles(site)) {
+            if ((circle.x - x) ** 2 + (circle.z - z) ** 2 <= (radius + circle.radius) ** 2) {
+              found.push(circle);
+            }
           }
         }
       }
@@ -301,7 +322,13 @@ export class ChunkManager {
     const originX = cx * chunkSize;
     const originZ = cz * chunkSize;
 
+    const cabins = cabinsNear(originX + chunkSize / 2, originZ + chunkSize / 2, this.terrain.seed);
     const place = (kind: VegetationKind, x: number, z: number, sink = 0) => {
+      // ES1: a small clearing around each cabin; only grass tufts grow close, outside its walls.
+      const clear = kind === "groundTuft" ? 3 : CONFIG.cabins.clearRadius;
+      if (cabins.some((site) => Math.hypot(x - site.x, z - site.z) < clear)) {
+        return;
+      }
       placements.push({
         kind,
         variant: randomInt(random, [0, this.library.variantCount(kind) - 1]),

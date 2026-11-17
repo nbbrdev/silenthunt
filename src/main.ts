@@ -10,6 +10,9 @@ import { creature } from "./models/creature/creature";
 import { setupPostProcessing } from "./core/postProcessing";
 import { Footsteps } from "./player/footsteps";
 import { BowControl } from "./player/bowControl";
+import { ShotgunControl } from "./player/shotgunControl";
+import { InteractionSystem } from "./systems/interactions";
+import { CabinManager } from "./world/cabins";
 import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
@@ -126,13 +129,49 @@ async function start(): Promise<void> {
       },
       CONFIG.world.defaultSeed,
     );
+    const interactions = new InteractionSystem(scene, input, player, hud);
     const equipment = new Equipment(scene, input);
-    const bow = new BowControl(scene, input, player, hands, arrows, noise, equipment, hud);
+    const bow = new BowControl(
+      scene,
+      input,
+      player,
+      hands,
+      arrows,
+      noise,
+      equipment,
+      hud,
+      interactions,
+    );
+    // NBB-141: the cabins (the first one has the shotgun) and the shotgun itself (3, ES2).
+    const shotgun = new ShotgunControl(
+      scene,
+      input,
+      player,
+      hands,
+      equipment,
+      {
+        prey: () => prey.animals(),
+        creature: creatureBrain,
+        terrain: world.terrain,
+        chunks: world.chunks,
+        noise,
+      },
+      hud,
+    );
+    const cabins = new CabinManager(
+      scene,
+      world.terrain,
+      world.chunks,
+      interactions,
+      CONFIG.world.defaultSeed,
+    );
+    cabins.onShotgunTaken.add(() => equipment.unlock("shotgun"));
+    cabins.onCartridgesFound.add((count) => shotgun.addCartridges(count));
     equipment.onChanged.add((tool) => {
       hands.equip(tool);
       knife.enabled = tool === "knife";
-      // AR6: no free hand for the torch while holding the bow.
-      torch.blocked = tool === "bow";
+      // AR6, ES2: no free hand for the torch while holding the bow or the shotgun.
+      torch.blocked = tool !== "knife";
     });
 
     // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
@@ -229,6 +268,15 @@ async function start(): Promise<void> {
           equip: (tool: "knife" | "bow") => equipment.equip(tool),
           arrows: () => bow.arrowCount,
           lastArrow: () => arrows.lastLanding,
+          /** The cabins around and the shotgun's cartridges (development). */
+          cabins: () => cabins.sites,
+          cartridges: () => shotgun.cartridges,
+          /** Shotgun: fire, reload, and hold the aim button (no argument: real mouse). */
+          fire: () => shotgun.debugFire(),
+          reload: () => shotgun.debugReload(),
+          shotgunAim: (aim?: boolean) => {
+            shotgun.debugButtons = aim === undefined ? undefined : { aim };
+          },
           /** Holds (true) or releases (false) the draw and aim buttons; no arguments: real mouse. */
           bowButtons: (draw?: boolean, aim?: boolean) => {
             bow.debugButtons = draw === undefined ? undefined : { draw, aim: aim ?? false };

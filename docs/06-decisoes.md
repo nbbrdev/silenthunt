@@ -308,6 +308,17 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | AR9 | Sem testes de dano e quebra (X1-C). |
 | AR10 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok"): braço esquerdo à frente e arco inclinado ~25°, centralizando ao mirar; corda recua 14 cm na tela; o tiro vai ao centro da tela; puxão abaixo de 15% cancela sem gastar flecha; alvos (coelho 16 cm, cervo duas esferas de 30 cm, criatura duas de 45 cm, troncos até 6 m); flecha some após 5 s de voo; dica "[E] Pegar flecha" com qualquer item, ponto de mira e contador brancos a 55%; cores do arco e da flecha na paleta; ferramentas de desenvolvimento do arco. |
 
+## NBB-141: Espingarda (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| ES1 | Cabana de toras pequena (~3×4 m), meio arruinada (telhado com buraco, vão de porta sem porta, janela), com o baú e a espingarda numa mesa. A primeira fica a ~60 m do início, numa direção sorteada pela semente, numa pequena clareira; outras são raras (~1 a cada 12 chunks), só com baú. Não é refúgio: as paredes bloqueiam, mas o golpe da criatura alcança lá dentro. |
+| ES2 | Espingarda de dois canos (2 cartuchos carregados). Tecla 3 (provisória, só depois de achada); esquerdo atira, direito mira com zoom, R recarrega em 2 s. Ocupa as duas mãos: pegar a espingarda apaga a tocha. |
+| ES3 | Tiro instantâneo num cone de 4°; até 40 m mata qualquer presa, além disso não acerta; a criatura recua sem dano. Clarão curto no cano e tranco na câmera. |
+| ES4-A | Sons do tiro e da recarga buscados agora (Freesound CC0, o usuário escolhe), antes da NBB-149. |
+| ES5 | E abre o baú, com mensagem de 3 s ("Você encontrou: ..."). Outros baús: 35% de chance de 1–2 cartuchos. Baús abertos são lembrados na sessão (save na NBB-147). "Cartuchos: N" no canto com a espingarda na mão. |
+| ES6 | Sem testes da munição e do loot (X1-C). |
+
 ## Pendentes (proposto)
 
 | Código | Assunto | Quando |

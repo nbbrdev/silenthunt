@@ -640,6 +640,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       x: fire.x,
       z: fire.z,
       radius: settings.fireKeepAway - settings.bodyRadius,
+      height: 0,
     }));
     if (this.distanceToPlayer() > settings.avoidanceRange) {
       // Far away nobody sees it pass through a trunk, and the chunks there may not be loaded.

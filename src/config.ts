@@ -320,6 +320,43 @@ export const CONFIG = {
     bowLength: 1.2,
     arrowLength: 0.7,
   },
+  /** The shotgun (RF-34, ES2, ES3, ES5). Meters and seconds. */
+  shotgun: {
+    /** RF-34: one shot kills any prey up to here; beyond, it misses. */
+    range: 40,
+    /** ES3: the spread of the shot (degrees, the whole cone). */
+    coneDegrees: 4,
+    /** ES2: two barrels; reloading takes 2 s. */
+    barrels: 2,
+    reloadSeconds: 2,
+    /** Time between shots (the second barrel can fire right after the first). */
+    shotSeconds: 0.35,
+    /** ES3: muzzle flash and recoil. */
+    flashSeconds: 0.06,
+    recoilSeconds: 0.25,
+    aimFov: 0.62,
+  },
+  /** The abandoned cabins (RF-34, ES1, ES5). Meters. */
+  cabins: {
+    /** ES1: the first cabin, with the shotgun, this far from the start in a seeded direction. */
+    firstDistance: 60,
+    /** ES1: other cabins, rare: the chance per chunk, and never this close to the start. */
+    chancePerChunk: 1 / 12,
+    othersMinDistance: 120,
+    /** The ground is flat inside `flatRadius` and blends back into the hills by `blendRadius`. */
+    flatRadius: 4,
+    blendRadius: 8,
+    /** No trees, bushes, rocks or branches this close (a small clearing). */
+    clearRadius: 6.5,
+    /** ES5 / RF-34: what the chests hold. */
+    firstCartridges: 4,
+    chestCartridgeChance: 0.35,
+    chestCartridges: [1, 2],
+    /** E reaches the chest, the table or an arrow this close. */
+    interactDistance: 1.8,
+    /** ES5: how long the "Você encontrou..." message stays. */
+    messageSeconds: 3,
+  },
   /** MA5: how much the hands sway (meters): breathing standing still, and with each step. */
   handSway: { still: 0.003, walk: 0.008, run: 0.02, crouch: 0.005 },
   /** The prey (RF-30, RF-31, PR1–PR5). Distances in meters, times in seconds. */
@@ -420,6 +457,13 @@ export const CONFIG = {
     arrowShaft: { r: 0.55, g: 0.45, b: 0.32 },
     arrowTip: { r: 0.3, g: 0.3, b: 0.3 },
     arrowFeathers: { r: 0.7, g: 0.68, b: 0.62 },
+    /** ES1, ES2: weathered cabin logs, the roof, the chest's metal; the shotgun's steel and wood. */
+    cabinLogs: { r: 0.42, g: 0.37, b: 0.31 },
+    cabinRoof: { r: 0.3, g: 0.27, b: 0.23 },
+    chestWood: { r: 0.32, g: 0.22, b: 0.14 },
+    darkMetal: { r: 0.16, g: 0.16, b: 0.17 },
+    gunSteel: { r: 0.22, g: 0.23, b: 0.25 },
+    gunWood: { r: 0.36, g: 0.21, b: 0.12 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },

@@ -138,7 +138,7 @@ export class ArrowSystem {
       const ground = this.world.terrain.heightAt(point.x, point.z);
       for (const trunk of this.world.chunks.obstaclesNear(point.x, point.z, 0.6)) {
         const inside = Math.hypot(point.x - trunk.x, point.z - trunk.z) <= trunk.radius;
-        if (inside && point.y < ground + 6) {
+        if (inside && point.y < ground + trunk.height) {
           this.land(arrow, point, false);
           return true;
         }

@@ -8,6 +8,7 @@ import {
   type BowModel,
 } from "../models/items/bow";
 import { createKnifeMesh } from "../models/items/knife";
+import { createShotgunModel, type ShotgunModel } from "../models/items/shotgun";
 import { REST_WRIST, createArmsModel, type ArmsModel } from "../models/player/arms";
 import type { Tool } from "./equipment";
 import type { Player } from "./player";
@@ -24,6 +25,12 @@ const BOW_CANT = -0.45;
 const AIM_LIFT = new Vector3(0.1, 0.07, 0.03);
 /** The right fist sits just behind the string (its knuckles on it). */
 const STRING_HOLD = new Vector3(0, -0.035, -0.07);
+/** ES2: the shotgun held low at the hip, or raised to the eye when aiming (arms' space). */
+const GUN_HIP = new Vector3(0.15, -0.2, 0.42);
+const GUN_AIM = new Vector3(0.0, -0.09, 0.4);
+/** Where each wrist goes on the gun: the right one on the grip, the left one on the fore-end. */
+const GUN_RIGHT_WRIST = new Vector3(0, -0.05, -0.03);
+const GUN_LEFT_WRIST = new Vector3(0, -0.05, 0.26);
 
 /**
  * The player's arms on screen (NBB-139, NBB-140; MA1, MA5, AR6). With the knife, the right hand
@@ -35,6 +42,7 @@ export class PlayerHands {
   readonly arms: ArmsModel;
   readonly knife: Mesh;
   readonly bow: BowModel;
+  readonly shotgun: ShotgunModel;
 
   private readonly player: Player;
   private readonly nockedArrow: Mesh;
@@ -66,9 +74,13 @@ export class PlayerHands {
     this.nockedArrow = createArrowMesh(scene);
     this.nockedArrow.parent = this.bow.root;
 
+    this.shotgun = createShotgunModel(scene);
+    this.shotgun.root.parent = this.arms.root;
+
     // Drawn after the world with its own depth, so the hands never sink into trees or the ground.
     const meshes = [this.arms.right, this.arms.left, this.knife, this.nockedArrow];
     meshes.push(...this.bow.root.getChildMeshes(false).map((mesh) => mesh as Mesh));
+    meshes.push(...this.shotgun.root.getChildMeshes(false).map((mesh) => mesh as Mesh));
     for (const mesh of meshes) {
       mesh.renderingGroupId = 1;
     }
@@ -96,7 +108,33 @@ export class PlayerHands {
     } else {
       this.arms.idle?.stop();
       this.setBowPose(0, 0, true);
+      this.setShotgunPose(0, 0, 0);
     }
+  }
+
+  /**
+   * ES2, ES3: the shotgun pose. `aim` (0–1) raises it to the eye, `recoil` (0–1) kicks it back
+   * and up after a shot, `open` (0–1) tips the barrels down to reload. Both hands hold it.
+   */
+  setShotgunPose(aim: number, recoil: number, open: number): void {
+    if (this.tool !== "shotgun") {
+      return;
+    }
+    const gun = Vector3.Lerp(GUN_HIP, GUN_AIM, aim).add(
+      new Vector3(0, 0.015 * recoil, -0.07 * recoil),
+    );
+    this.shotgun.root.position.copyFrom(gun);
+    this.shotgun.root.rotation.set(-0.15 * recoil, 0, 0);
+    this.shotgun.setOpen(open);
+    const right = gun.add(GUN_RIGHT_WRIST);
+    // The left hand stays on the fore-end, which drops with the barrels.
+    const left = gun.add(GUN_LEFT_WRIST).add(new Vector3(0, -0.13 * open, -0.03 * open));
+    this.arms.rightShoulder.position.copyFrom(
+      this.restRightShoulder.add(right.subtract(REST_WRIST.R)),
+    );
+    this.arms.leftShoulder.position.copyFrom(
+      this.restLeftShoulder.add(left.subtract(REST_WRIST.L)),
+    );
   }
 
   /**
@@ -143,9 +181,11 @@ export class PlayerHands {
 
   private updateVisibility(): void {
     const bow = this.tool === "bow";
-    this.knife.setEnabled(!bow);
+    const gun = this.tool === "shotgun";
+    this.knife.setEnabled(this.tool === "knife");
     this.bow.root.setEnabled(bow);
-    this.arms.left.setEnabled(bow || this.torchLit);
+    this.shotgun.root.setEnabled(gun);
+    this.arms.left.setEnabled(bow || gun || this.torchLit);
   }
 
   /** MA5: a gentle sway that follows the steps (one swing left and right per two steps). */

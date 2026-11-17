@@ -3,6 +3,7 @@ import { Control, Ellipse, TextBlock, type AdvancedDynamicTexture } from "@babyl
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import type { ArrowSystem } from "../systems/arrows";
+import type { InteractionSystem } from "../systems/interactions";
 import type { NoiseSystem } from "../systems/noise";
 import type { Equipment } from "./equipment";
 import type { PlayerHands } from "./hands";
@@ -23,7 +24,6 @@ export class BowControl {
   private readonly baseFov: number;
   private readonly dot: Ellipse;
   private readonly counter: TextBlock;
-  private readonly hint: TextBlock;
   private arrowsLeft: number = CONFIG.bow.startArrows;
   private drawing = false;
   private drawSeconds = 0;
@@ -38,6 +38,7 @@ export class BowControl {
     noise: NoiseSystem,
     equipment: Equipment,
     ui: AdvancedDynamicTexture,
+    interactions: InteractionSystem,
   ) {
     this.player = player;
     this.hands = hands;
@@ -70,15 +71,27 @@ export class BowControl {
     this.counter.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
     ui.addControl(this.counter);
 
-    // AR5: how to pick up an arrow, shown only when one is in reach.
-    this.hint = new TextBlock("arrowHint", "[E] Pegar flecha");
-    this.hint.color = "white";
-    this.hint.alpha = 0.7;
-    this.hint.fontSize = 16;
-    this.hint.height = "24px";
-    this.hint.top = "60px";
-    this.hint.isVisible = false;
-    ui.addControl(this.hint);
+    // AR5: E picks up an arrow lying close by, whatever is in hand.
+    interactions.add(() => {
+      if (!this.player.controlsEnabled) {
+        return undefined;
+      }
+      const reach = CONFIG.bow.pickupDistance;
+      const arrow = this.arrows.nearestStuck(this.player.position, reach);
+      if (!arrow) {
+        return undefined;
+      }
+      const { x, z } = this.player.position;
+      return {
+        label: "Pegar flecha",
+        distance: Math.hypot(arrow.position.x - x, arrow.position.z - z),
+        act: () => {
+          if (this.arrows.pickUp(this.player.position, reach)) {
+            this.arrowsLeft++;
+          }
+        },
+      };
+    });
 
     scene.onBeforeRenderObservable.add(() => {
       this.update(input, Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
@@ -101,15 +114,6 @@ export class BowControl {
     const holdingBow = this.equipment.current === "bow";
     const canAct = holdingBow && this.player.controlsEnabled;
 
-    // AR5: picking up arrows works whatever is in hand.
-    const reach = this.arrows.nearestStuck(this.player.position, settings.pickupDistance);
-    this.hint.isVisible = reach !== undefined && this.player.controlsEnabled;
-    if (reach && this.player.controlsEnabled && input.wasPressed("KeyE")) {
-      if (this.arrows.pickUp(this.player.position, settings.pickupDistance)) {
-        this.arrowsLeft++;
-      }
-    }
-
     // AR2: drawing with the left button, shooting on release.
     const drawHeld = this.debugButtons?.draw ?? input.isDown("Mouse0");
     const aimHeld = this.debugButtons?.aim ?? input.isDown("Mouse2");
@@ -128,8 +132,11 @@ export class BowControl {
     // AR2: aiming with the right button eases in a slight zoom.
     const aimTarget = canAct && aimHeld ? 1 : 0;
     this.aim += Math.max(-seconds * 5, Math.min(seconds * 5, aimTarget - this.aim));
-    const camera = this.player.camera;
-    camera.fov = this.baseFov + (settings.aimFov - this.baseFov) * this.aim;
+    // Only while the bow is in hand (or letting go of the aim): the shotgun zooms too.
+    if (holdingBow || this.aim > 0) {
+      const camera = this.player.camera;
+      camera.fov = this.baseFov + (settings.aimFov - this.baseFov) * this.aim;
+    }
 
     const draw = this.drawSeconds / settings.fullDrawSeconds;
     this.hands.setBowPose(draw, Math.max(this.aim, draw > 0 ? 0.6 : 0), this.arrowsLeft > 0);

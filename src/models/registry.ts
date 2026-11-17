@@ -2,6 +2,8 @@ import { deer } from "./animals/deer";
 import { rabbit } from "./animals/rabbit";
 import { creature } from "./creature/creature";
 import { arrow, bow } from "./items/bow";
+import { shotgun } from "./items/shotgun";
+import { cabin } from "./structures/cabin";
 import { knife } from "./items/knife";
 import { arms } from "./player/arms";
 import { torch } from "./items/torch";
@@ -30,5 +32,7 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   knife,
   bow,
   arrow,
+  shotgun,
+  cabin,
   arms,
 ];

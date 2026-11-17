@@ -1,4 +1,5 @@
 import { CONFIG } from "../config";
+import { cabinsNear } from "./cabinSites";
 import { fractalNoise } from "./noise";
 
 /** Ground types of RF-03. The noise system (NBB-131) asks which one is under the player. */
@@ -15,8 +16,26 @@ export class Terrain {
     this.seed = seed;
   }
 
-  /** Ground height in meters at (x, z) (MW1: gentle hills, RF-02). */
+  /**
+   * Ground height in meters at (x, z) (MW1: gentle hills, RF-02). Around a cabin the ground is
+   * flat (ES1), blending back into the hills a few meters away.
+   */
   heightAt(x: number, z: number): number {
+    let height = this.hillsAt(x, z);
+    const { flatRadius, blendRadius } = CONFIG.cabins;
+    for (const site of cabinsNear(x, z, this.seed)) {
+      const distance = Math.hypot(x - site.x, z - site.z);
+      if (distance >= blendRadius) {
+        continue;
+      }
+      const t = Math.max(0, (distance - flatRadius) / (blendRadius - flatRadius));
+      const flat = 1 - t * t * (3 - 2 * t);
+      height += (this.hillsAt(site.x, site.z) - height) * flat;
+    }
+    return height;
+  }
+
+  private hillsAt(x: number, z: number): number {
     const { hillHeight, hillSpacing } = CONFIG.world;
     const hills = fractalNoise(x / hillSpacing, z / hillSpacing, this.seed, 4);
     return (hills - 0.5) * 2 * hillHeight;
