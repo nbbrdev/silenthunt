@@ -16,6 +16,10 @@ import { CabinManager } from "./world/cabins";
 import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
+import { PlayerHunger } from "./player/hunger";
+import { Provisions } from "./player/provisions";
+import { CarcassSystem } from "./systems/carcasses";
+import { CampfireManager } from "./world/campfires";
 import { KnifeAttack } from "./player/knifeAttack";
 import { Player } from "./player/player";
 import { PlayerTorch } from "./player/torch";
@@ -62,11 +66,15 @@ async function start(): Promise<void> {
     const torch = new PlayerTorch(scene, hands.arms.leftHand, input);
     torch.onLitChanged.add((lit) => hands.showLeftHand(lit));
     const visibility = new VisibilitySystem(world.clock, player, torch);
-    const health = new PlayerHealth(world.clock);
-    scene.onBeforeRenderObservable.add(() =>
-      health.update(Math.min(engine.getDeltaTime() / 1000, 0.1)),
-    );
-    const hud = createHud(scene, noise, () => footsteps.currentRadius(), health);
+    // NBB-136 / NBB-142: health heals by day only above 50 hunger; hunger at 0 starves.
+    const health: PlayerHealth = new PlayerHealth(world.clock, (): number => hunger.value);
+    const hunger: PlayerHunger = new PlayerHunger(health);
+    scene.onBeforeRenderObservable.add(() => {
+      const seconds = Math.min(engine.getDeltaTime() / 1000, 0.1);
+      health.update(seconds);
+      hunger.update(seconds);
+    });
+    const hud = createHud(scene, noise, () => footsteps.currentRadius(), health, hunger);
     createDamageEffects(hud, scene, health, player);
 
     // The creature (NBB-133) and its brain (NBB-134).
@@ -171,6 +179,24 @@ async function start(): Promise<void> {
     );
     cabins.onShotgunTaken.add(() => equipment.unlock("shotgun"));
     cabins.onCartridgesFound.add((count) => shotgun.addCartridges(count));
+    // NBB-142: meat and leather from carcasses (FO1-A, Q eats), and the campfire (G, CZ1-A).
+    const provisions = new Provisions(scene, input, player, hunger, interactions, hud);
+    const carcasses = new CarcassSystem(
+      scene,
+      () => prey.animals(),
+      world.chunks,
+      equipment,
+      provisions,
+      interactions,
+      CONFIG.world.defaultSeed,
+    );
+    const campfires = new CampfireManager(scene, input, player, {
+      terrain: world.terrain,
+      creature: creatureBrain,
+      visibility,
+      provisions,
+      interactions,
+    });
     equipment.onChanged.add((tool) => {
       hands.equip(tool);
       knife.enabled = tool === "knife";
@@ -186,6 +212,8 @@ async function start(): Promise<void> {
       // VD5: back at the start, full health, the creature far away; the clock and torch go on.
       player.respawn(feet);
       health.revive();
+      // FO4-B: hungry, but not starving.
+      hunger.set(CONFIG.player.hunger.respawnValue);
       creatureBrain.sendAway();
       player.controlsEnabled = true;
       gameInput.pointerLockEnabled = true;
@@ -272,6 +300,25 @@ async function start(): Promise<void> {
           equip: (tool: "knife" | "bow") => equipment.equip(tool),
           arrows: () => bow.arrowCount,
           lastArrow: () => arrows.lastLanding,
+          /** NBB-142: hunger (a value sets it), what the player carries, and the campfire. */
+          hunger: (value?: number) => {
+            if (value !== undefined) {
+              hunger.set(value);
+            }
+            return Math.round(hunger.value * 10) / 10;
+          },
+          food: () => ({
+            rawMeat: provisions.count("rawMeat"),
+            cookedMeat: provisions.count("cookedMeat"),
+            leather: provisions.count("leather"),
+            cleaned: carcasses.cleanedCount,
+          }),
+          giveMeat: (amount = 1) => provisions.add("rawMeat", amount),
+          campfire: () => ({
+            at: campfires.position?.asArray().map((value) => Math.round(value * 10) / 10),
+            spit: campfires.spit,
+          }),
+          placeFire: (x: number, z: number) => campfires.placeAt(x, z),
           /** The cabins around and the shotgun's cartridges (development). */
           cabins: () => cabins.sites,
           cartridges: () => shotgun.cartridges,

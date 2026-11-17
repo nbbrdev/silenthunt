@@ -60,6 +60,22 @@ export const CONFIG = {
       /** VD2: below this, the screen edges pulse dark red. */
       lowHealth: 30,
     },
+    /** RF-41 (G6, NBB-142). */
+    hunger: {
+      max: 100,
+      /** From full to empty in 2 day-night cycles (32 min). */
+      emptySeconds: 1920,
+      /** With hunger at 0: this much health lost every `starveEverySeconds`. */
+      starveDamage: 1,
+      starveEverySeconds: 2,
+      /** FO4-B: hunger after respawning. */
+      respawnValue: 50,
+      /** RF-35: what each meat gives. */
+      rawMeat: 10,
+      cookedMeat: 30,
+      /** Q does nothing above this (the player is full). */
+      fullAbove: 95,
+    },
   },
   /** The infinite forest (NBB-129). */
   world: {
@@ -364,6 +380,32 @@ export const CONFIG = {
     /** ES5: how long the "Você encontrou..." message stays. */
     messageSeconds: 3,
   },
+  /** NBB-142: cleaning a carcass (RF-35, CA1-B to CA4-A). */
+  carcass: {
+    /** CA1-B: hold E this long, standing still, with the knife in hand (CA2-A). */
+    harvestSeconds: { rabbit: 2, deer: 5 },
+    /** RF-30, CA4-A: what each animal gives. */
+    meat: { rabbit: 1, deer: 4 },
+    leather: { rabbit: 0, deer: 1 },
+    /** E reaches a carcass this close (meters, to the middle of its body). */
+    reach: { rabbit: 1.5, deer: 2.2 },
+  },
+  /** NBB-142: the campfire (CZ1-A) and cooking on it (CZ2-A). */
+  campfire: {
+    /** CZ1-A (provisional): G places it this far ahead (meters). */
+    placeDistance: 1.8,
+    /** Its light: orange like the torch's, wider and stronger. */
+    lightRange: 14,
+    lightIntensity: 1.6,
+    flicker: 0.12,
+    /** RF-13: this close to the lit fire, the player is seen from `visibility.lit`. */
+    litRadius: 8,
+    /** CZ2-A / RF-35: meat cooks in 10 s, up to 4 at a time. */
+    cookSeconds: 10,
+    slots: 4,
+    /** E reaches the spit this close (meters). */
+    reach: 2,
+  },
   /** MA5: how much the hands sway (meters): breathing standing still, and with each step. */
   handSway: { still: 0.003, walk: 0.008, run: 0.02, crouch: 0.005 },
   /** The prey (RF-30, RF-31, PR1–PR5). Distances in meters, times in seconds. */
@@ -418,6 +460,12 @@ export const CONFIG = {
     healthBarWidthPx: 160,
     healthBarHideAfterSeconds: 3,
     healthBarColor: "#9e2b25",
+    /** FO3-B: hunger bar next to the health bar, shown only below `hungerBarBelow`; pulses below `hungerBarPulseBelow`. */
+    hungerBarColor: "#c8892a",
+    hungerBarBelow: 50,
+    hungerBarPulseBelow: 20,
+    /** FO1-A: the provisional food counter (raw and cooked meat, leather) at the bottom right. */
+    counterGapPx: 24,
     /** VD2: red flash on every hit, camera shake, and the slow dark-red pulse at low health. */
     damageFlashSeconds: 0.4,
     damageShakeSeconds: 0.25,
@@ -471,6 +519,14 @@ export const CONFIG = {
     darkMetal: { r: 0.16, g: 0.16, b: 0.17 },
     gunSteel: { r: 0.22, g: 0.23, b: 0.25 },
     gunWood: { r: 0.36, g: 0.21, b: 0.12 },
+    /** CZ3: raw and cooked meat; the campfire's charred wood and ash; bones of the remains (CA3-B). */
+    meatRaw: { r: 0.56, g: 0.17, b: 0.15 },
+    meatCooked: { r: 0.36, g: 0.21, b: 0.11 },
+    meatFat: { r: 0.86, g: 0.78, b: 0.7 },
+    charcoal: { r: 0.08, g: 0.07, b: 0.06 },
+    ash: { r: 0.3, g: 0.29, b: 0.27 },
+    bone: { r: 0.78, g: 0.74, b: 0.66 },
+    blood: { r: 0.25, g: 0.05, b: 0.04 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },

@@ -311,5 +311,5 @@ function buildRabbitAnimations(scene: Scene, nodes: Map<string, TransformNode>) 
     ["Correr", runKeys()],
     ["Morrer", dieKeys()],
   ];
-  return buildPoseAnimations(scene, nodes, clips, "pelvis");
+  return buildPoseAnimations(scene, nodes, clips, "pelvis", ["Morrer"]);
 }

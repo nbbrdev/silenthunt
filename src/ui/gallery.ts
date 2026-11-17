@@ -121,15 +121,27 @@ export function createGalleryScene(engine: Engine): Scene {
   panelBackground.addControl(panel);
 
   panel.addControl(createHeading("Modelo"));
+  // Two buttons per row, so the whole list fits on screen with the other controls.
   const modelButtons = new Map<ModelGenerator, Button>();
-  for (const generator of MODEL_REGISTRY) {
+  let modelRow: StackPanel | undefined;
+  MODEL_REGISTRY.forEach((generator, index) => {
+    if (index % 2 === 0) {
+      modelRow = new StackPanel(`galleryModelRow${index / 2}`);
+      modelRow.isVertical = false;
+      modelRow.height = "34px";
+      modelRow.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+      panel.addControl(modelRow);
+    }
     const button = createButton(`model-${generator.id}`, generator.label, () => {
       state.generator = generator;
       showModel();
     });
+    button.width = "118px";
+    button.paddingRight = "4px";
+    button.fontSize = 14;
     modelButtons.set(generator, button);
-    panel.addControl(button);
-  }
+    modelRow?.addControl(button);
+  });
 
   panel.addControl(createHeading("Semente"));
   const seedInput = new InputText("gallerySeed", String(state.seed));

@@ -36,13 +36,15 @@ export function blend(...poses: Pose[]): Pose {
 /**
  * Turns keyframed poses into AnimationGroups (named for the gallery, in pt-BR) at 30 frames per
  * second: one rotation track per bone node plus the hips' position (`hipsBone`). When a clip stops
- * and no other one took over, the skeleton goes back to its rest pose.
+ * and no other one took over, the skeleton goes back to its rest pose, except for the clips in
+ * `holdLastFrame` ("Morrer"): a dead animal stays down (its carcass, NBB-142).
  */
 export function buildPoseAnimations(
   scene: Scene,
   nodes: Map<string, TransformNode>,
   clips: [string, Key[]][],
   hipsBone: string,
+  holdLastFrame: readonly string[] = [],
 ): AnimationGroup[] {
   const hips = nodes.get(hipsBone);
   const hipsRest = hips?.position.clone();
@@ -88,7 +90,10 @@ export function buildPoseAnimations(
     // Back to the rest pose when the animation stops, unless another one took over (the game
     // starts the next animation before stopping the old one, and blends between them).
     group.onAnimationGroupEndObservable.add(() => {
-      if (groups.some((other) => other !== group && other.isPlaying)) {
+      if (
+        holdLastFrame.includes(name) ||
+        groups.some((other) => other !== group && other.isPlaying)
+      ) {
         return;
       }
       for (const node of nodes.values()) {

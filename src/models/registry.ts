@@ -1,5 +1,8 @@
 import { deer } from "./animals/deer";
 import { rabbit } from "./animals/rabbit";
+import { remains } from "./animals/remains";
+import { meat } from "./items/meat";
+import { campfire } from "./structures/campfire";
 import { creature } from "./creature/creature";
 import { arrow, bow } from "./items/bow";
 import { shotgun } from "./items/shotgun";
@@ -35,4 +38,7 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   shotgun,
   cabin,
   arms,
+  campfire,
+  meat,
+  remains,
 ];

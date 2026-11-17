@@ -99,8 +99,8 @@ export const torch: ModelGenerator = {
 
 const flameByScene = new WeakMap<Scene, StandardMaterial>();
 
-/** Self-lit orange material: the flame shines without needing any light. */
-function getFlameMaterial(scene: Scene): StandardMaterial {
+/** Self-lit orange material: the flame shines without needing any light (torch and campfire). */
+export function getFlameMaterial(scene: Scene): StandardMaterial {
   const existing = flameByScene.get(scene);
   if (existing) {
     return existing;

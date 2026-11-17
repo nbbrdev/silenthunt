@@ -17,9 +17,7 @@ export class PlayerHealth {
   private current: number = CONFIG.player.health.max;
   private secondsSinceDamage = Infinity;
 
-  /**
-   * @param hunger current hunger (0–100). Until hunger exists (VD3-B) it counts as full.
-   */
+  /** @param hunger current hunger (0–100, RF-41). */
   constructor(clock: DayClock, hunger: () => number = () => 100) {
     this.clock = clock;
     this.hunger = hunger;
@@ -45,6 +43,20 @@ export class PlayerHealth {
     this.current = Math.max(0, this.current - amount);
     this.secondsSinceDamage = 0;
     this.onDamaged.notifyObservers(amount);
+    if (this.isDead) {
+      this.onDied.notifyObservers();
+    }
+  }
+
+  /**
+   * RF-41: hunger at 0 wears the body down. Unlike a hit, it has no flash or shake (it would
+   * fire every 2 s) and it does not delay healing (which needs hunger above 50 anyway).
+   */
+  starve(amount: number): void {
+    if (this.isDead || amount <= 0) {
+      return;
+    }
+    this.current = Math.max(0, this.current - amount);
     if (this.isDead) {
       this.onDied.notifyObservers();
     }

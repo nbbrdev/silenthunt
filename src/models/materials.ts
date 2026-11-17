@@ -148,6 +148,20 @@ export function getGroundMaterial(scene: Scene): StandardMaterial {
 
 const groundByScene = new WeakMap<Scene, StandardMaterial>();
 
+const boneByScene = new WeakMap<Scene, StandardMaterial>();
+
+/** Plain, slightly glossy bone (the vertex colors give its tone): remains and meat (NBB-142). */
+export function getBoneMaterial(scene: Scene): StandardMaterial {
+  const existing = boneByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const material = new StandardMaterial("bone", scene);
+  material.specularColor = new Color3(0.08, 0.08, 0.07);
+  boneByScene.set(scene, material);
+  return material;
+}
+
 function createMatteMaterial(name: string, scene: Scene): StandardMaterial {
   const material = new StandardMaterial(name, scene);
   // The color comes from the vertices; white diffuse keeps it unchanged.

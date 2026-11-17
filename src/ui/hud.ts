@@ -2,22 +2,69 @@ import type { Scene } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Control, Rectangle } from "@babylonjs/gui";
 import { CONFIG } from "../config";
 import type { PlayerHealth } from "../player/health";
+import type { PlayerHunger } from "../player/hunger";
 import type { NoiseSystem } from "../systems/noise";
 
 /**
- * The game's HUD, drawn with Babylon GUI (NO1-A): the noise meter and the health bar. Hunger and
- * stamina come in later issues, next to the health bar.
+ * The game's HUD, drawn with Babylon GUI (NO1-A): the noise meter, the health bar and, next to
+ * it, the hunger bar.
  */
 export function createHud(
   scene: Scene,
   noise: NoiseSystem,
   currentNoiseRadius: () => number,
   health: PlayerHealth,
+  hunger: PlayerHunger,
 ): AdvancedDynamicTexture {
   const ui = AdvancedDynamicTexture.CreateFullscreenUI("hud", true, scene);
   createNoiseMeter(ui, scene, noise, currentNoiseRadius);
   createHealthBar(ui, scene, health);
+  createHungerBar(ui, scene, hunger);
   return ui;
+}
+
+/**
+ * Hunger bar (FO3-B): amber, right of the health bar, the same size. It only shows below 50,
+ * when health stops coming back (RF-40), and pulses slowly below 20.
+ */
+function createHungerBar(ui: AdvancedDynamicTexture, scene: Scene, hunger: PlayerHunger): void {
+  const { healthBarWidthPx, hungerBarColor, hungerBarBelow, hungerBarPulseBelow } = CONFIG.hud;
+
+  const frame = new Rectangle("hungerBar");
+  frame.width = `${healthBarWidthPx}px`;
+  frame.height = "4px";
+  frame.left = `${36 + healthBarWidthPx + 12}px`;
+  frame.top = "-36px";
+  frame.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  frame.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+  frame.thickness = 0;
+  frame.alpha = 0;
+  ui.addControl(frame);
+
+  const track = new Rectangle("hungerBarTrack");
+  track.background = "white";
+  track.alpha = 0.12;
+  track.thickness = 0;
+  frame.addControl(track);
+
+  const fill = new Rectangle("hungerBarFill");
+  fill.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  fill.background = hungerBarColor;
+  fill.alpha = 0.85;
+  fill.thickness = 0;
+  frame.addControl(fill);
+
+  let time = 0;
+  scene.onBeforeRenderObservable.add(() => {
+    const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+    time += seconds;
+    fill.width = `${Math.round(hunger.fraction * healthBarWidthPx)}px`;
+    const visible = hunger.value < hungerBarBelow;
+    const pulse =
+      hunger.value < hungerBarPulseBelow ? 0.6 + 0.4 * Math.abs(Math.sin(time * 1.5)) : 1;
+    const target = visible ? pulse : 0;
+    frame.alpha += Math.max(-seconds * 2, Math.min(seconds * 4, target - frame.alpha));
+  });
 }
 
 /**
