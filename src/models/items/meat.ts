@@ -86,11 +86,10 @@ export const meat: ModelGenerator = {
     const root = new TransformNode("meatRoot", scene);
     const raw = createMeatModel(scene, "meatRaw");
     raw.flesh.parent = root;
-    raw.flesh.position = v(-0.12, 0.04, 0);
+    raw.flesh.position = v(-0.06, 0.04, -0.09);
     const cooked = createMeatModel(scene, "meatCooked");
     cooked.flesh.parent = root;
-    cooked.flesh.position = v(0.08, 0.04, 0.05);
-    cooked.flesh.rotation.y = 0.6;
+    cooked.flesh.position = v(-0.06, 0.04, 0.09);
     cooked.setCooked(1);
     return { root, animations: [] };
   },
