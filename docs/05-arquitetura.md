@@ -67,6 +67,12 @@ tests/                    // testes do Vitest, espelhando src/
   - `silentHunt.creatureStep(s)`: simula `s` segundos sem desenhar.
   - `silentHunt.faceCreature()`: vira a câmera para ela.
 
+### A IA das presas (NBB-138)
+
+- `src/ai/preyBrain.ts`: o `PreyBrainBehavior` de cada coelho ou cervo (pastar, alerta, fugir, morto), com o mesmo desvio de obstáculos da criatura.
+- `src/ai/preyManager.ts`: espalha as presas quando um chunk carrega (`ChunkManager.onChunkLoaded`) e as recolhe quando ele descarrega. Os modelos ficam num *pool* e são reaproveitados. Os abatidos ficam numa lista por id (`"chunk:índice"`) e não reaparecem.
+- Valores em `CONFIG.prey`. Só em desenvolvimento: `silentHunt.prey()`, `silentHunt.teleport(x, z)` e `silentHunt.face(x, z)`.
+
 ## Mundo infinito (M11-C)
 
 **(G5)**
