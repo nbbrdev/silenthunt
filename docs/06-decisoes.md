@@ -292,6 +292,22 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | FA1-A | Animal pastando está distraído: ouve só a metade do raio do ruído (em alerta, volta a ouvir normal). Assim o passo agachado nas folhas (2,8 m) só alcança um coelho pastando a 1,4 m, e dá para chegar por trás até a faca (1,5 m). O cervo, que ouve o dobro, continua difícil. |
 | MA7 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok", "mãos ok"; o usuário matou um coelho no PC): punho direito no canto inferior direito com a lâmina um pouco para cima, mão esquerda mais baixa segurando a tocha perto do topo; casaco marrom-oliva e pele em material fosco liso; punho fechado com polegar; estocada recua 6 cm e avança 20 cm, acerto aos 0,24 s e ruído depois do acerto; de perto vale qualquer parte do corpo no cone; o clique que captura o mouse não golpeia; `stab()` só em desenvolvimento. |
 
+## NBB-140: Arco e flechas (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| AR1 | Provisório até o inventário (NBB-143): **1** pega a faca e **2** pega o arco; 10 flechas iniciais até o crafting (NBB-144). Sem flechas, não dispara. |
+| AR2 | Segurar o botão esquerdo puxa a corda (até 1 s), soltar dispara. Segurar o direito mira (zoom leve e arco firme). Dá para disparar sem mirar. |
+| AR3-A | A flecha voa por cálculo próprio (curva com gravidade e choque com chão, troncos e animais), sem corpo do Havok. Velocidade de 15 m/s (puxão curto) a 45 m/s (corda toda puxada). Muda o "(Havok)" do RF-33. |
+| AR4 | Coelho morre com uma flecha. Cervo: a primeira o deixa ferido (foge a 75% da velocidade), a segunda mata. A criatura recua, sem dano. Flecha que erra faz 4 m de ruído onde cai. |
+| AR5 | A flecha fica cravada onde caiu; **E** a pega a até 2 m. Ao acertar algo, quebra com 25% de chance; se acertou um animal e não quebrou, cai no chão junto dele. |
+| AR6 | Arco curvo de ~1,2 m com corda, na mão esquerda; a direita puxa a corda. Flecha de ~70 cm com ponta de pedra e penas. Pegar o arco apaga a tocha (o tempo restante fica guardado). |
+| AR7 | Um ponto pequeno e discreto no centro da tela, só enquanto mira ou puxa a corda. |
+| AR8 | "Flechas: N" discreto no canto inferior direito, só com o arco na mão. |
+| AR9 | Sem testes de dano e quebra (X1-C). |
+
 ## Pendentes (proposto)
 
-Nenhuma no momento.
+| Código | Assunto | Quando |
+|---|---|---|
+| PG | **Progressão** (pedido do usuário em 2026-11-17): o jogador começa sem nada e vai progredindo; a fonte de luz é o recurso mais importante; como a tocha protege da criatura à noite, ela deve ser difícil de fazer. Hoje a tocha custa 1 galho + 1 fibra (RF-51) e os itens provisórios são TO1-A, MA3 e AR1. | Rodada própria antes do M4 (NBB-143 e NBB-144). |

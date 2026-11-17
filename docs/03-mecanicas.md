@@ -97,7 +97,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-30** Presas: **coelho** (pequeno, rápido, 1 de carne) e **cervo** (grande, arisco, 4 de carne) (M6-B).
 - **RF-31** Estados das presas: **pastar** → **alerta** (ouviu ou viu algo: para e olha) → **fugir** (corre para longe por 10–15 s) → volta a pastar. O cervo fica em alerta com metade do estímulo do coelho. Pastando, o animal está distraído e ouve só a metade do raio de cada ruído (FA1-A).
 - **RF-32** **Faca** (M8-A): alcance de 1,5 m. Se a presa **não está em alerta nem fugindo**, mata na hora. Se está em alerta, ela foge. Contra a criatura: não causa dano, mas faz ela recuar.
-- **RF-33** **Arco:** segurar para puxar (até 1 s). A flecha cai com a gravidade (Havok). Um acerto mata o coelho; o cervo precisa de dois (o primeiro o faz fugir ferido). A flecha pode ser recuperada (chance de quebrar: 25%).
+- **RF-33** **Arco:** segurar para puxar (até 1 s). A flecha cai com a gravidade (calculada pelo jogo, AR3-A). Um acerto mata o coelho; o cervo precisa de dois (o primeiro o faz fugir ferido). A flecha pode ser recuperada (chance de quebrar: 25%).
 - **RF-34** **Espingarda:** um tiro mata qualquer presa até 40 m. Barulho de 150 m (RF-10) chama a criatura **mesmo de dia**. É encontrada uma vez no mundo, numa cabana abandonada perto do início, com 4 cartuchos; mais cartuchos aparecem raramente em baús dessas cabanas.
 - **RF-35** Presa abatida vira **carcaça**: interagir dá a carne crua. Carne crua: +10 de fome. Carne cozida na fogueira (10 s): +30.
 
