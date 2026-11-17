@@ -368,6 +368,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | CL1 | Galho: E no galho do chão (ele some e para de estalar). Pedra: E nas pedras pequenas, que não bloqueiam (abaixo de 0,6 m), que somem. Fibra: segurar E 1,5 s num arbusto, que dá 2 fibras e some. Gordura: na limpeza da carcaça (PG2-A). O que foi pego fica na lista de mudanças do chunk. |
 | CL2-A | Cortar árvores e quebrar pedras grandes ficam na NBB-144, junto com o machado. |
 | CL3 | Sem testes do inventário (X1-C). |
+| IN8 | Detalhes propostos por Claude e aprovados ("1 a 11 - Ok", "modelos ok"): item novo vai primeiro para a barra rápida; kit com faca no espaço 1, arco no 2 e flechas na mochila; barra de 52 px acima do medidor de ruído, com o nome do item por 1,6 s ao trocar; com o Tab aberto o jogador fica parado e o mouse livre (Tab fecha e devolve o mouse, Esc fecha sem devolver; morrer fecha a tela); "Inventário cheio" onde não couber (o baú fica fechado); coleta a 1,6 m ("Pegar galho", "Pegar pedra", "Colher fibra"); a tocha só é bloqueada com arco ou espingarda; ícones com o item deitado na diagonal, visto de cima, fundo transparente; posição, giro e escala de cada item na mão (galho e pedra são os modelos do mundo reduzidos); mudar a fogueira provisória com o inventário cheio perde as carnes que não couberem; ferramentas de desenvolvimento. Modelos de fibra, gordura, couro e cartucho aprovados. |
 
 ## Pendentes (proposto)
 
