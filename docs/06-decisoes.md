@@ -339,6 +339,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | CZ2-A | E perto da fogueira põe uma carne crua no espeto (até 4 ao mesmo tempo); ela escurece e fica pronta em 10 s; E pega a cozida. Não queima. O jogador pode se afastar. |
 | CZ3 | Modelos da fogueira, da carne e do resto feitos por código e revisados na galeria e por capturas (dia, noite, neblina); as chamas reaproveitam a técnica da tocha. |
 | CZ4 | Sem testes de fome e cozimento (X1-C). |
+| CZ5 | Detalhes propostos por Claude e aprovados ("1 a 12 - Ok"): alcance para limpar (coelho 1,5 m, cervo 2,2 m); segurar E cancela ao soltar ou andar; mensagens ("Você conseguiu: ...", "Você comeu: ...", "Você não tem carne", "Você está sem fome" acima de 95); contador só com o que não é zero, acima do contador da arma; fome zerada tira vida sem clarão; barra de fome à direita da vida; fogueira a 1,8 m com o espeto atravessado, sem colisão, luz de 14 m, e colocar outra devolve as carnes; "perto da fogueira" até 8 m; pegar a cozida antes de cozinhar outra, "O espeto está cheio"; modelos (fogueira com 9 pedras e 5 toras, carne com osso, restos do coelho = os do cervo menores); galeria em duas colunas; ferramentas de desenvolvimento. O animal morto passou a ficar deitado (o "Morrer" segura o último quadro). |
 
 ## Pendentes (proposto)
 
