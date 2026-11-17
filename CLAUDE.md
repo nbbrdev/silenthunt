@@ -10,7 +10,7 @@ Repo: `nbbrdev/silenthunt` (público) · Linear: time "Nbbr dev" (chave `NBB`), 
 - Mudou `docs/`? Atualize o Linear Doc correspondente na mesma sessão, e vice-versa.
 
 ## Fase atual
-**M2 · Ser caçado** (meta: `v0.3.0`). O M0 e o M1 terminaram em 2026-11-16 (M1: NBB-127 a NBB-132). Ordem do M2: NBB-133 (modelo da criatura) → NBB-134 (IA da criatura) → NBB-135 (olhos e passos) → NBB-136 (vida, dano e morte). Em 2026-11-16 o usuário decidiu manter todo o escopo até 20/11 (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C).
+**M3 · Caçar** (meta: `v0.4.0`). O M0 e o M1 terminaram em 2026-11-16 e o M2 (NBB-133 a NBB-136) em 2026-11-17. Ordem do M3: NBB-137 (modelos do coelho e do cervo, concluída) → NBB-138 (IA das presas) → NBB-139 (mãos e faca) → NBB-140 (arco) → NBB-141 (espingarda) → NBB-142 (carcaça, fome e cozinhar). Em 2026-11-16 o usuário decidiu manter todo o escopo até 20/11 (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C). Em 2026-11-17 (CT1-A): reavaliar no fim de 18/11; se o M3 não estiver pronto, cortar a espingarda e o crafting extra.
 
 Lembretes:
 - A conta ativa do `gh` foi trocada para `nbbrdev` em 2026-11-12 (vale para todos os terminais).

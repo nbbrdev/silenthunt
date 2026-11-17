@@ -264,6 +264,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | CO2 | Coelho com ~40 cm de comprimento; cervo com ~1,8 m de comprimento e 1,1 m na cernelha. |
 | CO3 | Só corças, **sem galhada**: a galhada fica exclusiva da criatura, então um vulto com galhos na cabeça na neblina é sempre ela. |
 | CO4 | Coelho marrom-acinzentado com cauda clara; cervo marrom-avermelhado apagado com barriga e traseira claras; cores na paleta do `config.ts`. |
+| CO5 | Detalhes propostos por Claude e aprovados ("1 a 5 - Ok", "modelos ok"): textura de pelo desenhada por código; cores exatas na paleta; ritmos (cervo: galope 0,6 s, morrer 0,8 s; coelho: salto 0,4 s, morrer 0,6 s); esqueleto, skinning e poses compartilhados em `src/models/rig/`; olhos dos animais escuros, sem brilho. |
 
 ## Pendentes (proposto)
 

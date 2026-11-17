@@ -17,7 +17,7 @@ Porta de entrada. Esta pasta é a **fonte da verdade** do conteúdo do jogo; cad
 |---|---|---|
 | M0 · Base | Projeto, galeria (teste de carga cancelado, X1-C) | ✅ Concluído em 2026-11-16 |
 | M1 · Floresta sombria | Mundo, neblina, dia e noite, ruído, tocha | ✅ Concluído em 2026-11-16 |
-| M2 · Ser caçado | Criatura | A fazer |
+| M2 · Ser caçado | Criatura | ✅ Concluído em 2026-11-17 |
 | M3 · Caçar | Presas e armas | A fazer |
 | M4 · Sobreviver | Coleta, crafting, construção, save | A fazer |
 | M5 · Polimento | Som, menus, equilíbrio, entrega | A fazer |
