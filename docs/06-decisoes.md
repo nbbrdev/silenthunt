@@ -266,6 +266,17 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | CO4 | Coelho marrom-acinzentado com cauda clara; cervo marrom-avermelhado apagado com barriga e traseira claras; cores na paleta do `config.ts`. |
 | CO5 | Detalhes propostos por Claude e aprovados ("1 a 5 - Ok", "modelos ok"): textura de pelo desenhada por código; cores exatas na paleta; ritmos (cervo: galope 0,6 s, morrer 0,8 s; coelho: salto 0,4 s, morrer 0,6 s); esqueleto, skinning e poses compartilhados em `src/models/rig/`; olhos dos animais escuros, sem brilho. |
 
+## NBB-138: IA das presas (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| PR1 | Por chunk: 40% de chance de 1–2 coelhos e 20% de chance de um grupo de 1–3 cervos. Aparecem e somem com os chunks; um animal abatido não reaparece na mesma sessão (o save é a NBB-147). A mais de 70 m ficam parados, sem pensar nem animar. |
+| PR2 | O coelho ouve o ruído que o alcança e vê o jogador até a distância do `VisibilitySystem`; o cervo, o dobro dos dois. Visão em cone de 270° (ponto cego de 90° atrás). Do alerta à fuga: um segundo ruído em até 5 s, ou o jogador a menos da metade da distância em que foi visto. |
+| PR3-A | Pastam parados, virando o corpo devagar de vez em quando; o coelho dá um pulinho curto a cada 10–20 s. Sem animação de andar. |
+| PR4 | Fuga a 7 m/s (coelho) e 9 m/s (cervo), para longe do susto, desviando das árvores com o mesmo desvio da criatura. |
+| PR5 | Os animais também fogem quando a criatura passa a menos de 20 m: bichos correndo de repente avisam que ela está perto. |
+| PR6 | Sem testes das transições (X1-C); `silentHunt.prey()` só em desenvolvimento. |
+
 ## Pendentes (proposto)
 
 Nenhuma no momento.

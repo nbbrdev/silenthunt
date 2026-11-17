@@ -280,6 +280,38 @@ export const CONFIG = {
       growlVolume: 1,
     },
   },
+  /** The prey (RF-30, RF-31, PR1–PR5). Distances in meters, times in seconds. */
+  prey: {
+    /** PR1: per chunk, the chance of a few rabbits and of a small group of deer. */
+    rabbitChance: 0.4,
+    rabbitsPerChunk: [1, 2],
+    deerChance: 0.2,
+    deerPerGroup: [1, 3],
+    /** How far apart the deer of a group graze. */
+    groupSpread: 5,
+    /** PR1: farther than this from the player they stand still, without thinking or animating. */
+    activeDistance: 70,
+    /** PR2: the deer is twice as wary: it hears and sees twice as far as the rabbit. */
+    senseFactor: { rabbit: 1, deer: 2 },
+    /** PR2: field of view (degrees): a blind spot of 90° behind them. */
+    viewConeDegrees: 270,
+    /** PR2: a second noise within this long turns the alert into flight. */
+    alertSeconds: 5,
+    /** RF-31: they run for 10–15 s, then graze again. */
+    fleeSeconds: [10, 15],
+    /** PR4 (meters per second); also the speed at which each running animation looks right. */
+    fleeSpeed: { rabbit: 7, deer: 9 },
+    /** PR5: they run from the creature when it comes this close. */
+    creatureFleeDistance: 20,
+    /** PR3-A: grazing in place, turning now and then; the rabbit hops to a new spot. */
+    turnEvery: [6, 12],
+    turnRate: 0.6,
+    hopEvery: [10, 20],
+    hopSeconds: 0.8,
+    hopSpeed: 1.5,
+    /** Obstacle avoidance while running (IA1). */
+    bodyRadius: { rabbit: 0.15, deer: 0.35 },
+  },
   /** SO4: sound. The player's volume control comes with the options menu (NBB-150). */
   audio: {
     masterVolume: 0.8,

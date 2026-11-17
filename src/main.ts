@@ -1,6 +1,7 @@
 import { Engine, Vector3, type Scene } from "@babylonjs/core";
 import { CreatureBrainBehavior, STATE_NAMES } from "./ai/creatureBrain";
 import { CreaturePresence } from "./ai/creaturePresence";
+import { PreyManager } from "./ai/preyManager";
 import { CONFIG } from "./config";
 import { createGameAudio } from "./core/audio";
 import { Input } from "./core/input";
@@ -87,6 +88,20 @@ async function start(): Promise<void> {
       .then((audio) => presence.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons da criatura não carregados:", error));
 
+    // NBB-138: rabbits and deer spread over the chunks (PR1).
+    const prey = new PreyManager(
+      {
+        scene,
+        player,
+        visibility,
+        noise,
+        terrain: world.terrain,
+        chunks: world.chunks,
+        creaturePosition: () => creatureModel.root.position,
+      },
+      CONFIG.world.defaultSeed,
+    );
+
     // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
     creatureBrain.onPlayerHit.add((damage) => health.damage(damage));
     const gameInput = input;
@@ -150,6 +165,26 @@ async function start(): Promise<void> {
             const { x, z } = creatureModel.root.position;
             player.debugFace(x, z);
           },
+          /** PR6: the animals within `radius` meters, nearest first. */
+          prey: (radius = 80) => {
+            const { x, z } = player.position;
+            return prey
+              .animals()
+              .map((animal) => {
+                const position = animal.attachedNode?.position;
+                const distance = position ? Math.hypot(position.x - x, position.z - z) : Infinity;
+                const at = [position?.x ?? 0, position?.z ?? 0].map((value) => Math.round(value));
+                return { id: animal.id, kind: animal.kind, state: animal.state, distance, at };
+              })
+              .filter((animal) => animal.distance <= radius)
+              .sort((a, b) => a.distance - b.distance)
+              .map((animal) => ({ ...animal, distance: Math.round(animal.distance * 10) / 10 }));
+          },
+          /** Turns the view toward the point (x, z). */
+          face: (x: number, z: number) => player.debugFace(x, z),
+          /** Puts the player at (x, z) on the ground (to visit an animal or a place). */
+          teleport: (x: number, z: number) =>
+            player.respawn(new Vector3(x, world.terrain.heightAt(x, z), z)),
           creatureStep: (seconds: number) => {
             creatureBrain.simulate(seconds);
             return creatureBrain.debugState();

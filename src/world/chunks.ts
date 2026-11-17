@@ -1,6 +1,7 @@
 import {
   Matrix,
   Mesh,
+  Observable,
   PhysicsBody,
   PhysicsMotionType,
   PhysicsShapeCapsule,
@@ -29,6 +30,13 @@ interface Placement {
   z: number;
   rotation: number;
   scale: number;
+}
+
+/** Which chunk: its key ("cx,cz") and grid coordinates. */
+export interface ChunkInfo {
+  key: string;
+  cx: number;
+  cz: number;
 }
 
 /** Something that blocks walking, seen from above: a circle on the ground. */
@@ -68,6 +76,14 @@ export class ChunkManager {
   private centerKey = "";
   /** Branches already stepped on ("chunkKey:placementIndex"). */
   private readonly snappedBranches = new Set<string>();
+  /** A chunk was loaded or unloaded (the prey live and die with their chunk, PR1). */
+  readonly onChunkLoaded = new Observable<ChunkInfo>();
+  readonly onChunkUnloaded = new Observable<ChunkInfo>();
+
+  /** The chunks loaded right now. */
+  loadedChunks(): ChunkInfo[] {
+    return [...this.chunks.values()].map(({ key, cx, cz }) => ({ key, cx, cz }));
+  }
 
   constructor(
     scene: Scene,
@@ -265,6 +281,7 @@ export class ChunkManager {
     }
 
     this.chunks.set(key, { key, cx, cz, terrainMesh, placements });
+    this.onChunkLoaded.notifyObservers({ key, cx, cz });
   }
 
   private unload(chunk: Chunk): void {
@@ -272,6 +289,7 @@ export class ChunkManager {
     chunk.terrainMesh.dispose();
     this.library.removeChunk(chunk.key);
     this.chunks.delete(chunk.key);
+    this.onChunkUnloaded.notifyObservers({ key: chunk.key, cx: chunk.cx, cz: chunk.cz });
   }
 
   /** Deterministic scattering of the vegetation of one chunk (MW2). */
