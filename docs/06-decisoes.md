@@ -354,6 +354,21 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | PG5-A | Arco e flechas só pelo crafting (RF-51). |
 | PG6 | Os atalhos provisórios (tochas ilimitadas TO1-A, fogueira na tecla G CZ1-A, faca sempre na mão MA3, arco com 10 flechas AR1) saem quando o inventário e o crafting existirem (NBB-143, NBB-144, NBB-146). |
 
+## NBB-143: Coleta e inventário (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| IN1-A | Inventário em grade com pilhas: 6 espaços da barra rápida + 18 da mochila. Pilhas de 20 (recursos e flechas), 10 (comida e cartuchos) e 1 (ferramentas). Cheio, não pega mais. |
+| IN2-A | Comer: carne selecionada na barra + botão esquerdo ("usar item", G2). Substitui o Q provisório (FO2-A). |
+| IN3-A | O Tab não pausa: o mundo continua enquanto o inventário está aberto. |
+| IN4-A | Mover itens: clicar para pegar e clicar para soltar; o botão direito pega metade de uma pilha. |
+| IN5-A | Até o crafting (NBB-144), o inventário começa com um kit provisório: faca, arco, 10 flechas; as tochas continuam se repondo sozinhas (TO1-A). A NBB-144 esvazia o kit (PG1-A, PG6). |
+| IN6-B | Qualquer item selecionado aparece na mão (carne, galho, pedra, fibra...), com modelos feitos por código e revisados na galeria. |
+| IN7-A | Ícones: miniaturas dos próprios modelos 3D, desenhadas por código ao abrir o jogo (fibra, gordura, couro e cartucho ganham modelos). |
+| CL1 | Galho: E no galho do chão (ele some e para de estalar). Pedra: E nas pedras pequenas, que não bloqueiam (abaixo de 0,6 m), que somem. Fibra: segurar E 1,5 s num arbusto, que dá 2 fibras e some. Gordura: na limpeza da carcaça (PG2-A). O que foi pego fica na lista de mudanças do chunk. |
+| CL2-A | Cortar árvores e quebrar pedras grandes ficam na NBB-144, junto com o machado. |
+| CL3 | Sem testes do inventário (X1-C). |
+
 ## Pendentes (proposto)
 
 Nenhuma.

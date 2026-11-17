@@ -139,6 +139,8 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-54** A criatura **não atravessa paredes nem portas fechadas**. Ela não destrói construções.
 - **RF-55** A **fogueira** queima **5 min**; E com um galho na mão soma **2 min**, até **10 min**. Apagada, não ilumina nem afasta a criatura (PG4-A).
 - **RF-56** O jogador **começa sem nada** (PG1-A): faca, tocha, arco e flechas vêm do crafting (PG5-A).
+- **RF-57** **Inventário** (IN1-A): 6 espaços na barra rápida e 18 na mochila. Pilhas de 20 (recursos e flechas), 10 (comida e cartuchos) e 1 (ferramentas). O item selecionado na barra aparece na mão (IN6-B); com carne selecionada, o botão esquerdo come (IN2-A). O Tab não pausa o jogo (IN3-A).
+- **RF-58** **Coleta à mão** (CL1): E pega um galho do chão ou uma pedra pequena; segurar E por 1,5 s num arbusto dá 2 fibras. O que foi pego some do mundo.
 
 ## Morte e save
 

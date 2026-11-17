@@ -50,8 +50,8 @@ Cada linha vira **uma issue**, entregue por commits direto na `main` (R2, 2026-1
 20. **Carcaça, carne, fome e cozinhar na fogueira (M9-A).** A fogueira básica (modelo, luz, afastar a criatura) entra aqui (CZ1-A). [Frontend]
 
 ### M4 · Sobreviver
-21. **Coleta e inventário:** cortar árvores, pegar pedras e galhos, gordura da carcaça, inventário e barra rápida; o jogador começa sem nada e saem os atalhos provisórios (PG1-A, PG6). [Frontend]
-22. **Crafting (a tocha pede gordura, PG2-A):** receitas da tabela em [03-mecanicas](03-mecanicas.md#coleta-crafting-e-construção). [Frontend]
+21. **Coleta e inventário:** pegar galhos, pedras e fibra, gordura da carcaça, inventário e barra rápida, com um kit provisório até o crafting (IN5-A). [Frontend]
+22. **Crafting (a tocha pede gordura, PG2-A):** receitas da tabela em [03-mecanicas](03-mecanicas.md#coleta-crafting-e-construção); machado para cortar árvores e quebrar pedras grandes (CL2-A); o jogador passa a começar sem nada e saem os atalhos provisórios (PG1-A, PG6). [Frontend]
 23. **Construção em grade (M10-A):** pré-visualização, encaixe, regra de apoio, desmontar. [Frontend]
 24. **Fogueira e cama:** receita e construção da fogueira (a fogueira em si vem da issue 20, CZ1-A), com combustível (PG4-A); cama define onde renascer. [Frontend]
 25. **Save no IndexedDB (T3-A):** semente, chunks alterados, construções, jogador, inventário. [Frontend]
