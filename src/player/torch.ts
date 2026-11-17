@@ -1,27 +1,39 @@
-import { Color3, PointLight, Vector3, type Camera, type Scene } from "@babylonjs/core";
+import {
+  Color3,
+  Observable,
+  PointLight,
+  Vector3,
+  type Scene,
+  type TransformNode,
+} from "@babylonjs/core";
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import { createTorchModel, type TorchModel } from "../models/items/torch";
 
 /**
- * The torch in the player's hand (NBB-132). F lights it or puts it away (G2). It burns for
- * RF-14's 4 minutes while lit, sputters in the last 20 s (TO4) and, once burnt out, F lights a
+ * The torch in the player's left hand (NBB-132, MA1). F lights it or puts it away (G2). It burns
+ * for RF-14's 4 minutes while lit, sputters in the last 20 s (TO4) and, once burnt out, F lights a
  * new one (TO1-A: unlimited torches until crafting exists, NBB-144).
  */
 export class PlayerTorch {
+  /** Fired when the torch is lit (true) or put away (false): the left arm shows with it. */
+  readonly onLitChanged = new Observable<boolean>();
+
   private readonly model: TorchModel;
   private readonly light: PointLight;
   private lit = false;
   private secondsLeft: number = CONFIG.torch.burnSeconds;
   private time = 0;
 
-  constructor(scene: Scene, camera: Camera, input: Input) {
+  /** @param hand the left hand that holds it (the arms' "handL" node). */
+  constructor(scene: Scene, hand: TransformNode, input: Input) {
     this.model = createTorchModel(scene);
-    const { heldOffset } = CONFIG.torch;
-    this.model.root.parent = camera;
+    const { heldOffset, heldTilt } = CONFIG.torch;
+    this.model.root.parent = hand;
     this.model.root.position = new Vector3(heldOffset.x, heldOffset.y, heldOffset.z);
-    // Tip leaning forward and inward, like a torch held out in front: only the top shows.
-    this.model.root.rotation = new Vector3(0.45, 0, -0.25);
+    // The handle goes through the fist, the head leaning forward and a little inward.
+    // (For the left hand, "inward" is toward +x: a negative turn about Z.)
+    this.model.root.rotation = new Vector3(heldTilt.forward, 0, -heldTilt.inward);
     // Drawn after the world with its own depth, so it never sinks into trees or the ground.
     for (const mesh of [this.model.root, this.model.flame]) {
       mesh.renderingGroupId = 1;
@@ -72,6 +84,7 @@ export class PlayerTorch {
     } else {
       this.model.fire.stop();
     }
+    this.onLitChanged.notifyObservers(lit);
   }
 
   private update(seconds: number): void {

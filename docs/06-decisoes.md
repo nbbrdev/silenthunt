@@ -278,6 +278,18 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | PR6 | Sem testes das transições (X1-C); `silentHunt.prey()` só em desenvolvimento. |
 | PR7 | Detalhes propostos por Claude e aprovados ("1 a 8 - Ok"; FPS ok no PC do usuário): o grupo de cervos foge junto (pastam a até 5 m uns dos outros); alerta enquanto vê o jogador, volta a pastar após 5 s sem estímulo; giros (pastando 0,6 rad/s a cada 6–12 s, alerta 3 rad/s, fuga 6 rad/s); pulinho de 0,8 s a 1,5 m/s; pasta onde a fuga terminar; modelos reaproveitados; mesmos animais por chunk; `teleport` e `face` só em desenvolvimento. |
 
+## NBB-139: Mãos e faca (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| SA1-B | Os sons dos animais (bufo de alarme do cervo primeiro, galope, fuga do coelho) ficam para a issue de som (NBB-149), junto com os demais. |
+| MA1 | Braços em primeira pessoa feitos por código (mangas de casaco escuro e mãos), presos à câmera. Mão direita com o item; mão esquerda com a tocha quando acesa (a tocha passa para a esquerda). Até ~2.000 triângulos. |
+| MA2 | Faca: lâmina de ~18 cm, cinza-metálica e gasta, cabo de madeira escura. |
+| MA3 | Provisório: até o inventário (NBB-143), a faca fica sempre na mão direita. |
+| MA4 | Botão esquerdo: estocada de 0,4 s, novo golpe só depois de 0,6 s. Acerta o que estiver a até 1,5 m num cone de 30° no centro da tela: presa calma morre, em alerta foge, fugindo nada; a criatura recua. |
+| MA5 | Mãos com balanço leve parado (respiração), balanço no ritmo do passo e a estocada. |
+| MA6 | Sem testes da regra do ataque furtivo (X1-C); sem som de golpe por enquanto (NBB-149). |
+
 ## Pendentes (proposto)
 
 Nenhuma no momento.

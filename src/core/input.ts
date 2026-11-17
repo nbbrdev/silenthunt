@@ -36,6 +36,21 @@ export class Input {
         canvas.requestPointerLock().catch(() => undefined);
       }
     });
+    // Mouse buttons count as keys named "Mouse0" (left), "Mouse1" (middle) and "Mouse2" (right),
+    // only while the mouse is captured: the click that captures it is not an attack.
+    document.addEventListener("mousedown", (event) => {
+      if (!this.isPointerLocked) {
+        return;
+      }
+      const code = `Mouse${event.button}`;
+      if (!this.down.has(code)) {
+        this.pressedThisFrame.add(code);
+      }
+      this.down.add(code);
+    });
+    document.addEventListener("mouseup", (event) => {
+      this.down.delete(`Mouse${event.button}`);
+    });
     document.addEventListener("mousemove", (event) => {
       if (this.isPointerLocked) {
         this.mouseX += event.movementX;

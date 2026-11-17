@@ -174,8 +174,12 @@ export const CONFIG = {
     burnSeconds: 240,
     /** TO4: in the last seconds the flame shrinks and sputters. */
     dyingSeconds: 20,
-    /** TO2: where the torch is held, relative to the camera (meters: right, up, forward). */
-    heldOffset: { x: 0.3, y: -0.62, z: 0.75 },
+    /**
+     * MA1: the torch is held in the left fist. Where the bottom of its handle sits, relative to
+     * the wrist (meters: right, up, forward), and how it leans (radians).
+     */
+    heldOffset: { x: 0, y: -0.3, z: -0.05 },
+    heldTilt: { forward: 0.3, inward: 0.1 },
     /** Flame and fire colors. */
     flameColor: { r: 1, g: 0.55, b: 0.18 },
   },
@@ -280,6 +284,20 @@ export const CONFIG = {
       growlVolume: 1,
     },
   },
+  /** The knife (RF-32, MA2, MA4). Meters and seconds. */
+  knife: {
+    bladeLength: 0.18,
+    handleLength: 0.11,
+    /** RF-32: reach, inside a cone at the center of the screen (degrees). */
+    reach: 1.5,
+    coneDegrees: 30,
+    /** MA4: the thrust lasts 0.4 s and lands at its farthest point; a new one after 0.6 s. */
+    stabSeconds: 0.4,
+    hitAtSeconds: 0.24,
+    cooldownSeconds: 0.6,
+  },
+  /** MA5: how much the hands sway (meters): breathing standing still, and with each step. */
+  handSway: { still: 0.003, walk: 0.008, run: 0.02, crouch: 0.005 },
   /** The prey (RF-30, RF-31, PR1–PR5). Distances in meters, times in seconds. */
   prey: {
     /** PR1: per chunk, the chance of a few rabbits and of a small group of deer. */
@@ -362,6 +380,11 @@ export const CONFIG = {
     deerLight: { r: 0.78, g: 0.7, b: 0.6 },
     /** Noses, hooves and eyes. */
     animalDark: { r: 0.06, g: 0.05, b: 0.05 },
+    /** MA1, MA2: the player's coat sleeves and hands; the knife's steel and handle. */
+    coat: { r: 0.16, g: 0.15, b: 0.12 },
+    skin: { r: 0.7, g: 0.54, b: 0.44 },
+    knifeBlade: { r: 0.56, g: 0.57, b: 0.58 },
+    knifeHandle: { r: 0.2, g: 0.13, b: 0.08 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },

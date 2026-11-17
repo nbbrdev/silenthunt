@@ -154,6 +154,13 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.attachedNode = null;
   }
 
+  /** RF-32: hit by the knife: no damage, but it backs off into the fog. */
+  repel(): void {
+    if (this.currentState !== "retreat") {
+      this.enter("retreat");
+    }
+  }
+
   /** VD5: sends it far away, out of sight, to roam again (when the player dies or respawns). */
   sendAway(): void {
     this.placeOutOfSight(randomInRange(this.random, this.roamRange()));

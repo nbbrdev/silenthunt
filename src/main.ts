@@ -9,7 +9,9 @@ import { createHavokPlugin } from "./core/physics";
 import { creature } from "./models/creature/creature";
 import { setupPostProcessing } from "./core/postProcessing";
 import { Footsteps } from "./player/footsteps";
+import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
+import { KnifeAttack } from "./player/knifeAttack";
 import { Player } from "./player/player";
 import { PlayerTorch } from "./player/torch";
 import { NoiseSystem } from "./systems/noise";
@@ -49,7 +51,10 @@ async function start(): Promise<void> {
     scene.onBeforeRenderObservable.add(() => world.chunks.update(player.position));
     const noise = new NoiseSystem();
     const footsteps = new Footsteps(scene, player, world.terrain, world.chunks, noise);
-    const torch = new PlayerTorch(scene, player.camera, input);
+    // NBB-139: the arms on screen; the knife in the right hand, the torch in the left (MA1).
+    const hands = new PlayerHands(scene, player);
+    const torch = new PlayerTorch(scene, hands.arms.leftHand, input);
+    torch.onLitChanged.add((lit) => hands.showLeftHand(lit));
     const visibility = new VisibilitySystem(world.clock, player, torch);
     const health = new PlayerHealth(world.clock);
     scene.onBeforeRenderObservable.add(() =>
@@ -101,6 +106,11 @@ async function start(): Promise<void> {
       },
       CONFIG.world.defaultSeed,
     );
+    // NBB-139: the knife (RF-32, MA4).
+    const knife = new KnifeAttack(scene, input, player, hands, noise, {
+      prey: () => prey.animals(),
+      creature: creatureBrain,
+    });
 
     // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
     creatureBrain.onPlayerHit.add((damage) => health.damage(damage));
@@ -173,13 +183,25 @@ async function start(): Promise<void> {
               .map((animal) => {
                 const position = animal.attachedNode?.position;
                 const distance = position ? Math.hypot(position.x - x, position.z - z) : Infinity;
-                const at = [position?.x ?? 0, position?.z ?? 0].map((value) => Math.round(value));
-                return { id: animal.id, kind: animal.kind, state: animal.state, distance, at };
+                const at = [position?.x ?? 0, position?.z ?? 0].map(
+                  (value) => Math.round(value * 10) / 10,
+                );
+                const heading = Math.round((animal.attachedNode?.rotation.y ?? 0) * 100) / 100;
+                return {
+                  id: animal.id,
+                  kind: animal.kind,
+                  state: animal.state,
+                  distance,
+                  at,
+                  heading,
+                };
               })
               .filter((animal) => animal.distance <= radius)
               .sort((a, b) => a.distance - b.distance)
               .map((animal) => ({ ...animal, distance: Math.round(animal.distance * 10) / 10 }));
           },
+          /** Thrusts the knife, as a left click would. */
+          stab: () => knife.attack(),
           /** Turns the view toward the point (x, z). */
           face: (x: number, z: number) => player.debugFace(x, z),
           /** Puts the player at (x, z) on the ground (to visit an animal or a place). */
