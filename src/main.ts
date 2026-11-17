@@ -9,11 +9,14 @@ import { createHavokPlugin } from "./core/physics";
 import { creature } from "./models/creature/creature";
 import { setupPostProcessing } from "./core/postProcessing";
 import { Footsteps } from "./player/footsteps";
+import { BowControl } from "./player/bowControl";
+import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
 import { KnifeAttack } from "./player/knifeAttack";
 import { Player } from "./player/player";
 import { PlayerTorch } from "./player/torch";
+import { ArrowSystem } from "./systems/arrows";
 import { NoiseSystem } from "./systems/noise";
 import { VisibilitySystem } from "./systems/visibility";
 import { createDamageEffects } from "./ui/damageEffects";
@@ -111,6 +114,26 @@ async function start(): Promise<void> {
       prey: () => prey.animals(),
       creature: creatureBrain,
     });
+    // NBB-140: the bow and arrows; 1 and 2 switch between knife and bow (AR1, provisional).
+    const arrows = new ArrowSystem(
+      scene,
+      {
+        terrain: world.terrain,
+        chunks: world.chunks,
+        noise,
+        prey: () => prey.animals(),
+        creature: creatureBrain,
+      },
+      CONFIG.world.defaultSeed,
+    );
+    const equipment = new Equipment(scene, input);
+    const bow = new BowControl(scene, input, player, hands, arrows, noise, equipment, hud);
+    equipment.onChanged.add((tool) => {
+      hands.equip(tool);
+      knife.enabled = tool === "knife";
+      // AR6: no free hand for the torch while holding the bow.
+      torch.blocked = tool === "bow";
+    });
 
     // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
     creatureBrain.onPlayerHit.add((damage) => health.damage(damage));
@@ -202,8 +225,18 @@ async function start(): Promise<void> {
           },
           /** Thrusts the knife, as a left click would. */
           stab: () => knife.attack(),
+          /** Takes the knife or the bow, as 1 and 2 would. */
+          equip: (tool: "knife" | "bow") => equipment.equip(tool),
+          arrows: () => bow.arrowCount,
+          lastArrow: () => arrows.lastLanding,
+          /** Holds (true) or releases (false) the draw and aim buttons; no arguments: real mouse. */
+          bowButtons: (draw?: boolean, aim?: boolean) => {
+            bow.debugButtons = draw === undefined ? undefined : { draw, aim: aim ?? false };
+          },
           /** Turns the view toward the point (x, z). */
-          face: (x: number, z: number) => player.debugFace(x, z),
+          face: (x: number, z: number, y?: number) => player.debugFace(x, z, y),
+          /** Height of the ground at (x, z). */
+          groundAt: (x: number, z: number) => world.terrain.heightAt(x, z),
           /** Puts the player at (x, z) on the ground (to visit an animal or a place). */
           teleport: (x: number, z: number) =>
             player.respawn(new Vector3(x, world.terrain.heightAt(x, z), z)),

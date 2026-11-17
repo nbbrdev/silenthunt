@@ -22,6 +22,7 @@ export class PlayerTorch {
   private readonly model: TorchModel;
   private readonly light: PointLight;
   private lit = false;
+  private isBlocked = false;
   private secondsLeft: number = CONFIG.torch.burnSeconds;
   private time = 0;
 
@@ -49,11 +50,22 @@ export class PlayerTorch {
 
     this.setLit(false);
     scene.onBeforeRenderObservable.add(() => {
-      if (input.wasPressed("KeyF")) {
+      if (input.wasPressed("KeyF") && !this.isBlocked) {
         this.toggle();
       }
       this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
     });
+  }
+
+  /**
+   * AR6: with the bow in hand there is no hand free for the torch: it goes out (keeping the time
+   * it had left) and F does nothing until the bow is put away.
+   */
+  set blocked(blocked: boolean) {
+    this.isBlocked = blocked;
+    if (blocked && this.lit) {
+      this.setLit(false);
+    }
   }
 
   /** True while the torch is burning (RF-13: the player is seen from much farther away). */

@@ -135,10 +135,12 @@ export class Player {
   }
 
   /** Development only: turns the view to face the point (x, z), level with the horizon. */
-  debugFace(x: number, z: number): void {
+  debugFace(x: number, z: number, y?: number): void {
     const center = this.controller.getPosition();
     this.yaw = Math.atan2(x - center.x, z - center.z);
-    this.pitch = 0;
+    // Looking up or down at the point when its height is given (positive pitch looks down).
+    const eyes = this.camera.position.y;
+    this.pitch = y === undefined ? 0 : Math.atan2(eyes - y, Math.hypot(x - center.x, z - center.z));
     this.camera.rotation.set(this.pitch, this.yaw, 0);
   }
 

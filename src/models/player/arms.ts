@@ -20,13 +20,19 @@ const v = (x: number, y: number, z: number) => new Vector3(x, y, z);
  * The player's arms in the camera's space (meters: x right, y up, z forward). The shoulders are
  * behind and below the view; only the forearms and hands show at the bottom of the screen.
  */
+// The right hand holds the knife ahead; the left one holds the torch lower, so the flame stays in
+// the lower left of the screen instead of in the middle of the view. Shoulder, elbow, wrist and
+// knuckles of each arm, at rest.
+const ARM_POINTS = {
+  R: [v(0.3, -0.36, -0.16), v(0.31, -0.3, 0.18), v(0.24, -0.18, 0.44), v(0.23, -0.16, 0.53)],
+  L: [v(-0.3, -0.42, -0.12), v(-0.32, -0.36, 0.22), v(-0.27, -0.25, 0.48), v(-0.26, -0.23, 0.57)],
+};
+
+/** Where each wrist is at rest, in the arms' space (to place the hands, e.g. on the bowstring). */
+export const REST_WRIST = { R: v(0.24, -0.18, 0.44), L: v(-0.27, -0.25, 0.48) };
+
 function armBones(): BoneDef[] {
-  // The right hand holds the knife ahead; the left one holds the torch lower, so the flame stays
-  // in the lower left of the screen instead of in the middle of the view.
-  const points = {
-    R: [v(0.3, -0.36, -0.16), v(0.31, -0.3, 0.18), v(0.24, -0.18, 0.44), v(0.23, -0.16, 0.53)],
-    L: [v(-0.3, -0.42, -0.12), v(-0.32, -0.36, 0.22), v(-0.27, -0.25, 0.48), v(-0.26, -0.23, 0.57)],
-  };
+  const points = ARM_POINTS;
   const bones: BoneDef[] = [{ name: "root", parent: null, head: v(0, 0, 0), tail: v(0, 0, 0.1) }];
   for (const side of ["R", "L"] as const) {
     const [shoulder, elbow, wrist, knuckles] = points[side].map((point) => point.clone()) as [
@@ -53,6 +59,9 @@ export interface ArmsModel extends GeneratedModel {
   /** The hands, to hold the knife (right) and the torch (left). */
   rightHand: TransformNode;
   leftHand: TransformNode;
+  /** The shoulders: moving them moves the whole arm (the bow pose, NBB-140). */
+  rightShoulder: TransformNode;
+  leftShoulder: TransformNode;
   idle: AnimationGroup | undefined;
   stab: AnimationGroup | undefined;
 }
@@ -154,6 +163,8 @@ export function createArmsModel(scene: Scene, seed: number): ArmsModel {
     left,
     rightHand,
     leftHand,
+    rightShoulder: nodes.get("upperArmR") ?? root,
+    leftShoulder: nodes.get("upperArmL") ?? root,
     idle: animations.find((group) => group.name === "Segurar"),
     stab: animations.find((group) => group.name === "Golpear"),
   };

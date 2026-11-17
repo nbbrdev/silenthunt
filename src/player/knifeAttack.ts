@@ -24,6 +24,8 @@ export class KnifeAttack {
   private readonly hands: PlayerHands;
   private readonly noise: NoiseSystem;
   private readonly targets: KnifeTargets;
+  /** AR1: only while the knife is in hand. */
+  enabled = true;
   private cooldown = 0;
   /** Seconds until the thrust reaches its farthest point (negative: no thrust going on). */
   private hitIn = -1;
@@ -43,7 +45,12 @@ export class KnifeAttack {
     scene.onBeforeRenderObservable.add(() => {
       const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
       this.cooldown -= seconds;
-      if (input.wasPressed("Mouse0") && this.player.controlsEnabled && this.cooldown <= 0) {
+      if (
+        this.enabled &&
+        input.wasPressed("Mouse0") &&
+        this.player.controlsEnabled &&
+        this.cooldown <= 0
+      ) {
         this.attack();
       }
       if (this.hitIn >= 0) {

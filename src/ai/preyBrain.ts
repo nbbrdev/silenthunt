@@ -63,6 +63,8 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
 
   private currentState: PreyState = "graze";
   private active = false;
+  /** AR4: hit once by an arrow (deer only): it runs slower. */
+  private wounded = false;
   private stateTime = 0;
   private stateLimit = 0;
   private heading = 0;
@@ -129,6 +131,7 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
     }
     this.id = id;
     this.active = true;
+    this.wounded = false;
     body.setEnabled(true);
     body.position.set(x, this.senses.terrain.heightAt(x, z), z);
     this.heading = heading;
@@ -153,6 +156,22 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
     }
     this.enter("dead");
     this.onKilled.notifyObservers(this);
+  }
+
+  /**
+   * RF-33 / AR4: an arrow hits a deer: the first one wounds it (it runs, slower), the second one
+   * kills it. A rabbit dies at once.
+   */
+  wound(): void {
+    if (this.currentState === "dead" || !this.active) {
+      return;
+    }
+    if (this.kind === "rabbit" || this.wounded) {
+      this.kill();
+      return;
+    }
+    this.wounded = true;
+    this.flee("player");
   }
 
   /** Runs away from `threat`; the rest of its group runs too. */
@@ -346,7 +365,8 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
     const here = this.position();
     const forward = { x: Math.sin(this.heading), z: Math.cos(this.heading) };
     const away = normalized(here.x - source.x, here.z - source.z, forward);
-    const direction = this.move(away, CONFIG.prey.fleeSpeed[this.kind] * seconds);
+    const slowdown = this.wounded ? CONFIG.bow.woundedSpeedFactor : 1;
+    const direction = this.move(away, CONFIG.prey.fleeSpeed[this.kind] * slowdown * seconds);
     this.turnToward(Math.atan2(direction.x, direction.z), 6, seconds);
   }
 

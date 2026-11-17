@@ -296,6 +296,30 @@ export const CONFIG = {
     hitAtSeconds: 0.24,
     cooldownSeconds: 0.6,
   },
+  /** The bow and arrows (RF-33, AR1–AR8). Meters, seconds, meters per second. */
+  bow: {
+    /** AR1: provisional arrows until crafting (NBB-144). */
+    startArrows: 10,
+    /** RF-33 / AR2: full draw in 1 s; releasing before `minDraw` cancels the shot. */
+    fullDrawSeconds: 1,
+    minDraw: 0.15,
+    /** AR3-A: arrow speed from a short pull to a full draw. */
+    minSpeed: 15,
+    maxSpeed: 45,
+    /** Arrows that fly this long without hitting anything are gone. */
+    maxFlightSeconds: 5,
+    /** AR5: chance of breaking on impact, and how close E picks one up. */
+    breakChance: 0.25,
+    pickupDistance: 2,
+    /** AR4: a missed arrow makes this much noise where it lands; a wounded deer runs slower. */
+    impactNoise: 4,
+    woundedSpeedFactor: 0.75,
+    /** AR2: zoom while aiming (camera field of view, radians; the normal one is 0.8). */
+    aimFov: 0.6,
+    /** AR6: model sizes. */
+    bowLength: 1.2,
+    arrowLength: 0.7,
+  },
   /** MA5: how much the hands sway (meters): breathing standing still, and with each step. */
   handSway: { still: 0.003, walk: 0.008, run: 0.02, crouch: 0.005 },
   /** The prey (RF-30, RF-31, PR1–PR5). Distances in meters, times in seconds. */
@@ -390,6 +414,12 @@ export const CONFIG = {
     skin: { r: 0.7, g: 0.54, b: 0.44 },
     knifeBlade: { r: 0.56, g: 0.57, b: 0.58 },
     knifeHandle: { r: 0.2, g: 0.13, b: 0.08 },
+    /** AR6: the bow's wood and string, the arrow's shaft, stone tip and feathers. */
+    bowWood: { r: 0.34, g: 0.23, b: 0.14 },
+    bowString: { r: 0.75, g: 0.72, b: 0.64 },
+    arrowShaft: { r: 0.55, g: 0.45, b: 0.32 },
+    arrowTip: { r: 0.3, g: 0.3, b: 0.3 },
+    arrowFeathers: { r: 0.7, g: 0.68, b: 0.62 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },
