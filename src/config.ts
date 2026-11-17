@@ -314,8 +314,6 @@ export const CONFIG = {
   },
   /** The bow and arrows (RF-33, AR1–AR8). Meters, seconds, meters per second. */
   bow: {
-    /** AR1: provisional arrows until crafting (NBB-144). */
-    startArrows: 10,
     /** RF-33 / AR2: full draw in 1 s; releasing before `minDraw` cancels the shot. */
     fullDrawSeconds: 1,
     minDraw: 0.15,
@@ -380,6 +378,43 @@ export const CONFIG = {
     /** ES5: how long the "Você encontrou..." message stays. */
     messageSeconds: 3,
   },
+  /** NBB-143: the inventory (RF-57, IN1-A) and picking things up by hand (RF-58, CL1). */
+  inventory: {
+    /** IN1-A: the quick bar (1–6) and the backpack. */
+    hotbarSlots: 6,
+    backpackSlots: 18,
+    /** IN1-A: how many of each item fit in one slot. */
+    stack: {
+      knife: 1,
+      bow: 1,
+      shotgun: 1,
+      arrow: 20,
+      cartridge: 10,
+      branch: 20,
+      stone: 20,
+      fiber: 20,
+      fat: 20,
+      leather: 20,
+      rawMeat: 10,
+      cookedMeat: 10,
+    },
+    /** IN5-A (provisional until crafting, NBB-144): what the player starts with. */
+    starterKit: [
+      { item: "knife", count: 1, slot: 0 },
+      { item: "bow", count: 1, slot: 1 },
+      { item: "arrow", count: 10, slot: 6 },
+    ],
+    /** CL1: E reaches a branch, a stone or a bush this close (meters). */
+    pickupReach: 1.6,
+    /** CL1: holding E on a bush this long gives this many fibers. */
+    fiberSeconds: 1.5,
+    fiberPerBush: 2,
+    /** The item's name shows above the quick bar this long after switching. */
+    nameSeconds: 1.6,
+    /** Size of a slot on screen (pixels) and of its icon (IN7-A). */
+    slotPx: 52,
+    iconPx: 96,
+  },
   /** NBB-142: cleaning a carcass (RF-35, CA1-B to CA4-A). */
   carcass: {
     /** CA1-B: hold E this long, standing still, with the knife in hand (CA2-A). */
@@ -387,6 +422,8 @@ export const CONFIG = {
     /** RF-30, CA4-A: what each animal gives. */
     meat: { rabbit: 1, deer: 4 },
     leather: { rabbit: 0, deer: 1 },
+    /** PG2-A: fat, for torches. */
+    fat: { rabbit: 1, deer: 3 },
     /** E reaches a carcass this close (meters, to the middle of its body). */
     reach: { rabbit: 1.5, deer: 2.2 },
   },
@@ -527,6 +564,12 @@ export const CONFIG = {
     ash: { r: 0.3, g: 0.29, b: 0.27 },
     bone: { r: 0.78, g: 0.74, b: 0.66 },
     blood: { r: 0.25, g: 0.05, b: 0.04 },
+    /** IN6-B: plant fiber, animal fat, tanned leather and the cartridge's shell and brass. */
+    fiber: { r: 0.6, g: 0.58, b: 0.4 },
+    fat: { r: 0.92, g: 0.86, b: 0.72 },
+    leather: { r: 0.44, g: 0.3, b: 0.18 },
+    cartridgeShell: { r: 0.55, g: 0.12, b: 0.1 },
+    brass: { r: 0.72, g: 0.58, b: 0.3 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },

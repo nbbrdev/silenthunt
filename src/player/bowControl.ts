@@ -7,6 +7,7 @@ import type { InteractionSystem } from "../systems/interactions";
 import type { NoiseSystem } from "../systems/noise";
 import type { Equipment } from "./equipment";
 import type { PlayerHands } from "./hands";
+import type { Inventory } from "./inventory";
 import type { Player } from "./player";
 
 /**
@@ -24,7 +25,7 @@ export class BowControl {
   private readonly baseFov: number;
   private readonly dot: Ellipse;
   private readonly counter: TextBlock;
-  private arrowsLeft: number = CONFIG.bow.startArrows;
+  private readonly inventory: Inventory;
   private drawing = false;
   private drawSeconds = 0;
   private aim = 0;
@@ -39,7 +40,9 @@ export class BowControl {
     equipment: Equipment,
     ui: AdvancedDynamicTexture,
     interactions: InteractionSystem,
+    inventory: Inventory,
   ) {
+    this.inventory = inventory;
     this.player = player;
     this.hands = hands;
     this.arrows = arrows;
@@ -82,12 +85,16 @@ export class BowControl {
         return undefined;
       }
       const { x, z } = this.player.position;
+      const distance = Math.hypot(arrow.position.x - x, arrow.position.z - z);
+      if (this.inventory.spaceFor("arrow") <= 0) {
+        return { label: "Inventário cheio", distance };
+      }
       return {
         label: "Pegar flecha",
-        distance: Math.hypot(arrow.position.x - x, arrow.position.z - z),
+        distance,
         act: () => {
           if (this.arrows.pickUp(this.player.position, reach)) {
-            this.arrowsLeft++;
+            this.inventory.add("arrow", 1);
           }
         },
       };
@@ -104,20 +111,21 @@ export class BowControl {
    */
   debugButtons: { draw: boolean; aim: boolean } | undefined;
 
-  /** Arrows left (development console, and the inventory later). */
+  /** Arrows in the inventory (RF-57). */
   get arrowCount(): number {
-    return this.arrowsLeft;
+    return this.inventory.count("arrow");
   }
 
   private update(input: Input, seconds: number): void {
     const settings = CONFIG.bow;
     const holdingBow = this.equipment.current === "bow";
     const canAct = holdingBow && this.player.controlsEnabled;
+    const arrowsLeft = this.arrowCount;
 
     // AR2: drawing with the left button, shooting on release.
     const drawHeld = this.debugButtons?.draw ?? input.isDown("Mouse0");
     const aimHeld = this.debugButtons?.aim ?? input.isDown("Mouse2");
-    if (canAct && this.arrowsLeft > 0 && drawHeld) {
+    if (canAct && arrowsLeft > 0 && drawHeld) {
       this.drawing = true;
       this.drawSeconds = Math.min(this.drawSeconds + seconds, settings.fullDrawSeconds);
     } else if (this.drawing) {
@@ -139,10 +147,10 @@ export class BowControl {
     }
 
     const draw = this.drawSeconds / settings.fullDrawSeconds;
-    this.hands.setBowPose(draw, Math.max(this.aim, draw > 0 ? 0.6 : 0), this.arrowsLeft > 0);
+    this.hands.setBowPose(draw, Math.max(this.aim, draw > 0 ? 0.6 : 0), arrowsLeft > 0);
     this.dot.isVisible = holdingBow && (this.aim > 0.5 || this.drawing);
     this.counter.isVisible = holdingBow;
-    this.counter.text = `Flechas: ${this.arrowsLeft}`;
+    this.counter.text = `Flechas: ${arrowsLeft}`;
   }
 
   /** AR3-A: the arrow leaves from just in front of the eyes, toward the center of the view. */
@@ -151,8 +159,10 @@ export class BowControl {
     const camera = this.player.camera;
     const direction = camera.getDirection(Vector3.Forward());
     const origin = camera.globalPosition.add(direction.scale(0.5));
+    if (!this.inventory.remove("arrow", 1)) {
+      return;
+    }
     this.arrows.fire(origin, direction, minSpeed + (maxSpeed - minSpeed) * draw);
-    this.arrowsLeft--;
     this.noise.emit(this.player.feet, CONFIG.noise.radius.bow, "bow");
   }
 }

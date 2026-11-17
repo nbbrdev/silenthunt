@@ -31,6 +31,18 @@ interface Placement {
   z: number;
   rotation: number;
   scale: number;
+  /** Picked up by the player (CL1): no longer drawn, and it stays gone. */
+  removed?: boolean;
+}
+
+/** Something on the ground the player can pick up by hand (CL1, RF-58). */
+export interface Pickable {
+  /** The chunk and the index of the placement inside it (its id in the chunk's change list). */
+  chunkKey: string;
+  index: number;
+  kind: "groundBranch" | "rock" | "bush";
+  x: number;
+  z: number;
 }
 
 /** Which chunk: its key ("cx,cz") and grid coordinates. */
@@ -82,6 +94,11 @@ export class ChunkManager {
   private centerKey = "";
   /** Branches already stepped on ("chunkKey:placementIndex"). */
   private readonly snappedBranches = new Set<string>();
+  /**
+   * The changes to each chunk (CL1, docs/05): the placements the player took. Kept when the chunk
+   * unloads, so they do not grow back; this is what the save stores (NBB-147).
+   */
+  private readonly removedByChunk = new Map<string, Set<number>>();
   /** A chunk was loaded or unloaded (the prey live and die with their chunk, PR1). */
   readonly onChunkLoaded = new Observable<ChunkInfo>();
   readonly onChunkUnloaded = new Observable<ChunkInfo>();
@@ -120,7 +137,7 @@ export class ChunkManager {
         }
         for (let i = 0; i < chunk.placements.length; i++) {
           const placement = chunk.placements[i];
-          if (!placement || placement.kind !== "groundBranch") {
+          if (!placement || placement.kind !== "groundBranch" || placement.removed) {
             continue;
           }
           const id = `${chunk.key}:${i}`;
@@ -146,6 +163,7 @@ export class ChunkManager {
       for (const placement of chunk.placements) {
         if (
           placement.kind === "groundBranch" &&
+          !placement.removed &&
           (placement.x - x) ** 2 + (placement.z - z) ** 2 <= radius * radius
         ) {
           found.push({ x: placement.x, z: placement.z });
@@ -153,6 +171,63 @@ export class ChunkManager {
       }
     }
     return found;
+  }
+
+  /**
+   * CL1: the branches, small rocks (the ones that do not block, MW5) and bushes within `radius`
+   * of (x, z), nearest first.
+   */
+  pickablesNear(x: number, z: number, radius: number): Pickable[] {
+    const { chunkSize, blockingRockSize } = CONFIG.world;
+    const cx = Math.floor(x / chunkSize);
+    const cz = Math.floor(z / chunkSize);
+    const found: (Pickable & { distance: number })[] = [];
+    for (let dz = -1; dz <= 1; dz++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const chunk = this.chunks.get(chunkKey(cx + dx, cz + dz));
+        chunk?.placements.forEach((placement, index) => {
+          const { kind } = placement;
+          if (placement.removed) {
+            return;
+          }
+          if (kind !== "groundBranch" && kind !== "bush" && kind !== "rock") {
+            return;
+          }
+          if (
+            kind === "rock" &&
+            this.library.size(kind, placement.variant) * placement.scale >= blockingRockSize
+          ) {
+            return;
+          }
+          const distance = Math.hypot(placement.x - x, placement.z - z);
+          if (distance <= radius) {
+            found.push({
+              chunkKey: chunk.key,
+              index,
+              kind,
+              x: placement.x,
+              z: placement.z,
+              distance,
+            });
+          }
+        });
+      }
+    }
+    return found.sort((a, b) => a.distance - b.distance);
+  }
+
+  /** CL1: the player took this placement: it disappears and is remembered in the chunk's changes. */
+  removePlacement(key: string, index: number): void {
+    const removed = this.removedByChunk.get(key) ?? new Set<number>();
+    removed.add(index);
+    this.removedByChunk.set(key, removed);
+    const chunk = this.chunks.get(key);
+    const placement = chunk?.placements[index];
+    if (!chunk || !placement) {
+      return;
+    }
+    placement.removed = true;
+    this.uploadCopies(chunk.key, chunk.placements);
   }
 
   /**
@@ -170,6 +245,9 @@ export class ChunkManager {
         const chunk = this.chunks.get(chunkKey(cx + dx, cz + dz));
         for (const placement of chunk?.placements ?? []) {
           const { kind, variant, scale } = placement;
+          if (placement.removed) {
+            continue;
+          }
           let obstacleRadius: number;
           let height: number;
           if (kind === "pine" || kind === "oak" || kind === "deadTree") {
@@ -269,8 +347,23 @@ export class ChunkManager {
     const terrainMesh = buildTerrainMesh(this.scene, this.terrain, cx, cz);
     terrainMesh.material = this.groundMaterial;
     const placements = this.placeVegetation(cx, cz);
+    // CL1: what the player already took stays gone.
+    for (const index of this.removedByChunk.get(key) ?? []) {
+      const placement = placements[index];
+      if (placement) {
+        placement.removed = true;
+      }
+    }
+    this.uploadCopies(key, placements);
+    this.chunks.set(key, { key, cx, cz, terrainMesh, placements });
+    this.onChunkLoaded.notifyObservers({ key, cx, cz });
+  }
 
-    // Group the placements by model variation and hand them to the library as matrices.
+  /**
+   * Groups the placements by model variation and hands them to the library as matrices. Removed
+   * placements are left out (a variation with none left gets an empty list).
+   */
+  private uploadCopies(key: string, placements: Placement[]): void {
     const groups = new Map<string, Placement[]>();
     for (const placement of placements) {
       const groupKey = `${placement.kind}:${placement.variant}`;
@@ -286,8 +379,9 @@ export class ChunkManager {
       if (!first) {
         continue;
       }
-      const matrices = new Float32Array(group.length * 16);
-      group.forEach((placement, index) => {
+      const kept = group.filter((placement) => !placement.removed);
+      const matrices = new Float32Array(kept.length * 16);
+      kept.forEach((placement, index) => {
         scale.setAll(placement.scale);
         position.set(placement.x, placement.y, placement.z);
         Matrix.ComposeToRef(
@@ -300,9 +394,6 @@ export class ChunkManager {
       });
       this.library.setChunkCopies(first.kind, first.variant, key, matrices);
     }
-
-    this.chunks.set(key, { key, cx, cz, terrainMesh, placements });
-    this.onChunkLoaded.notifyObservers({ key, cx, cz });
   }
 
   private unload(chunk: Chunk): void {

@@ -17,7 +17,12 @@ import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
 import { PlayerHunger } from "./player/hunger";
-import { Provisions } from "./player/provisions";
+import { Eating } from "./player/eating";
+import { Inventory } from "./player/inventory";
+import type { Held, ItemId } from "./player/items";
+import { PickupSystem } from "./systems/pickups";
+import { createItemIcons } from "./ui/itemIcons";
+import { InventoryScreen } from "./ui/inventoryScreen";
 import { CarcassSystem } from "./systems/carcasses";
 import { CampfireManager } from "./world/campfires";
 import { KnifeAttack } from "./player/knifeAttack";
@@ -139,7 +144,19 @@ async function start(): Promise<void> {
       CONFIG.world.defaultSeed,
     );
     const interactions = new InteractionSystem(scene, input, player, hud);
-    const equipment = new Equipment(scene, input);
+    // NBB-143: the inventory and quick bar (RF-57), starting with the provisional kit (IN5-A).
+    const inventory = new Inventory();
+    for (const { item, count, slot } of CONFIG.inventory.starterKit) {
+      inventory.setSlot(slot, { item, count });
+    }
+    const equipment = new Equipment(scene, input, inventory);
+    const inventoryScreen = new InventoryScreen(scene, input, player, inventory, hud);
+    inventoryScreen.canOpen = () => !health.isDead;
+    createItemIcons(engine)
+      .then((icons) => inventoryScreen.setIcons(icons))
+      .catch((error: unknown) => console.warn("Ícones dos itens não desenhados:", error));
+    new PickupSystem(player, world.chunks, inventory, interactions);
+    const eating = new Eating(scene, input, player, equipment, inventory, hunger, interactions);
     const bow = new BowControl(
       scene,
       input,
@@ -150,8 +167,9 @@ async function start(): Promise<void> {
       equipment,
       hud,
       interactions,
+      inventory,
     );
-    // NBB-141: the cabins (the first one has the shotgun) and the shotgun itself (3, ES2).
+    // NBB-141: the cabins (the first one has the shotgun) and the shotgun itself (ES2).
     const shotgun = new ShotgunControl(
       scene,
       input,
@@ -164,6 +182,7 @@ async function start(): Promise<void> {
         terrain: world.terrain,
         chunks: world.chunks,
         noise,
+        inventory,
       },
       hud,
     );
@@ -175,18 +194,16 @@ async function start(): Promise<void> {
       world.terrain,
       world.chunks,
       interactions,
+      inventory,
       CONFIG.world.defaultSeed,
     );
-    cabins.onShotgunTaken.add(() => equipment.unlock("shotgun"));
-    cabins.onCartridgesFound.add((count) => shotgun.addCartridges(count));
-    // NBB-142: meat and leather from carcasses (FO1-A, Q eats), and the campfire (G, CZ1-A).
-    const provisions = new Provisions(scene, input, player, hunger, interactions, hud);
+    // NBB-142: carcasses (meat, fat, leather) and the campfire (G, CZ1-A).
     const carcasses = new CarcassSystem(
       scene,
       () => prey.animals(),
       world.chunks,
       equipment,
-      provisions,
+      inventory,
       interactions,
       CONFIG.world.defaultSeed,
     );
@@ -194,15 +211,17 @@ async function start(): Promise<void> {
       terrain: world.terrain,
       creature: creatureBrain,
       visibility,
-      provisions,
+      inventory,
       interactions,
     });
-    equipment.onChanged.add((tool) => {
+    const onHeld = (tool: Held) => {
       hands.equip(tool);
       knife.enabled = tool === "knife";
       // AR6, ES2: no free hand for the torch while holding the bow or the shotgun.
-      torch.blocked = tool !== "knife";
-    });
+      torch.blocked = tool === "bow" || tool === "shotgun";
+    };
+    equipment.onChanged.add(onHeld);
+    onHeld(equipment.current);
 
     // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
     creatureBrain.onPlayerHit.add((damage) => health.damage(damage));
@@ -220,6 +239,7 @@ async function start(): Promise<void> {
       lifeStart = world.clock.elapsed;
     });
     health.onDied.add(() => {
+      inventoryScreen.close(false);
       player.controlsEnabled = false;
       gameInput.pointerLockEnabled = false;
       creatureBrain.sendAway();
@@ -296,8 +316,27 @@ async function start(): Promise<void> {
           },
           /** Thrusts the knife, as a left click would. */
           stab: () => knife.attack(),
-          /** Takes the knife or the bow, as 1 and 2 would. */
-          equip: (tool: "knife" | "bow") => equipment.equip(tool),
+          /** Selects the quick-bar slot holding this item, as 1 to 6 would. */
+          equip: (item: Held) => equipment.equip(item),
+          /** NBB-143: the inventory's slots, adding items, picking a slot, and Tab. */
+          inventory: () =>
+            Array.from({ length: inventory.size }, (_, index) => inventory.slot(index)),
+          give: (item: ItemId, count = 1) => inventory.add(item, count),
+          select: (slot: number) => inventory.select(slot),
+          setSlot: (slot: number, item?: ItemId, count = 1) =>
+            inventory.setSlot(slot, item ? { item, count } : undefined),
+          toggleInventory: () => devInput.onKeyDownNow.notifyObservers("Tab"),
+          inventoryOpen: () => inventoryScreen.isOpen,
+          /** Eats the meat in hand, as the left button would. */
+          eat: () => eating.eat(),
+          /** CL1: branches, small stones and bushes within `radius` of the player. */
+          pickables: (radius = 6) =>
+            world.chunks
+              .pickablesNear(player.feet.x, player.feet.z, radius)
+              .map(({ kind, x, z }) => ({
+                kind,
+                at: [Math.round(x * 10) / 10, Math.round(z * 10) / 10],
+              })),
           arrows: () => bow.arrowCount,
           lastArrow: () => arrows.lastLanding,
           /** NBB-142: hunger (a value sets it), what the player carries, and the campfire. */
@@ -308,12 +347,13 @@ async function start(): Promise<void> {
             return Math.round(hunger.value * 10) / 10;
           },
           food: () => ({
-            rawMeat: provisions.count("rawMeat"),
-            cookedMeat: provisions.count("cookedMeat"),
-            leather: provisions.count("leather"),
+            rawMeat: inventory.count("rawMeat"),
+            cookedMeat: inventory.count("cookedMeat"),
+            fat: inventory.count("fat"),
+            leather: inventory.count("leather"),
             cleaned: carcasses.cleanedCount,
           }),
-          giveMeat: (amount = 1) => provisions.add("rawMeat", amount),
+          giveMeat: (amount = 1) => inventory.add("rawMeat", amount),
           campfire: () => ({
             at: campfires.position?.asArray().map((value) => Math.round(value * 10) / 10),
             spit: campfires.spit,

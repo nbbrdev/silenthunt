@@ -1,49 +1,56 @@
 import { Observable, type Scene } from "@babylonjs/core";
 import type { Input } from "../core/input";
+import type { Inventory } from "./inventory";
+import type { Held } from "./items";
 
-/** What the hands hold. */
-export type Tool = "knife" | "bow" | "shotgun";
-
-const KEYS: Record<string, Tool> = { Digit1: "knife", Digit2: "bow", Digit3: "shotgun" };
+const SLOT_KEYS = ["Digit1", "Digit2", "Digit3", "Digit4", "Digit5", "Digit6"];
 
 /**
- * AR1, ES2 (provisional until the inventory and quick bar, NBB-143): 1 takes the knife, 2 the
- * bow and 3 the shotgun, once it has been found. Other systems listen to `onChanged` (the hands,
- * the torch and each weapon).
+ * What the hands hold (NBB-143, G2, RF-57): the item in the selected quick-bar slot, picked with
+ * 1 to 6 or the mouse wheel. Other systems listen to `onChanged` (the hands, the torch and each
+ * weapon).
  */
 export class Equipment {
-  readonly onChanged = new Observable<Tool>();
-  private tool: Tool = "knife";
-  private readonly owned = new Set<Tool>(["knife", "bow"]);
+  readonly onChanged = new Observable<Held>();
+  private held: Held;
+  private readonly inventory: Inventory;
 
-  constructor(scene: Scene, input: Input) {
+  constructor(scene: Scene, input: Input, inventory: Inventory) {
+    this.inventory = inventory;
+    this.held = inventory.selectedItem ?? "hand";
+    inventory.onChanged.add(() => this.refresh());
     scene.onBeforeRenderObservable.add(() => {
-      for (const [key, tool] of Object.entries(KEYS)) {
+      SLOT_KEYS.forEach((key, slot) => {
         if (input.wasPressed(key)) {
-          this.equip(tool);
+          inventory.select(slot);
         }
+      });
+      const wheel = input.consumeWheel();
+      if (wheel !== 0) {
+        inventory.select(inventory.selected + wheel);
       }
     });
   }
 
-  get current(): Tool {
-    return this.tool;
+  get current(): Held {
+    return this.held;
   }
 
-  /** A tool found in the world (the shotgun, ES2) can be taken from now on. */
-  unlock(tool: Tool): void {
-    this.owned.add(tool);
-  }
-
-  has(tool: Tool): boolean {
-    return this.owned.has(tool);
-  }
-
-  equip(tool: Tool): void {
-    if (tool === this.tool || !this.owned.has(tool)) {
-      return;
+  /** Development only: selects the first quick-bar slot holding `item`. */
+  equip(item: Held): void {
+    for (let slot = 0; slot < 6; slot++) {
+      if ((this.inventory.slot(slot)?.item ?? "hand") === item) {
+        this.inventory.select(slot);
+        return;
+      }
     }
-    this.tool = tool;
-    this.onChanged.notifyObservers(tool);
+  }
+
+  private refresh(): void {
+    const held = this.inventory.selectedItem ?? "hand";
+    if (held !== this.held) {
+      this.held = held;
+      this.onChanged.notifyObservers(held);
+    }
   }
 }

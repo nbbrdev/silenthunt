@@ -1,3 +1,5 @@
+import { Observable } from "@babylonjs/core";
+
 /**
  * Keyboard and mouse state for the game. Keys are read by physical position (`event.code`, e.g.
  * "KeyW"), so WASD works on any keyboard layout. Mouse look only works while the pointer is locked
@@ -8,14 +10,25 @@ export class Input {
   private readonly pressedThisFrame = new Set<string>();
   private mouseX = 0;
   private mouseY = 0;
+  private wheelSteps = 0;
   private readonly canvas: HTMLCanvasElement;
   private lockEnabled = true;
+
+  /**
+   * Fired inside the browser's own key event (not on the next frame), with the key's code. Some
+   * things only work there, like capturing the mouse again when the inventory closes (NBB-143).
+   */
+  readonly onKeyDownNow = new Observable<string>();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
     window.addEventListener("keydown", (event) => {
-      if (event.code === "Space") {
-        event.preventDefault(); // Space would otherwise scroll the page.
+      if (event.code === "Space" || event.code === "Tab") {
+        // Space would otherwise scroll the page, and Tab move the focus away from the game.
+        event.preventDefault();
+      }
+      if (!event.repeat) {
+        this.onKeyDownNow.notifyObservers(event.code);
       }
       if (!this.down.has(event.code)) {
         this.pressedThisFrame.add(event.code);
@@ -57,6 +70,26 @@ export class Input {
         this.mouseY += event.movementY;
       }
     });
+    // G2: the mouse wheel goes through the quick bar (one step per notch).
+    document.addEventListener("wheel", (event) => {
+      if (this.isPointerLocked && event.deltaY !== 0) {
+        this.wheelSteps += Math.sign(event.deltaY);
+      }
+    });
+  }
+
+  /** Captures the mouse; only works inside a key or click event (see `onKeyDownNow`). */
+  capturePointer(): void {
+    if (this.lockEnabled && !this.isPointerLocked) {
+      this.canvas.requestPointerLock().catch(() => undefined);
+    }
+  }
+
+  /** Wheel notches since the last call (positive = down). */
+  consumeWheel(): number {
+    const steps = this.wheelSteps;
+    this.wheelSteps = 0;
+    return steps;
   }
 
   /**

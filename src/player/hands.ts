@@ -1,4 +1,4 @@
-import { Vector3, type Mesh, type Scene } from "@babylonjs/core";
+import { Vector3, type Mesh, type Scene, type TransformNode } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import {
   BRACE_HEIGHT,
@@ -7,11 +7,45 @@ import {
   createBowModel,
   type BowModel,
 } from "../models/items/bow";
+import { createItemModel } from "../models/items/itemModels";
 import { createKnifeMesh } from "../models/items/knife";
 import { createShotgunModel, type ShotgunModel } from "../models/items/shotgun";
 import { REST_WRIST, createArmsModel, type ArmsModel } from "../models/player/arms";
-import type { Tool } from "./equipment";
+import type { Held, ItemId } from "./items";
 import type { Player } from "./player";
+
+/**
+ * IN6-B: how each item sits in the right fist (position in meters and rotation in radians, in
+ * the hand's space: +Z ahead). Long things go through the fist like the knife.
+ */
+const HOLD: Partial<Record<ItemId, { position: Vector3; rotation: Vector3; scale?: number }>> = {
+  arrow: { position: new Vector3(0, 0.005, 0.16), rotation: new Vector3(-0.25, 0, 0) },
+  cartridge: { position: new Vector3(0, 0.025, 0.03), rotation: new Vector3(-0.7, 0, 0) },
+  // The branch lies along X: a quarter turn points it ahead, like the knife.
+  branch: {
+    position: new Vector3(0, 0.005, 0.11),
+    rotation: new Vector3(-0.25, Math.PI / 2, 0),
+    scale: 0.75,
+  },
+  stone: { position: new Vector3(0, 0.045, 0.06), rotation: new Vector3(0, 0, 0), scale: 0.7 },
+  fiber: { position: new Vector3(0, 0.01, 0.05), rotation: new Vector3(-0.25, 0, 0), scale: 1.1 },
+  fat: { position: new Vector3(0, 0.03, 0.045), rotation: new Vector3(0, 0.4, 0), scale: 0.8 },
+  leather: {
+    position: new Vector3(0, 0.025, 0.09),
+    rotation: new Vector3(-0.25, 0, 0),
+    scale: 0.75,
+  },
+  rawMeat: {
+    position: new Vector3(0, 0.03, 0.065),
+    rotation: new Vector3(0, -1.2, 0),
+    scale: 0.65,
+  },
+  cookedMeat: {
+    position: new Vector3(0, 0.03, 0.065),
+    rotation: new Vector3(0, -1.2, 0),
+    scale: 0.65,
+  },
+};
 
 /** Where the bow's grip sits in the left fist, relative to the wrist (meters). */
 const BOW_GRIP = new Vector3(0.005, 0.01, 0.045);
@@ -44,16 +78,20 @@ export class PlayerHands {
   readonly bow: BowModel;
   readonly shotgun: ShotgunModel;
 
+  private readonly scene: Scene;
   private readonly player: Player;
   private readonly nockedArrow: Mesh;
   private readonly restRightShoulder: Vector3;
   private readonly restLeftShoulder: Vector3;
-  private tool: Tool = "knife";
+  /** IN6-B: the other items, built the first time they are held. */
+  private readonly heldModels = new Map<ItemId, TransformNode>();
+  private tool: Held = "hand";
   private torchLit = false;
   private swayTime = 0;
   private stabbing = false;
 
   constructor(scene: Scene, player: Player) {
+    this.scene = scene;
     this.player = player;
     this.arms = createArmsModel(scene, 7);
     this.arms.root.parent = player.camera;
@@ -98,11 +136,15 @@ export class PlayerHands {
     this.updateVisibility();
   }
 
-  /** AR1: switches what the hands hold. */
-  equip(tool: Tool): void {
+  /** RF-57: switches what the hands hold (the item selected on the quick bar). */
+  equip(tool: Held): void {
     this.tool = tool;
+    if (tool !== "hand" && tool !== "knife" && tool !== "bow" && tool !== "shotgun") {
+      this.heldModel(tool);
+    }
     this.updateVisibility();
-    if (tool === "knife") {
+    if (tool !== "bow" && tool !== "shotgun") {
+      // The knife, any other item or the bare hand: the right fist in front, the left one down.
       this.arms.leftShoulder.position.copyFrom(this.restLeftShoulder);
       this.arms.idle?.start(true);
     } else {
@@ -173,7 +215,7 @@ export class PlayerHands {
     idle?.stop();
     stab.onAnimationGroupEndObservable.addOnce(() => {
       this.stabbing = false;
-      if (this.tool === "knife") {
+      if (this.tool !== "bow" && this.tool !== "shotgun") {
         idle?.start(true);
       }
     });
@@ -185,7 +227,31 @@ export class PlayerHands {
     this.knife.setEnabled(this.tool === "knife");
     this.bow.root.setEnabled(bow);
     this.shotgun.root.setEnabled(gun);
+    for (const [item, model] of this.heldModels) {
+      model.setEnabled(item === this.tool);
+    }
     this.arms.left.setEnabled(bow || gun || this.torchLit);
+  }
+
+  /** IN6-B: the model of an item in the right fist, built the first time it is held. */
+  private heldModel(item: ItemId): TransformNode {
+    const existing = this.heldModels.get(item);
+    if (existing) {
+      return existing;
+    }
+    const model = createItemModel(this.scene, item);
+    model.parent = this.arms.rightHand;
+    const hold = HOLD[item];
+    if (hold) {
+      model.position = hold.position.clone();
+      model.rotation = hold.rotation.clone();
+      model.scaling.setAll(hold.scale ?? 1);
+    }
+    for (const mesh of model.getChildMeshes(false)) {
+      mesh.renderingGroupId = 1;
+    }
+    this.heldModels.set(item, model);
+    return model;
   }
 
   /** MA5: a gentle sway that follows the steps (one swing left and right per two steps). */

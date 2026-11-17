@@ -24,6 +24,7 @@ import type { ChunkManager } from "../world/chunks";
 import type { Terrain } from "../world/terrain";
 import type { Equipment } from "./equipment";
 import type { PlayerHands } from "./hands";
+import type { Inventory } from "./inventory";
 import type { Player } from "./player";
 
 /** What the shot can hit and what can stop it. */
@@ -33,6 +34,8 @@ export interface ShotgunWorld {
   terrain: Terrain;
   chunks: ChunkManager;
   noise: NoiseSystem;
+  /** RF-57: the spare cartridges are in the inventory. */
+  inventory: Inventory;
 }
 
 /**
@@ -58,7 +61,6 @@ export class ShotgunControl {
   private readonly dot: Ellipse;
   private readonly counter: TextBlock;
   private loaded = 0;
-  private spare = 0;
   private aim = 0;
   private cooldown = 0;
   private recoilLeft = 0;
@@ -146,13 +148,9 @@ export class ShotgunControl {
     ]);
   }
 
-  /** Cartridges found (a chest, ES5). */
-  addCartridges(count: number): void {
-    this.spare += count;
-  }
-
+  /** Loaded in the barrels and spare (in the inventory). */
   get cartridges(): { loaded: number; spare: number } {
-    return { loaded: this.loaded, spare: this.spare };
+    return { loaded: this.loaded, spare: this.world.inventory.count("cartridge") };
   }
 
   /** Development only: fires as a left click would. */
@@ -189,9 +187,11 @@ export class ShotgunControl {
       // Opens fast, stays open while loading, snaps shut at the end.
       open = Math.min(1, done / 0.15, (1 - done) / 0.15);
       if (this.reloadLeft <= 0) {
-        const count = Math.min(settings.barrels - this.loaded, this.spare);
-        this.loaded += count;
-        this.spare -= count;
+        const inventory = this.world.inventory;
+        const count = Math.min(settings.barrels - this.loaded, inventory.count("cartridge"));
+        if (count > 0 && inventory.remove("cartridge", count)) {
+          this.loaded += count;
+        }
       }
     }
 
@@ -212,13 +212,14 @@ export class ShotgunControl {
     this.hands.setShotgunPose(this.aim, this.recoilLeft / settings.recoilSeconds, open);
     this.dot.isVisible = holding && this.aim > 0.5;
     this.counter.isVisible = holding;
-    this.counter.text = `Cartuchos: ${this.loaded + this.spare}`;
+    this.counter.text = `Cartuchos: ${this.loaded + this.world.inventory.count("cartridge")}`;
   }
 
   private startReload(): void {
     const settings = CONFIG.shotgun;
     const holding = this.equipment.current === "shotgun";
-    if (!holding || this.reloadLeft > 0 || this.loaded >= settings.barrels || this.spare <= 0) {
+    const spare = this.world.inventory.count("cartridge");
+    if (!holding || this.reloadLeft > 0 || this.loaded >= settings.barrels || spare <= 0) {
       return;
     }
     this.reloadLeft = settings.reloadSeconds;

@@ -5,7 +5,7 @@ import type { Input } from "../core/input";
 import { createMeatModel, type MeatModel } from "../models/items/meat";
 import { createCampfireModel, type CampfireModel } from "../models/structures/campfire";
 import type { Player } from "../player/player";
-import type { Provisions } from "../player/provisions";
+import type { Inventory } from "../player/inventory";
 import type { Interaction, InteractionSystem } from "../systems/interactions";
 import type { VisibilitySystem } from "../systems/visibility";
 import type { Terrain } from "./terrain";
@@ -21,7 +21,7 @@ export interface CampfireWorld {
   terrain: Terrain;
   creature: CreatureBrainBehavior;
   visibility: VisibilitySystem;
-  provisions: Provisions;
+  inventory: Inventory;
   interactions: InteractionSystem;
 }
 
@@ -86,9 +86,9 @@ export class CampfireManager {
     // Moving the fire hands back what was on the spit, as it was.
     for (const slot of this.slots) {
       if (slot.state === "cooking") {
-        this.world.provisions.add("rawMeat");
+        this.world.inventory.add("rawMeat", 1);
       } else if (slot.state === "cooked") {
-        this.world.provisions.add("cookedMeat");
+        this.world.inventory.add("cookedMeat", 1);
       }
       this.empty(slot);
     }
@@ -153,16 +153,19 @@ export class CampfireManager {
     const distance = Math.hypot(feet.x - fire.x, feet.z - fire.z);
     const cooked = this.slots.find((slot) => slot.state === "cooked");
     if (cooked) {
+      if (this.world.inventory.spaceFor("cookedMeat") <= 0) {
+        return { label: "Inventário cheio", distance };
+      }
       return {
         label: "Pegar carne cozida",
         distance,
         act: () => {
           this.empty(cooked);
-          this.world.provisions.add("cookedMeat");
+          this.world.inventory.add("cookedMeat", 1);
         },
       };
     }
-    if (this.world.provisions.count("rawMeat") <= 0) {
+    if (this.world.inventory.count("rawMeat") <= 0) {
       return undefined;
     }
     const free = this.slots.find((slot) => slot.state === "empty");
@@ -173,7 +176,7 @@ export class CampfireManager {
       label: "Cozinhar carne",
       distance,
       act: () => {
-        if (!this.world.provisions.take("rawMeat")) {
+        if (!this.world.inventory.remove("rawMeat", 1)) {
           return;
         }
         free.state = "cooking";

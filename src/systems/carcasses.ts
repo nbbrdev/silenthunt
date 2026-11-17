@@ -3,7 +3,15 @@ import type { PreyBrainBehavior, PreyKind } from "../ai/preyBrain";
 import { CONFIG } from "../config";
 import { createRemainsModel, type RemainsModel } from "../models/animals/remains";
 import type { Equipment } from "../player/equipment";
-import type { Provisions } from "../player/provisions";
+import type { Inventory, Stack } from "../player/inventory";
+import type { ItemId } from "../player/items";
+
+/** The names in the "Você conseguiu" message: singular and plural. */
+const NAMES: Partial<Record<ItemId, [string, string]>> = {
+  rawMeat: ["carne", "carnes"],
+  fat: ["gordura", "gorduras"],
+  leather: ["couro", "couros"],
+};
 import type { ChunkManager } from "../world/chunks";
 import type { InteractionSystem } from "./interactions";
 
@@ -22,7 +30,7 @@ export class CarcassSystem {
   private readonly scene: Scene;
   private readonly prey: () => PreyBrainBehavior[];
   private readonly equipment: Equipment;
-  private readonly provisions: Provisions;
+  private readonly inventory: Inventory;
   private readonly interactions: InteractionSystem;
   private readonly templates: Record<PreyKind, RemainsModel>;
   private readonly cleaned = new Set<string>();
@@ -33,14 +41,14 @@ export class CarcassSystem {
     prey: () => PreyBrainBehavior[],
     chunks: ChunkManager,
     equipment: Equipment,
-    provisions: Provisions,
+    inventory: Inventory,
     interactions: InteractionSystem,
     seed: number,
   ) {
     this.scene = scene;
     this.prey = prey;
     this.equipment = equipment;
-    this.provisions = provisions;
+    this.inventory = inventory;
     this.interactions = interactions;
     this.templates = {
       deer: createRemainsModel(scene, "deer", seed),
@@ -85,6 +93,10 @@ export class CarcassSystem {
     if (this.equipment.current !== "knife") {
       return { label: "Precisa da faca", distance };
     }
+    // RF-57: only if everything it gives fits.
+    if (!this.inventory.canFit(this.yield(animal))) {
+      return { label: "Inventário cheio", distance };
+    }
     return {
       label: `Limpar ${name}`,
       distance,
@@ -99,19 +111,16 @@ export class CarcassSystem {
     if (!body) {
       return;
     }
-    const settings = CONFIG.carcass;
-    const meat = settings.meat[animal.kind];
-    const leather = settings.leather[animal.kind];
     this.cleaned.add(animal.id);
-    this.provisions.add("rawMeat", meat);
-    if (leather > 0) {
-      this.provisions.add("leather", leather);
+    const found: string[] = [];
+    for (const { item, count } of this.yield(animal)) {
+      this.inventory.add(item, count);
+      const [one, many] = NAMES[item] ?? [item, item];
+      found.push(`${count} ${count === 1 ? one : many}`);
     }
-    const found = [`${meat} ${meat === 1 ? "carne" : "carnes"}`];
-    if (leather > 0) {
-      found.push(`${leather} couro`);
-    }
-    this.interactions.say(`Você conseguiu: ${found.join(" e ")}`);
+    const last = found.pop();
+    const text = found.length > 0 ? `${found.join(", ")} e ${last ?? ""}` : (last ?? "");
+    this.interactions.say(`Você conseguiu: ${text}`);
 
     // CA3-B: the body gives way to its remains, lying along it.
     body.setEnabled(false);
@@ -127,6 +136,17 @@ export class CarcassSystem {
       return mesh;
     });
     this.remains.set(animal.id, { node, meshes });
+  }
+
+  /** RF-30, PG2-A, CA4-A: what an animal gives: meat, fat and, the deer, leather. */
+  private yield(animal: PreyBrainBehavior): Stack[] {
+    const settings = CONFIG.carcass;
+    const items: Stack[] = [
+      { item: "rawMeat", count: settings.meat[animal.kind] },
+      { item: "fat", count: settings.fat[animal.kind] },
+      { item: "leather", count: settings.leather[animal.kind] },
+    ];
+    return items.filter((stack) => stack.count > 0);
   }
 
   /** The chunk unloaded: its remains go (the animal ids start with the chunk's key). */

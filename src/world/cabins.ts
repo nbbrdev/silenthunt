@@ -1,5 +1,4 @@
 import {
-  Observable,
   PhysicsBody,
   PhysicsMotionType,
   PhysicsShapeBox,
@@ -15,6 +14,7 @@ import { CONFIG } from "../config";
 import { createRandom, hashPosition, randomInt } from "../core/random";
 import { createShotgunModel, type ShotgunModel } from "../models/items/shotgun";
 import { createCabinModel, type CabinModel } from "../models/structures/cabin";
+import type { Inventory } from "../player/inventory";
 import type { Interaction, InteractionSystem } from "../systems/interactions";
 import { CABIN_SIZE, cabinsInChunk, type CabinSite } from "./cabinSites";
 import type { ChunkInfo, ChunkManager } from "./chunks";
@@ -39,14 +39,10 @@ const LID_OPEN = -1.2;
  * in the first cabin, the shotgun on the table. Opened chests stay open (in this session).
  */
 export class CabinManager {
-  /** The shotgun was picked up (it becomes available, ES2). */
-  readonly onShotgunTaken = new Observable<void>();
-  /** Cartridges found in a chest. */
-  readonly onCartridgesFound = new Observable<number>();
-
   private readonly scene: Scene;
   private readonly terrain: Terrain;
   private readonly interactions: InteractionSystem;
+  private readonly inventory: Inventory;
   private readonly seed: number;
   private readonly model: CabinModel;
   private readonly spawned = new Map<string, SpawnedCabin>();
@@ -58,11 +54,13 @@ export class CabinManager {
     terrain: Terrain,
     chunks: ChunkManager,
     interactions: InteractionSystem,
+    inventory: Inventory,
     seed: number,
   ) {
     this.scene = scene;
     this.terrain = terrain;
     this.interactions = interactions;
+    this.inventory = inventory;
     this.seed = seed;
     this.model = createCabinModel(scene, seed);
     for (const mesh of [this.model.body, this.model.chest, this.model.lid]) {
@@ -200,7 +198,10 @@ export class CabinManager {
       if (cabin.shotgun) {
         const distance = flatDistance(this.toWorld(cabin, this.model.tableTop), player);
         if (distance <= reach && (!best || distance < best.distance)) {
-          best = { label: "Pegar espingarda", distance, act: () => this.takeShotgun(cabin) };
+          best =
+            this.inventory.spaceFor("shotgun") > 0
+              ? { label: "Pegar espingarda", distance, act: () => this.takeShotgun(cabin) }
+              : { label: "Inventário cheio", distance };
         }
       }
     }
@@ -208,9 +209,27 @@ export class CabinManager {
   }
 
   private openChest(cabin: SpawnedCabin): void {
-    const settings = CONFIG.cabins;
+    const cartridges = this.chestCartridges(cabin);
+    // RF-57: with no room for what it holds, the chest stays closed.
+    if (cartridges > 0 && this.inventory.spaceFor("cartridge") < cartridges) {
+      this.interactions.say("Inventário cheio");
+      return;
+    }
     this.opened.add(cabin.site.id);
     cabin.lid.rotation.x = LID_OPEN;
+    if (cartridges > 0) {
+      this.inventory.add("cartridge", cartridges);
+      this.interactions.say(
+        `Você encontrou: ${cartridges} ${cartridges === 1 ? "cartucho" : "cartuchos"}`,
+      );
+    } else {
+      this.interactions.say("O baú está vazio");
+    }
+  }
+
+  /** ES5: what a chest holds; the same chest always holds the same thing. */
+  private chestCartridges(cabin: SpawnedCabin): number {
+    const settings = CONFIG.cabins;
     let cartridges = 0;
     if (cabin.site.first) {
       cartridges = settings.firstCartridges;
@@ -224,21 +243,16 @@ export class CabinManager {
         cartridges = randomInt(random, settings.chestCartridges);
       }
     }
-    if (cartridges > 0) {
-      this.onCartridgesFound.notifyObservers(cartridges);
-      this.interactions.say(
-        `Você encontrou: ${cartridges} ${cartridges === 1 ? "cartucho" : "cartuchos"}`,
-      );
-    } else {
-      this.interactions.say("O baú está vazio");
-    }
+    return cartridges;
   }
 
   private takeShotgun(cabin: SpawnedCabin): void {
+    if (this.inventory.add("shotgun", 1) < 1) {
+      return;
+    }
     cabin.shotgun?.root.dispose();
     cabin.shotgun = undefined;
     this.shotgunTaken = true;
-    this.onShotgunTaken.notifyObservers();
     this.interactions.say("Você encontrou: espingarda");
   }
 

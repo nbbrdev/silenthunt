@@ -148,6 +148,19 @@ export function getGroundMaterial(scene: Scene): StandardMaterial {
 
 const groundByScene = new WeakMap<Scene, StandardMaterial>();
 
+const plainByScene = new WeakMap<Scene, StandardMaterial>();
+
+/** Plain matte material, the color from the vertices (small items: fiber, leather, NBB-143). */
+export function getPlainMaterial(scene: Scene): StandardMaterial {
+  const existing = plainByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const material = createMatteMaterial("plain", scene);
+  plainByScene.set(scene, material);
+  return material;
+}
+
 const boneByScene = new WeakMap<Scene, StandardMaterial>();
 
 /** Plain, slightly glossy bone (the vertex colors give its tone): remains and meat (NBB-142). */
