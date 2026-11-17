@@ -290,6 +290,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | MA5 | Mãos com balanço leve parado (respiração), balanço no ritmo do passo e a estocada. |
 | MA6 | Sem testes da regra do ataque furtivo (X1-C); sem som de golpe por enquanto (NBB-149). |
 | FA1-A | Animal pastando está distraído: ouve só a metade do raio do ruído (em alerta, volta a ouvir normal). Assim o passo agachado nas folhas (2,8 m) só alcança um coelho pastando a 1,4 m, e dá para chegar por trás até a faca (1,5 m). O cervo, que ouve o dobro, continua difícil. |
+| MA7 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok", "mãos ok"; o usuário matou um coelho no PC): punho direito no canto inferior direito com a lâmina um pouco para cima, mão esquerda mais baixa segurando a tocha perto do topo; casaco marrom-oliva e pele em material fosco liso; punho fechado com polegar; estocada recua 6 cm e avança 20 cm, acerto aos 0,24 s e ruído depois do acerto; de perto vale qualquer parte do corpo no cone; o clique que captura o mouse não golpeia; `stab()` só em desenvolvimento. |
 
 ## Pendentes (proposto)
 
