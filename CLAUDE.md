@@ -10,7 +10,7 @@ Repo: `nbbrdev/silenthunt` (público) · Linear: time "Nbbr dev" (chave `NBB`), 
 - Mudou `docs/`? Atualize o Linear Doc correspondente na mesma sessão, e vice-versa.
 
 ## Fase atual
-**Entre o M3 e o M4.** O M0 e o M1 terminaram em 2026-11-16; o M2 (NBB-133 a NBB-136) e o M3 (NBB-137 a NBB-142, meta `v0.4.0`, a tag é do usuário) em 2026-11-17. Próximo passo: rodada de **progressão** (PG, pendente em `docs/06-decisoes.md`), antes do M4 (NBB-143 em diante). A fogueira básica já existe (CZ1-A, tecla G provisória). Em 2026-11-16 o usuário decidiu manter todo o escopo (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C). Em 2026-11-17 (PZ1): **esquecer o prazo**: sem cortes nem pressa por causa da data.
+**Entre o M3 e o M4.** O M0 e o M1 terminaram em 2026-11-16; o M2 (NBB-133 a NBB-136) e o M3 (NBB-137 a NBB-142, meta `v0.4.0`, a tag é do usuário) em 2026-11-17. A rodada de **progressão** foi decidida em 2026-11-17 (PG1-A a PG6: começa sem nada, tocha com gordura, fogueira com combustível; os atalhos provisórios saem com o inventário e o crafting). Próximo passo: M4, começando pela NBB-143 (coleta e inventário). A fogueira básica já existe (CZ1-A, tecla G provisória). Em 2026-11-16 o usuário decidiu manter todo o escopo (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C). Em 2026-11-17 (PZ1): **esquecer o prazo**: sem cortes nem pressa por causa da data.
 
 Lembretes:
 - A conta ativa do `gh` foi trocada para `nbbrdev` em 2026-11-12 (vale para todos os terminais).

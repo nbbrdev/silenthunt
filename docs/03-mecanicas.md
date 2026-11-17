@@ -68,7 +68,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   | Perto de uma fogueira acesa | 40 m |
   | Agachado | metade da distância |
 
-- **RF-14** A tocha ilumina cerca de 12 m ao redor e dura **4 min** acesa (G11).
+- **RF-14** A tocha ilumina cerca de 12 m ao redor e dura **4 min** acesa (G11): são 2 tochas por noite (PG3-A).
 
 ## A criatura
 
@@ -99,7 +99,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-32** **Faca** (M8-A): alcance de 1,5 m. Se a presa **não está em alerta nem fugindo**, mata na hora. Se está em alerta, ela foge. Contra a criatura: não causa dano, mas faz ela recuar.
 - **RF-33** **Arco:** segurar para puxar (até 1 s). A flecha cai com a gravidade (calculada pelo jogo, AR3-A). Um acerto mata o coelho; o cervo precisa de dois (o primeiro o faz fugir ferido). A flecha pode ser recuperada (chance de quebrar: 25%).
 - **RF-34** **Espingarda:** um tiro mata qualquer presa até 40 m. Barulho de 150 m (RF-10) chama a criatura **mesmo de dia**. É encontrada uma vez no mundo, numa cabana abandonada perto do início, com 4 cartuchos; mais cartuchos aparecem raramente em baús dessas cabanas.
-- **RF-35** Presa abatida vira **carcaça**: segurar E com a faca na mão (coelho 2 s, cervo 5 s) dá a carne crua e, no cervo, 1 couro; sobra um resto de ossos e pele (CA1-B a CA4-A). Carne crua: +10 de fome. Carne cozida na fogueira (10 s, até 4 de uma vez): +30 (CZ2-A).
+- **RF-35** Presa abatida vira **carcaça**: segurar E com a faca na mão (coelho 2 s, cervo 5 s) dá a carne crua, a gordura (coelho 1, cervo 3, PG2-A) e, no cervo, 1 couro; sobra um resto de ossos e pele (CA1-B a CA4-A). Carne crua: +10 de fome. Carne cozida na fogueira (10 s, até 4 de uma vez): +30 (CZ2-A).
 
 ## Necessidades
 
@@ -113,14 +113,14 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 
 **(G7)**
 
-- **RF-50** Recursos: **madeira** (cortar árvore com machado), **galho** (pegar do chão), **pedra** (pegar do chão ou quebrar pedra grande), **fibra** (de arbusto), **carne**, **couro** (do cervo).
+- **RF-50** Recursos: **madeira** (cortar árvore com machado), **galho** (pegar do chão), **pedra** (pegar do chão ou quebrar pedra grande), **fibra** (de arbusto), **carne**, **couro** (do cervo), **gordura** (da carcaça, PG2-A).
 - **RF-51** Receitas (crafting no inventário, sem bancada):
 
   | Item | Custo |
   |---|---|
   | Machado de pedra | 2 galhos, 2 pedras, 1 fibra |
   | Faca de pedra | 1 galho, 1 pedra, 1 fibra |
-  | Tocha | 1 galho, 1 fibra |
+  | Tocha | 1 galho, 1 fibra, 1 gordura (PG2-A) |
   | Arco | 3 galhos, 3 fibras |
   | Flechas (×5) | 3 galhos, 1 pedra |
   | Fogueira | 4 galhos, 4 pedras |
@@ -137,6 +137,8 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 
 - **RF-53** No modo de construção (B), a peça aparece transparente: **verde** se pode ser colocada e **vermelha** se não pode. Desmontar devolve metade do custo.
 - **RF-54** A criatura **não atravessa paredes nem portas fechadas**. Ela não destrói construções.
+- **RF-55** A **fogueira** queima **5 min**; E com um galho na mão soma **2 min**, até **10 min**. Apagada, não ilumina nem afasta a criatura (PG4-A).
+- **RF-56** O jogador **começa sem nada** (PG1-A): faca, tocha, arco e flechas vêm do crafting (PG5-A).
 
 ## Morte e save
 

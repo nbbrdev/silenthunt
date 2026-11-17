@@ -341,8 +341,19 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | CZ4 | Sem testes de fome e cozimento (X1-C). |
 | CZ5 | Detalhes propostos por Claude e aprovados ("1 a 12 - Ok", "modelos ok"): alcance para limpar (coelho 1,5 m, cervo 2,2 m); segurar E cancela ao soltar ou andar; mensagens ("Você conseguiu: ...", "Você comeu: ...", "Você não tem carne", "Você está sem fome" acima de 95); contador só com o que não é zero, acima do contador da arma; fome zerada tira vida sem clarão; barra de fome à direita da vida; fogueira a 1,8 m com o espeto atravessado, sem colisão, luz de 14 m, e colocar outra devolve as carnes; "perto da fogueira" até 8 m; pegar a cozida antes de cozinhar outra, "O espeto está cheio"; modelos (fogueira com 9 pedras e 5 toras, carne com osso, restos do coelho = os do cervo menores); galeria em duas colunas; ferramentas de desenvolvimento. O animal morto passou a ficar deitado (o "Morrer" segura o último quadro). |
 
+## Progressão (2026-11-17)
+
+Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz é o recurso mais importante; como a tocha protege da criatura à noite, ela deve ser difícil de fazer.
+
+| Código | Decisão |
+|---|---|
+| PG1-A | O jogador começa **sem nada**: a primeira tarefa é a faca de pedra (1 galho, 1 pedra, 1 fibra). |
+| PG2-A | A tocha passa a pedir **gordura animal**: 1 galho, 1 fibra e 1 gordura. A carcaça dá gordura (coelho 1, cervo 3). Para ter luz à noite é preciso caçar de dia. Recurso novo (RF-50). |
+| PG3-A | A tocha continua durando 4 min (RF-14): são 2 tochas por noite. |
+| PG4-A | A fogueira pede a receita (4 galhos, 4 pedras) e **combustível**: queima 5 min; E com um galho na mão soma 2 min, até 10 min. Apagada, não afasta a criatura. |
+| PG5-A | Arco e flechas só pelo crafting (RF-51). |
+| PG6 | Os atalhos provisórios (tochas ilimitadas TO1-A, fogueira na tecla G CZ1-A, faca sempre na mão MA3, arco com 10 flechas AR1) saem quando o inventário e o crafting existirem (NBB-143, NBB-144, NBB-146). |
+
 ## Pendentes (proposto)
 
-| Código | Assunto | Quando |
-|---|---|---|
-| PG | **Progressão** (pedido do usuário em 2026-11-17): o jogador começa sem nada e vai progredindo; a fonte de luz é o recurso mais importante; como a tocha protege da criatura à noite, ela deve ser difícil de fazer. Hoje a tocha custa 1 galho + 1 fibra (RF-51) e os itens provisórios são TO1-A, MA3 e AR1. | Rodada própria antes do M4 (NBB-143 e NBB-144). |
+Nenhuma.
