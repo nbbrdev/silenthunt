@@ -321,6 +321,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | ES7 | Detalhes propostos por Claude e aprovados ("1 a 6 - Ok"): a espingarda vem descarregada; cabana de 4 × 3 m (paredes de 2,1 m, cumeeira a 3,05 m), colisão por caixas e piso 2 cm acima do chão; E alcança 1,8 m; clarão de 0,06 s e tranco de 0,25 s; espingarda baixa no quadril e no olho ao mirar (FOV 0,62); o cone ganha a margem do tamanho do alvo; troncos, pedras grandes, paredes e morros barram o tiro; o contador soma cano e reserva. Os obstáculos ganharam altura (pedra até o topo, tronco até 6 m, parede até a cumeeira), o que corrige também a flecha. |
 | SN1-A | Som do tiro: "Shotgun Shot 01" (LilMati, CC0), uma Beretta 687 de dois canos. |
 | SN2-A | Som da recarga: "Single Barreled Shotgun Loading" (sentryx86, CC0), recortado em 2 s: abrir, dois cartuchos, fechar. |
+| SN3 | Detalhes propostos por Claude e aprovados ("1 a 4 - Ok", "modelos ok"): tiro com os primeiros 1,75 s e o fim suavizado; recarga montada no ritmo da animação (abrir 0 s, cartuchos 0,55 s e 1,05 s, fechar 1,75 s); sons em mono e sem 3D, por saírem das mãos do jogador; volumes 1,0 (tiro) e 0,8 (recarga). |
 
 ## Pendentes (proposto)
 
