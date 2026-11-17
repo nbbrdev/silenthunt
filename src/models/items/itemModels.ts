@@ -5,12 +5,15 @@ import { rock } from "../nature/rock";
 import { createArrowMesh, createBowModel } from "./bow";
 import { createKnifeMesh } from "./knife";
 import { createMeatModel } from "./meat";
+import { createAxeMesh } from "./axe";
 import {
   createCartridgeMesh,
   createFatMesh,
   createFiberMesh,
   createLeatherMesh,
+  createWoodMesh,
 } from "./resources";
+import { createTorchModel } from "./torch";
 import { createShotgunModel } from "./shotgun";
 
 /** The world's branch and rock are scaled to a size that fits in a hand (meters, longest side). */
@@ -39,6 +42,17 @@ function buildModel(scene: Scene, item: ItemId): TransformNode {
   switch (item) {
     case "knife":
       return createKnifeMesh(scene);
+    case "axe":
+      return createAxeMesh(scene);
+    case "torch": {
+      // An unlit torch: no flame and no fire.
+      const torch = createTorchModel(scene);
+      torch.fire.dispose();
+      torch.flame.dispose();
+      return torch.root;
+    }
+    case "wood":
+      return createWoodMesh(scene);
     case "bow":
       return createBowModel(scene).root;
     case "shotgun":

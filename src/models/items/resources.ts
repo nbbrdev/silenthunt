@@ -2,7 +2,7 @@ import { Color3, MeshBuilder, Vector3, type Mesh, type Scene } from "@babylonjs/
 import { CONFIG } from "../../config";
 import { createRandom } from "../../core/random";
 import { assemble, jitter, paint, toColor } from "../lowPoly";
-import { getBoneMaterial, getPlainMaterial } from "../materials";
+import { getBoneMaterial, getModelMaterials, getPlainMaterial } from "../materials";
 import { tube } from "../rig/skin";
 import type { GeneratedModel, ModelGenerator } from "../types";
 
@@ -113,6 +113,27 @@ export function createCartridgeMesh(scene: Scene): Mesh {
   return assemble("cartridge", [shell, base], getBoneMaterial(scene));
 }
 
+/**
+ * A piece of split wood (NBB-144, MC2): a log quarter about 40 cm long along Z, bark on the round
+ * side and light fresh wood on the split faces and the ends.
+ */
+export function createWoodMesh(scene: Scene): Mesh {
+  // A three-sided prism reads as a split quarter of a log.
+  const piece = MeshBuilder.CreateCylinder(
+    "woodPiece",
+    { height: 0.4, diameter: 0.13, tessellation: 5, arc: 0.35, enclose: true },
+    scene,
+  );
+  piece.rotation.x = Math.PI / 2;
+  piece.bakeCurrentTransformIntoVertices();
+  jitter(piece, 0.004, 12);
+  const bark = toColor(CONFIG.palette.bark);
+  const wood = toColor(CONFIG.palette.cutWood);
+  // The bark is only on the outside of the round side; the rest is cut wood.
+  paint(piece, (x, y, z) => (Math.hypot(x, y) > 0.055 && Math.abs(z) < 0.19 ? bark : wood), 13);
+  return assemble("wood", [piece], getModelMaterials(scene).fallenWood);
+}
+
 /** Gallery entries (A2-C): one per new item, lifted a little off the ground. */
 function galleryItem(id: string, label: string, build: (scene: Scene) => Mesh): ModelGenerator {
   return {
@@ -130,3 +151,4 @@ export const fiber = galleryItem("fiber", "Fibra", (scene) => createFiberMesh(sc
 export const fat = galleryItem("fat", "Gordura", createFatMesh);
 export const leather = galleryItem("leather", "Couro", createLeatherMesh);
 export const cartridge = galleryItem("cartridge", "Cartucho", createCartridgeMesh);
+export const wood = galleryItem("wood", "Madeira", createWoodMesh);

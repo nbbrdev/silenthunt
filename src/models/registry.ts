@@ -2,7 +2,9 @@ import { deer } from "./animals/deer";
 import { rabbit } from "./animals/rabbit";
 import { remains } from "./animals/remains";
 import { meat } from "./items/meat";
-import { cartridge, fat, fiber, leather } from "./items/resources";
+import { axe } from "./items/axe";
+import { cartridge, fat, fiber, leather, wood } from "./items/resources";
+import { stump } from "./nature/stump";
 import { campfire } from "./structures/campfire";
 import { creature } from "./creature/creature";
 import { arrow, bow } from "./items/bow";
@@ -46,4 +48,7 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   fat,
   leather,
   cartridge,
+  axe,
+  wood,
+  stump,
 ];

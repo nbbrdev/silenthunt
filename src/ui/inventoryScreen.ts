@@ -1,5 +1,6 @@
 import { PointerEventTypes, type Scene } from "@babylonjs/core";
 import {
+  Button,
   Control,
   Image,
   Rectangle,
@@ -10,8 +11,9 @@ import {
 } from "@babylonjs/gui";
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
+import type { Crafting } from "../player/crafting";
 import type { Inventory, Stack } from "../player/inventory";
-import { ITEM_LABELS, type ItemId } from "../player/items";
+import { ITEM_LABELS, type ItemId, type Recipe } from "../player/items";
 import type { Player } from "../player/player";
 
 /** One slot drawn on screen: its frame, the item's icon and how many. */
@@ -41,6 +43,12 @@ export class InventoryScreen {
   private readonly hoverText: TextBlock;
   private readonly nameText: TextBlock;
   private readonly cursorView: SlotView;
+  private readonly crafting: Crafting;
+  private readonly recipesPanel: Rectangle;
+  private readonly recipeRows: RecipeRow[] = [];
+  private readonly craftText: TextBlock;
+  private readonly craftBar: Rectangle;
+  private readonly craftFill: Rectangle;
   private icons: Partial<Record<ItemId, string>> = {};
   private cursor: Stack | undefined;
   private open = false;
@@ -51,9 +59,11 @@ export class InventoryScreen {
     input: Input,
     player: Player,
     inventory: Inventory,
+    crafting: Crafting,
     ui: AdvancedDynamicTexture,
   ) {
     this.inventory = inventory;
+    this.crafting = crafting;
     this.player = player;
     this.input = input;
     const { hotbarSlots, backpackSlots, slotPx } = CONFIG.inventory;
@@ -86,9 +96,19 @@ export class InventoryScreen {
     const gap = 6;
     const columns = hotbarSlots;
     const rows = backpackSlots / columns;
+    // CF1-A: the recipes stand in a column to the right; the two are centered together.
+    const panelWidth = columns * (slotPx + gap) + 40;
+    // Tall enough for the slots and for every recipe plus the progress bar under them.
+    const panelHeight = Math.max(
+      (rows + 1) * (slotPx + gap) + 120,
+      RECIPE_TOP + crafting.recipes.length * RECIPE_STEP + 56,
+    );
+    const recipesWidth = RECIPES_WIDTH;
+    const between = 12;
     this.panel = new Rectangle("inventoryPanel");
-    this.panel.width = `${columns * (slotPx + gap) + 40}px`;
-    this.panel.height = `${(rows + 1) * (slotPx + gap) + 120}px`;
+    this.panel.width = `${panelWidth}px`;
+    this.panel.height = `${panelHeight}px`;
+    this.panel.left = `${-(recipesWidth + between) / 2}px`;
     this.panel.background = "rgba(10, 10, 10, 0.82)";
     this.panel.color = "rgba(255, 255, 255, 0.2)";
     this.panel.thickness = 1;
@@ -102,6 +122,55 @@ export class InventoryScreen {
     title.top = "12px";
     title.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
     this.panel.addControl(title);
+
+    this.recipesPanel = new Rectangle("recipesPanel");
+    this.recipesPanel.width = `${recipesWidth}px`;
+    this.recipesPanel.height = `${panelHeight}px`;
+    this.recipesPanel.left = `${(panelWidth + between) / 2}px`;
+    this.recipesPanel.background = this.panel.background;
+    this.recipesPanel.color = this.panel.color;
+    this.recipesPanel.thickness = 1;
+    this.recipesPanel.cornerRadius = 6;
+    this.recipesPanel.isVisible = false;
+    ui.addControl(this.recipesPanel);
+    const recipesTitle = new TextBlock("recipesTitle", "Fazer");
+    recipesTitle.color = "white";
+    recipesTitle.fontSize = 18;
+    recipesTitle.height = "30px";
+    recipesTitle.top = "12px";
+    recipesTitle.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    this.recipesPanel.addControl(recipesTitle);
+    crafting.recipes.forEach((recipe, index) => {
+      const row = createRecipeRow(recipe, index);
+      row.button.onPointerUpObservable.add(() => crafting.start(recipe));
+      this.recipesPanel.addControl(row.frame);
+      this.recipeRows.push(row);
+    });
+    // CF2-B: what is being made, and how far along.
+    this.craftText = new TextBlock("craftText", "");
+    this.craftText.color = "white";
+    this.craftText.alpha = 0.8;
+    this.craftText.fontSize = 14;
+    this.craftText.height = "20px";
+    this.craftText.top = "-30px";
+    this.craftText.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+    this.recipesPanel.addControl(this.craftText);
+    this.craftBar = new Rectangle("craftBar");
+    this.craftBar.width = `${recipesWidth - 40}px`;
+    this.craftBar.height = "4px";
+    this.craftBar.top = "-18px";
+    this.craftBar.thickness = 0;
+    this.craftBar.background = "rgba(255, 255, 255, 0.15)";
+    this.craftBar.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+    this.recipesPanel.addControl(this.craftBar);
+    this.craftFill = new Rectangle("craftFill");
+    this.craftFill.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+    this.craftFill.thickness = 0;
+    this.craftFill.background = "white";
+    this.craftFill.alpha = 0.7;
+    this.craftBar.addControl(this.craftFill);
+    crafting.onChanged.add(() => this.refresh());
+
     const place = (index: number, column: number, row: number, extra: number) => {
       const view = createSlot(`inventorySlot${index}`);
       view.frame.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
@@ -169,6 +238,10 @@ export class InventoryScreen {
       const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
       this.nameLeft = Math.max(0, this.nameLeft - seconds);
       this.nameText.alpha = Math.min(1, this.nameLeft * 3) * 0.8;
+      const progress = this.crafting.progress;
+      this.craftBar.isVisible = progress !== undefined;
+      this.craftText.text = progress ? `Fazendo: ${ITEM_LABELS[progress.recipe.item]}` : "";
+      this.craftFill.width = `${Math.round((progress?.fraction ?? 0) * (RECIPES_WIDTH - 40))}px`;
     });
     this.refresh();
   }
@@ -190,7 +263,10 @@ export class InventoryScreen {
     }
     this.open = false;
     this.panel.isVisible = false;
+    this.recipesPanel.isVisible = false;
     this.hotbarPanel.isVisible = true;
+    // CF2-B: closing the screen stops what was being made (nothing is used up).
+    this.crafting.stop();
     this.cursorView.frame.isVisible = false;
     if (this.cursor) {
       // Whatever was held by the mouse goes back into the inventory.
@@ -214,6 +290,7 @@ export class InventoryScreen {
     }
     this.open = true;
     this.panel.isVisible = true;
+    this.recipesPanel.isVisible = true;
     this.hotbarPanel.isVisible = false;
     // IN3-A: the world goes on; the player stands still and gets the mouse pointer.
     this.player.controlsEnabled = false;
@@ -295,6 +372,27 @@ export class InventoryScreen {
     });
     this.draw(this.cursorView, this.cursor);
     this.cursorView.frame.isVisible = this.open && this.cursor !== undefined;
+
+    // CF1-A: each recipe shows what it needs (what is missing in red) and whether it can be made.
+    const busy = this.crafting.progress !== undefined;
+    for (const row of this.recipeRows) {
+      const icon = this.icons[row.recipe.item];
+      row.icon.isVisible = icon !== undefined;
+      if (icon && row.icon.source !== icon) {
+        row.icon.source = icon;
+      }
+      row.recipe.cost.forEach(([item, need], index) => {
+        const text = row.costs[index];
+        if (text) {
+          const have = this.inventory.count(item);
+          text.text = `${ITEM_LABELS[item]} ${Math.min(have, need)}/${need}`;
+          text.color = have >= need ? "rgba(255, 255, 255, 0.8)" : MISSING_COLOR;
+        }
+      });
+      const ready = !busy && this.crafting.canMake(row.recipe);
+      row.button.isEnabled = ready;
+      row.button.alpha = ready ? 1 : 0.35;
+    }
   }
 
   private draw(view: SlotView, stack: Stack | undefined): void {
@@ -305,6 +403,84 @@ export class InventoryScreen {
     }
     view.count.text = stack && stack.count > 1 ? String(stack.count) : "";
   }
+}
+
+/** CF1-A: the recipe column's width, and where its rows start and how far apart (pixels). */
+const RECIPES_WIDTH = 350;
+const RECIPE_TOP = 48;
+const RECIPE_STEP = 58;
+
+/** CF1-A: missing materials are shown in this red. */
+const MISSING_COLOR = "#e0685c";
+
+/** One recipe on screen: its icon, name, materials and the "Fazer" button. */
+interface RecipeRow {
+  recipe: Recipe;
+  frame: Rectangle;
+  icon: Image;
+  costs: TextBlock[];
+  button: Button;
+}
+
+function createRecipeRow(recipe: Recipe, index: number): RecipeRow {
+  const frame = new Rectangle(`recipe${index}`);
+  frame.width = `${RECIPES_WIDTH - 24}px`;
+  frame.height = `${RECIPE_STEP - 4}px`;
+  frame.top = `${RECIPE_TOP + index * RECIPE_STEP}px`;
+  frame.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+  frame.thickness = 0;
+  frame.background = "rgba(255, 255, 255, 0.05)";
+  frame.cornerRadius = 4;
+  const icon = new Image(`recipe${index}Icon`);
+  icon.width = "44px";
+  icon.height = "44px";
+  icon.left = "5px";
+  icon.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  icon.stretch = Image.STRETCH_UNIFORM;
+  icon.isVisible = false;
+  frame.addControl(icon);
+  const name = new TextBlock(
+    `recipe${index}Name`,
+    recipe.count > 1 ? `${ITEM_LABELS[recipe.item]} (${recipe.count})` : ITEM_LABELS[recipe.item],
+  );
+  name.color = "white";
+  name.fontSize = 15;
+  name.fontWeight = "bold";
+  name.height = "20px";
+  name.top = "6px";
+  name.left = "56px";
+  name.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  name.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+  name.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  frame.addControl(name);
+  const costs = new StackPanel(`recipe${index}Costs`);
+  costs.isVertical = false;
+  costs.height = "18px";
+  costs.top = "28px";
+  costs.left = "56px";
+  costs.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  costs.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+  frame.addControl(costs);
+  const costTexts = recipe.cost.map((_, costIndex) => {
+    const text = new TextBlock(`recipe${index}Cost${costIndex}`, "");
+    text.fontSize = 12;
+    text.resizeToFit = true;
+    text.paddingRight = "8px";
+    costs.addControl(text);
+    return text;
+  });
+  const button = Button.CreateSimpleButton(`recipe${index}Make`, "Fazer");
+  button.width = "58px";
+  button.height = "28px";
+  button.left = "-8px";
+  button.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+  button.color = "white";
+  button.fontSize = 13;
+  button.background = "#3d4a35";
+  button.cornerRadius = 4;
+  button.thickness = 0;
+  frame.addControl(button);
+  return { recipe, frame, icon, costs: costTexts, button };
 }
 
 function createSlot(name: string): SlotView {

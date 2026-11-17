@@ -45,6 +45,21 @@ export interface Pickable {
   z: number;
 }
 
+/** A tree or a big rock the axe can work on (NBB-144, MC1-A). */
+export interface Choppable {
+  chunkKey: string;
+  index: number;
+  kind: "pine" | "oak" | "deadTree" | "rock";
+  variant: number;
+  x: number;
+  y: number;
+  z: number;
+  rotation: number;
+  scale: number;
+  /** The trunk's radius, or the rock's (meters). */
+  radius: number;
+}
+
 /** Which chunk: its key ("cx,cz") and grid coordinates. */
 export interface ChunkInfo {
   key: string;
@@ -228,6 +243,69 @@ export class ChunkManager {
     }
     placement.removed = true;
     this.uploadCopies(chunk.key, chunk.placements);
+    // A felled tree or a broken rock no longer blocks the way (NBB-144).
+    if (chunk.colliders) {
+      this.removeColliders(chunk);
+      chunk.colliders = this.buildColliders(chunk);
+    }
+  }
+
+  /**
+   * NBB-144 (MC1-A): the trees and big rocks the axe can reach from (x, z), nearest first, with
+   * the radius of their trunk or body.
+   */
+  choppablesNear(x: number, z: number, radius: number): Choppable[] {
+    const { chunkSize, blockingRockSize } = CONFIG.world;
+    const cx = Math.floor(x / chunkSize);
+    const cz = Math.floor(z / chunkSize);
+    const found: (Choppable & { distance: number })[] = [];
+    for (let dz = -1; dz <= 1; dz++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const chunk = this.chunks.get(chunkKey(cx + dx, cz + dz));
+        chunk?.placements.forEach((placement, index) => {
+          const { kind, variant, scale } = placement;
+          if (placement.removed) {
+            return;
+          }
+          let size: number;
+          if (kind === "pine" || kind === "oak" || kind === "deadTree") {
+            size = this.library.trunkRadius(kind, variant) * scale;
+          } else if (kind === "rock") {
+            const rockSize = this.library.size(kind, variant) * scale;
+            if (rockSize < blockingRockSize) {
+              return;
+            }
+            size = rockSize * 0.42;
+          } else {
+            return;
+          }
+          const distance = Math.hypot(placement.x - x, placement.z - z) - size;
+          if (distance <= radius) {
+            found.push({ ...placement, kind, chunkKey: chunk.key, index, radius: size, distance });
+          }
+        });
+      }
+    }
+    return found.sort((a, b) => a.distance - b.distance);
+  }
+
+  /** NBB-144: a separate copy of a tree, to show it falling (dispose of it when done). */
+  createLooseModel(target: Choppable): TransformNode {
+    return this.library.createLoose(target.kind, target.variant);
+  }
+
+  /** NBB-144: the trees felled in a chunk (their stumps), from the chunk's changes. */
+  felledTrees(key: string): Choppable[] {
+    const chunk = this.chunks.get(key);
+    const felled: Choppable[] = [];
+    chunk?.placements.forEach((placement, index) => {
+      const { kind, variant, scale } = placement;
+      if (placement.removed && (kind === "pine" || kind === "oak" || kind === "deadTree")) {
+        const radius = this.library.trunkRadius(kind, variant) * scale;
+        felled.push({ ...placement, kind, chunkKey: key, index, radius });
+      }
+    });
+    return felled;
   }
 
   /**
@@ -503,6 +581,9 @@ export class ChunkManager {
 
     for (const placement of chunk.placements) {
       const { kind, variant, x, y, z, scale } = placement;
+      if (placement.removed) {
+        continue;
+      }
       if (kind === "pine" || kind === "oak" || kind === "deadTree") {
         const radius = this.library.trunkRadius(kind, variant) * scale;
         const trunk = new PhysicsShapeCapsule(

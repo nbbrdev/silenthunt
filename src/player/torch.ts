@@ -9,11 +9,13 @@ import {
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import { createTorchModel, type TorchModel } from "../models/items/torch";
+import type { Inventory } from "./inventory";
 
 /**
- * The torch in the player's left hand (NBB-132, MA1). F lights it or puts it away (G2). It burns
- * for RF-14's 4 minutes while lit, sputters in the last 20 s (TO4) and, once burnt out, F lights a
- * new one (TO1-A: unlimited torches until crafting exists, NBB-144).
+ * The torch in the player's left hand (NBB-132, MA1). F lights it or puts it away (G2). Lighting
+ * one takes a torch from the inventory (TC1-A, NBB-144); it burns for RF-14's 4 minutes while lit
+ * and sputters in the last 20 s (TO4). Putting it away keeps the time it has left for next time;
+ * once burnt out, F takes a new one.
  */
 export class PlayerTorch {
   /** Fired when the torch is lit (true) or put away (false): the left arm shows with it. */
@@ -21,13 +23,27 @@ export class PlayerTorch {
 
   private readonly model: TorchModel;
   private readonly light: PointLight;
+  private readonly inventory: Inventory;
+  private readonly say: (text: string) => void;
   private lit = false;
   private isBlocked = false;
-  private secondsLeft: number = CONFIG.torch.burnSeconds;
+  /** Burning time left on the torch in hand (0: there is none). */
+  private secondsLeft = 0;
   private time = 0;
 
-  /** @param hand the left hand that holds it (the arms' "handL" node). */
-  constructor(scene: Scene, hand: TransformNode, input: Input) {
+  /**
+   * @param hand the left hand that holds it (the arms' "handL" node).
+   * @param say shows a short message ("Você não tem tocha").
+   */
+  constructor(
+    scene: Scene,
+    hand: TransformNode,
+    input: Input,
+    inventory: Inventory,
+    say: (text: string) => void,
+  ) {
+    this.inventory = inventory;
+    this.say = say;
     this.model = createTorchModel(scene);
     const { heldOffset, heldTilt } = CONFIG.torch;
     this.model.root.parent = hand;
@@ -80,7 +96,11 @@ export class PlayerTorch {
 
   private toggle(): void {
     if (!this.lit && this.secondsLeft <= 0) {
-      // TO1-A: the old torch burnt out; take a fresh one.
+      // TC1-A: no torch in hand (or it burnt out): take one from the inventory.
+      if (!this.inventory.remove("torch", 1)) {
+        this.say("Você não tem tocha");
+        return;
+      }
       this.secondsLeft = CONFIG.torch.burnSeconds;
     }
     this.setLit(!this.lit);

@@ -17,7 +17,10 @@ import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
 import { PlayerHunger } from "./player/hunger";
+import { Crafting } from "./player/crafting";
 import { Eating } from "./player/eating";
+import { ChoppingSystem } from "./systems/chopping";
+import { StumpField } from "./world/stumps";
 import { Inventory } from "./player/inventory";
 import type { Held, ItemId } from "./player/items";
 import { PickupSystem } from "./systems/pickups";
@@ -68,7 +71,15 @@ async function start(): Promise<void> {
     const footsteps = new Footsteps(scene, player, world.terrain, world.chunks, noise);
     // NBB-139: the arms on screen; the knife in the right hand, the torch in the left (MA1).
     const hands = new PlayerHands(scene, player);
-    const torch = new PlayerTorch(scene, hands.arms.leftHand, input);
+    // NBB-143: the inventory and quick bar (RF-57); the player starts with nothing (PG1-A).
+    const inventory = new Inventory();
+    for (const { item, count, slot } of CONFIG.inventory.starterKit) {
+      inventory.setSlot(slot, { item, count });
+    }
+    // TC1-A: F lights a torch from the inventory.
+    const torch = new PlayerTorch(scene, hands.arms.leftHand, input, inventory, (text) =>
+      interactions.say(text),
+    );
     torch.onLitChanged.add((lit) => hands.showLeftHand(lit));
     const visibility = new VisibilitySystem(world.clock, player, torch);
     // NBB-136 / NBB-142: health heals by day only above 50 hunger; hunger at 0 starves.
@@ -144,13 +155,18 @@ async function start(): Promise<void> {
       CONFIG.world.defaultSeed,
     );
     const interactions = new InteractionSystem(scene, input, player, hud);
-    // NBB-143: the inventory and quick bar (RF-57), starting with the provisional kit (IN5-A).
-    const inventory = new Inventory();
-    for (const { item, count, slot } of CONFIG.inventory.starterKit) {
-      inventory.setSlot(slot, { item, count });
-    }
     const equipment = new Equipment(scene, input, inventory);
-    const inventoryScreen = new InventoryScreen(scene, input, player, inventory, hud);
+    // NBB-144: crafting in the inventory screen, and the axe (felled trees leave stumps).
+    const crafting = new Crafting(scene, inventory, (text) => interactions.say(text));
+    const inventoryScreen = new InventoryScreen(scene, input, player, inventory, crafting, hud);
+    const stumps = new StumpField(scene, world.chunks);
+    const chopping = new ChoppingSystem(scene, input, player, equipment, hands, {
+      chunks: world.chunks,
+      stumps,
+      noise,
+      inventory,
+      interactions,
+    });
     inventoryScreen.canOpen = () => !health.isDead;
     createItemIcons(engine)
       .then((icons) => inventoryScreen.setIcons(icons))
@@ -329,6 +345,24 @@ async function start(): Promise<void> {
           inventoryOpen: () => inventoryScreen.isOpen,
           /** Eats the meat in hand, as the left button would. */
           eat: () => eating.eat(),
+          /** NBB-144: swings the axe; starts a recipe by the item it makes; trees in reach. */
+          swing: () => chopping.swing(),
+          craft: (item: ItemId) => {
+            const recipe = crafting.recipes.find((candidate) => candidate.item === item);
+            if (recipe) {
+              crafting.start(recipe);
+            }
+            return crafting.progress?.recipe.item;
+          },
+          choppables: (radius = 4) =>
+            world.chunks
+              .choppablesNear(player.feet.x, player.feet.z, radius)
+              .map(({ kind, x, z, radius: size }) => ({
+                kind,
+                at: [Math.round(x * 10) / 10, Math.round(z * 10) / 10],
+                radius: Math.round(size * 100) / 100,
+              })),
+          torch: () => ({ lit: torch.isLit, secondsLeft: Math.round(torch.remainingSeconds) }),
           /** CL1: branches, small stones and bushes within `radius` of the player. */
           pickables: (radius = 6) =>
             world.chunks

@@ -1,4 +1,10 @@
-import { Vector3, type Mesh, type Scene, type TransformNode } from "@babylonjs/core";
+import {
+  Vector3,
+  type AnimationGroup,
+  type Mesh,
+  type Scene,
+  type TransformNode,
+} from "@babylonjs/core";
 import { CONFIG } from "../config";
 import {
   BRACE_HEIGHT,
@@ -20,6 +26,14 @@ import type { Player } from "./player";
  */
 const HOLD: Partial<Record<ItemId, { position: Vector3; rotation: Vector3; scale?: number }>> = {
   arrow: { position: new Vector3(0, 0.005, 0.16), rotation: new Vector3(-0.25, 0, 0) },
+  // NBB-144: the axe's handle through the fist (its centre is 11 cm ahead of the grip), the
+  // head up front with the edge down; the unlit torch and the wood held the same way.
+  axe: { position: new Vector3(0, 0.005, 0.12), rotation: new Vector3(-0.35, 0, 0) },
+  torch: {
+    position: new Vector3(0, 0.005, 0.1),
+    rotation: new Vector3(Math.PI / 2 - 0.3, 0, 0),
+  },
+  wood: { position: new Vector3(0, 0.03, 0.1), rotation: new Vector3(-0.25, 0, 0), scale: 0.55 },
   cartridge: { position: new Vector3(0, 0.025, 0.03), rotation: new Vector3(-0.7, 0, 0) },
   // The branch lies along X: a quarter turn points it ahead, like the knife.
   branch: {
@@ -206,14 +220,27 @@ export class PlayerHands {
 
   /** MA4: the knife thrust (the hit itself is decided by KnifeAttack). */
   stab(): void {
-    const { stab, idle } = this.arms;
-    if (!stab || this.stabbing || this.tool !== "knife") {
+    if (this.tool === "knife") {
+      this.swing(this.arms.stab);
+    }
+  }
+
+  /** NBB-144: the axe blow (what it hits is decided by the Chopping system). */
+  chop(): void {
+    if (this.tool === "axe") {
+      this.swing(this.arms.chop);
+    }
+  }
+
+  private swing(group: AnimationGroup | undefined): void {
+    const { idle } = this.arms;
+    if (!group || this.stabbing) {
       return;
     }
     this.stabbing = true;
-    stab.start(false, 1);
+    group.start(false, 1);
     idle?.stop();
-    stab.onAnimationGroupEndObservable.addOnce(() => {
+    group.onAnimationGroupEndObservable.addOnce(() => {
       this.stabbing = false;
       if (this.tool !== "bow" && this.tool !== "shotgun") {
         idle?.start(true);

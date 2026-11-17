@@ -1,3 +1,5 @@
+import type { ItemId, Recipe } from "./player/items";
+
 /**
  * Every tunable value of the game lives here (ADR-08, G16).
  * Values marked "provisional" will be replaced by later issues.
@@ -386,11 +388,16 @@ export const CONFIG = {
     /** IN1-A: how many of each item fit in one slot. */
     stack: {
       knife: 1,
+      axe: 1,
+      /** TC1-A. */
+      torch: 5,
       bow: 1,
       shotgun: 1,
       arrow: 20,
       cartridge: 10,
       branch: 20,
+      /** MC2. */
+      wood: 20,
       stone: 20,
       fiber: 20,
       fat: 20,
@@ -398,12 +405,8 @@ export const CONFIG = {
       rawMeat: 10,
       cookedMeat: 10,
     },
-    /** IN5-A (provisional until crafting, NBB-144): what the player starts with. */
-    starterKit: [
-      { item: "knife", count: 1, slot: 0 },
-      { item: "bow", count: 1, slot: 1 },
-      { item: "arrow", count: 10, slot: 6 },
-    ],
+    /** PG1-A (RF-56): the player starts with nothing (the provisional kit, IN5-A, is gone). */
+    starterKit: [] as { item: ItemId; count: number; slot: number }[],
     /** CL1: E reaches a branch, a stone or a bush this close (meters). */
     pickupReach: 1.6,
     /** CL1: holding E on a bush this long gives this many fibers. */
@@ -414,6 +417,74 @@ export const CONFIG = {
     /** Size of a slot on screen (pixels) and of its icon (IN7-A). */
     slotPx: 52,
     iconPx: 96,
+  },
+  /** NBB-144: crafting (RF-51, RF-59, CF1-A, CF2-B). Fire and bed come with NBB-146 (CF3-A). */
+  crafting: {
+    recipes: [
+      {
+        item: "axe",
+        count: 1,
+        seconds: 3,
+        cost: [
+          ["branch", 2],
+          ["stone", 2],
+          ["fiber", 1],
+        ],
+      },
+      {
+        item: "knife",
+        count: 1,
+        seconds: 2,
+        cost: [
+          ["branch", 1],
+          ["stone", 1],
+          ["fiber", 1],
+        ],
+      },
+      {
+        item: "torch",
+        count: 1,
+        seconds: 2,
+        cost: [
+          ["branch", 1],
+          ["fiber", 1],
+          ["fat", 1],
+        ],
+      },
+      {
+        item: "bow",
+        count: 1,
+        seconds: 3,
+        cost: [
+          ["branch", 3],
+          ["fiber", 3],
+        ],
+      },
+      {
+        item: "arrow",
+        count: 5,
+        seconds: 2,
+        cost: [
+          ["branch", 3],
+          ["stone", 1],
+        ],
+      },
+    ] as Recipe[],
+  },
+  /** NBB-144: the axe (RF-59, MC1-A, MC2, MC3-A). Meters and seconds. */
+  axe: {
+    reach: 2,
+    swingSeconds: 0.8,
+    /** The blow lands this long into the swing. */
+    hitAt: 0.3,
+    /** MC2: blows to fell or break, and what it gives. */
+    hits: { pine: 6, oak: 6, deadTree: 4, rock: 5 },
+    wood: { pine: 4, oak: 4, deadTree: 2 },
+    stones: 3,
+    /** MC1-A: the tree tips over in this long, then disappears. */
+    fallSeconds: 1.5,
+    /** Height of the stump left behind (meters). */
+    stumpHeight: 0.35,
   },
   /** NBB-142: cleaning a carcass (RF-35, CA1-B to CA4-A). */
   carcass: {
@@ -567,6 +638,9 @@ export const CONFIG = {
     /** IN6-B: plant fiber, animal fat, tanned leather and the cartridge's shell and brass. */
     fiber: { r: 0.6, g: 0.58, b: 0.4 },
     fat: { r: 0.92, g: 0.86, b: 0.72 },
+    /** NBB-144: freshly cut wood (the axe handle, split wood, the top of a stump). */
+    cutWood: { r: 0.72, g: 0.6, b: 0.42 },
+    axeStone: { r: 0.36, g: 0.36, b: 0.35 },
     leather: { r: 0.44, g: 0.3, b: 0.18 },
     cartridgeShell: { r: 0.55, g: 0.12, b: 0.1 },
     brass: { r: 0.72, g: 0.58, b: 0.3 },

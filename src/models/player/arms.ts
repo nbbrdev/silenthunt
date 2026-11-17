@@ -64,6 +64,8 @@ export interface ArmsModel extends GeneratedModel {
   leftShoulder: TransformNode;
   idle: AnimationGroup | undefined;
   stab: AnimationGroup | undefined;
+  /** NBB-144: the axe blow, raised and brought down. */
+  chop: AnimationGroup | undefined;
 }
 
 /**
@@ -167,6 +169,7 @@ export function createArmsModel(scene: Scene, seed: number): ArmsModel {
     leftShoulder: nodes.get("upperArmL") ?? root,
     idle: animations.find((group) => group.name === "Segurar"),
     stab: animations.find((group) => group.name === "Golpear"),
+    chop: animations.find((group) => group.name === "Cortar"),
   };
 }
 
@@ -184,7 +187,10 @@ function getArmsMaterial(scene: Scene): StandardMaterial {
   return material;
 }
 
-/** "Segurar": a slow breath. "Golpear": the right arm draws back, then thrusts forward (0.4 s). */
+/**
+ * "Segurar": a slow breath. "Golpear": the right arm draws back, then thrusts forward (0.4 s).
+ * "Cortar": the axe blow (0.6 s).
+ */
 function buildArmAnimations(scene: Scene, nodes: Map<string, TransformNode>) {
   const breath: Key[] = [
     { frame: 0, pose: { upperArmR: [0.015, 0, 0], upperArmL: [0.015, 0, 0] } },
@@ -198,12 +204,20 @@ function buildArmAnimations(scene: Scene, nodes: Map<string, TransformNode>) {
     { frame: 7, pose: { handR: [-0.1, 0, 0] }, hips: [-0.035, 0.035, 0.2] },
     { frame: 12, pose: {}, hips: [0, 0, 0] },
   ];
+  // NBB-144: the axe goes up and back over the shoulder, then comes down hard and forward.
+  const chop: Key[] = [
+    { frame: 0, pose: {}, hips: [0, 0, 0] },
+    { frame: 7, pose: { handR: [-1.0, 0, 0.1] }, hips: [0.02, 0.1, -0.06] },
+    { frame: 11, pose: { handR: [0.7, 0, 0] }, hips: [-0.02, -0.07, 0.14] },
+    { frame: 18, pose: {}, hips: [0, 0, 0] },
+  ];
   return buildPoseAnimations(
     scene,
     nodes,
     [
       ["Segurar", breath],
       ["Golpear", stab],
+      ["Cortar", chop],
     ],
     "upperArmR",
   );

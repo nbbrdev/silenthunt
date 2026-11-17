@@ -1,4 +1,4 @@
-import { Mesh, Vector3, VertexBuffer, type Scene } from "@babylonjs/core";
+import { Mesh, Vector3, VertexBuffer, type Scene, type TransformNode } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { bush } from "../models/nature/bush";
 import { deadTree } from "../models/nature/deadTree";
@@ -21,6 +21,11 @@ const GENERATORS: Record<VegetationKind, ModelGenerator> = {
   groundBranch,
   groundTuft,
 };
+
+/** The seed of each variation of a model. */
+function variantSeed(variant: number): number {
+  return 1000 + variant * 17;
+}
 
 /** One pre-generated version of a model, drawn many times across the world. */
 interface Variant {
@@ -45,14 +50,17 @@ export class VegetationLibrary {
   /** Where the player was when the copy lists were last filtered by distance. */
   private lastCenter: Vector3 | undefined;
 
+  private readonly scene: Scene;
+
   constructor(scene: Scene) {
+    this.scene = scene;
     for (const [kind, generator] of Object.entries(GENERATORS) as [
       VegetationKind,
       ModelGenerator,
     ][]) {
       const list: Variant[] = [];
       for (let i = 0; i < CONFIG.world.variantsPerModel; i++) {
-        const model = generator.create(scene, 1000 + i * 17);
+        const model = generator.create(scene, variantSeed(i));
         const meshes = [model.root, ...model.root.getChildMeshes()].filter(
           (node): node is Mesh => node instanceof Mesh,
         );
@@ -73,6 +81,14 @@ export class VegetationLibrary {
       }
       this.variants.set(kind, list);
     }
+  }
+
+  /**
+   * NBB-144 (MC1-A): a separate copy of one variation (the same seed builds the same model), to
+   * show a felled tree tipping over. Dispose of it when done.
+   */
+  createLoose(kind: VegetationKind, variant: number): TransformNode {
+    return GENERATORS[kind].create(this.scene, variantSeed(variant)).root;
   }
 
   variantCount(kind: VegetationKind): number {
