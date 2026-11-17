@@ -254,7 +254,8 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 
 | Código | Decisão |
 |---|---|
-| CT1-A | Manter todo o escopo (R1-B) e reavaliar no fim de 18/11: se o M3 não estiver pronto, cortar os itens 1 e 2 da ordem de corte (espingarda e crafting além do básico). |
+| ~~CT1-A~~ | ~~Manter todo o escopo (R1-B) e reavaliar no fim de 18/11: se o M3 não estiver pronto, cortar os itens 1 e 2 da ordem de corte (espingarda e crafting além do básico).~~ Substituída por PZ1. |
+| PZ1 | Em 2026-11-17 o usuário pediu para esquecer o prazo: sem ponto de controle nem cortes por causa da data. Todo o escopo segue, no ritmo da qualidade. |
 
 ## NBB-137: Modelos do coelho e do cervo (2026-11-17)
 
@@ -305,6 +306,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | AR7 | Um ponto pequeno e discreto no centro da tela, só enquanto mira ou puxa a corda. |
 | AR8 | "Flechas: N" discreto no canto inferior direito, só com o arco na mão. |
 | AR9 | Sem testes de dano e quebra (X1-C). |
+| AR10 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok"): braço esquerdo à frente e arco inclinado ~25°, centralizando ao mirar; corda recua 14 cm na tela; o tiro vai ao centro da tela; puxão abaixo de 15% cancela sem gastar flecha; alvos (coelho 16 cm, cervo duas esferas de 30 cm, criatura duas de 45 cm, troncos até 6 m); flecha some após 5 s de voo; dica "[E] Pegar flecha" com qualquer item, ponto de mira e contador brancos a 55%; cores do arco e da flecha na paleta; ferramentas de desenvolvimento do arco. |
 
 ## Pendentes (proposto)
 
