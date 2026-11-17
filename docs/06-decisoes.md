@@ -382,6 +382,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MC2 | Pinheiro e carvalho: 6 golpes, 4 madeiras; árvore morta: 4 golpes, 2 madeiras; pedra grande: 5 golpes, 3 pedras, e some. Madeira em pilhas de 20. |
 | MC3-A | O machado é só ferramenta: contra animais e a criatura, o golpe não faz nada. |
 | TC1-A | A tocha vira item (pilhas de 5): F acende uma do inventário, gastando 1, que dura 4 min; apagar com F guarda o tempo que sobrou. Saem as tochas ilimitadas (TO1-A) e o kit provisório (IN5-A): o jogador começa sem nada (PG1-A). |
+| CF5 | Detalhes propostos por Claude e aprovados ("1 a 12 - Ok", "modelos ok"): receitas em ordem machado, faca, tocha, arco, flechas, uma por vez; custo como "Galho 1/2", o que falta em vermelho, "Fazer" apagado quando não dá ou enquanto outra é feita; fechar o Tab interrompe sem gastar; "Você fez: ..."; o golpe acerta até ~50° de onde se olha e golpe no ar não faz barulho; a árvore tomba acelerando e some, sem tronco caído; o último golpe espera espaço no inventário; golpes lembrados só na sessão; toco de 0,35 m sem colisão; animação "Cortar" de 0,6 s; a tocha na barra aparece apagada na mão; ferramentas de desenvolvimento. Modelos do machado, da madeira e do toco aprovados. |
 
 ## Pendentes (proposto)
 
