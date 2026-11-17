@@ -276,6 +276,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | PR4 | Fuga a 7 m/s (coelho) e 9 m/s (cervo), para longe do susto, desviando das árvores com o mesmo desvio da criatura. |
 | PR5 | Os animais também fogem quando a criatura passa a menos de 20 m: bichos correndo de repente avisam que ela está perto. |
 | PR6 | Sem testes das transições (X1-C); `silentHunt.prey()` só em desenvolvimento. |
+| PR7 | Detalhes propostos por Claude e aprovados ("1 a 8 - Ok"; FPS ok no PC do usuário): o grupo de cervos foge junto (pastam a até 5 m uns dos outros); alerta enquanto vê o jogador, volta a pastar após 5 s sem estímulo; giros (pastando 0,6 rad/s a cada 6–12 s, alerta 3 rad/s, fuga 6 rad/s); pulinho de 0,8 s a 1,5 m/s; pasta onde a fuga terminar; modelos reaproveitados; mesmos animais por chunk; `teleport` e `face` só em desenvolvimento. |
 
 ## Pendentes (proposto)
 
