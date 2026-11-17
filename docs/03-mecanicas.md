@@ -141,6 +141,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-56** O jogador **começa sem nada** (PG1-A): faca, tocha, arco e flechas vêm do crafting (PG5-A).
 - **RF-57** **Inventário** (IN1-A): 6 espaços na barra rápida e 18 na mochila. Pilhas de 20 (recursos e flechas), 10 (comida e cartuchos) e 1 (ferramentas). O item selecionado na barra aparece na mão (IN6-B); com carne selecionada, o botão esquerdo come (IN2-A). O Tab não pausa o jogo (IN3-A).
 - **RF-58** **Coleta à mão** (CL1): E pega um galho do chão ou uma pedra pequena; segurar E por 1,5 s num arbusto dá 2 fibras. O que foi pego some do mundo.
+- **RF-59** **Crafting** (CF1-A, CF2-B): as receitas ficam ao lado do inventário (Tab); fazer leva de 2 a 3 s. **Machado** (MC1-A, MC2): golpes de 0,8 s a até 2 m, cada um com 25 m de ruído; pinheiro e carvalho caem com 6 golpes (4 madeiras), a árvore morta com 4 (2 madeiras), deixando um toco; a pedra grande quebra com 5 (3 pedras). O machado não fere animais nem a criatura (MC3-A). **Tocha** (TC1-A): F acende uma tocha do inventário; apagar guarda o tempo que sobrou.
 
 ## Morte e save
 

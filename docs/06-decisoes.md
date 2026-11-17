@@ -370,6 +370,19 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | CL3 | Sem testes do inventário (X1-C). |
 | IN8 | Detalhes propostos por Claude e aprovados ("1 a 11 - Ok", "modelos ok"): item novo vai primeiro para a barra rápida; kit com faca no espaço 1, arco no 2 e flechas na mochila; barra de 52 px acima do medidor de ruído, com o nome do item por 1,6 s ao trocar; com o Tab aberto o jogador fica parado e o mouse livre (Tab fecha e devolve o mouse, Esc fecha sem devolver; morrer fecha a tela); "Inventário cheio" onde não couber (o baú fica fechado); coleta a 1,6 m ("Pegar galho", "Pegar pedra", "Colher fibra"); a tocha só é bloqueada com arco ou espingarda; ícones com o item deitado na diagonal, visto de cima, fundo transparente; posição, giro e escala de cada item na mão (galho e pedra são os modelos do mundo reduzidos); mudar a fogueira provisória com o inventário cheio perde as carnes que não couberem; ferramentas de desenvolvimento. Modelos de fibra, gordura, couro e cartucho aprovados. |
 
+## NBB-144: Crafting e machado (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| CF1-A | As receitas ficam numa coluna ao lado do inventário, no Tab, todas à vista: ícone, nome, custo (o que falta em vermelho) e o botão "Fazer", apagado quando não dá. |
+| CF2-B | Fazer leva de 1 a 3 s com barra de progresso (faca, tocha e flechas 2 s; arco e machado 3 s); o mundo continua. |
+| CF3-A | A fogueira e a cama entram na lista na NBB-146 (até lá, a tecla G provisória continua). |
+| CF4 | Sem testes das receitas (X1-C). |
+| MC1-A | Cortar: botão esquerdo com o machado a até 2 m do tronco, golpes de 0,8 s, cada um com 25 m de ruído. A árvore tomba devagar (~1,5 s) e some, deixando um toco; a madeira vai direto para o inventário. Modelos novos: machado, toco e madeira. |
+| MC2 | Pinheiro e carvalho: 6 golpes, 4 madeiras; árvore morta: 4 golpes, 2 madeiras; pedra grande: 5 golpes, 3 pedras, e some. Madeira em pilhas de 20. |
+| MC3-A | O machado é só ferramenta: contra animais e a criatura, o golpe não faz nada. |
+| TC1-A | A tocha vira item (pilhas de 5): F acende uma do inventário, gastando 1, que dura 4 min; apagar com F guarda o tempo que sobrou. Saem as tochas ilimitadas (TO1-A) e o kit provisório (IN5-A): o jogador começa sem nada (PG1-A). |
+
 ## Pendentes (proposto)
 
 Nenhuma.
