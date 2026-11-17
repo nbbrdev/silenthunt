@@ -384,6 +384,18 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | TC1-A | A tocha vira item (pilhas de 5): F acende uma do inventário, gastando 1, que dura 4 min; apagar com F guarda o tempo que sobrou. Saem as tochas ilimitadas (TO1-A) e o kit provisório (IN5-A): o jogador começa sem nada (PG1-A). |
 | CF5 | Detalhes propostos por Claude e aprovados ("1 a 12 - Ok", "modelos ok"): receitas em ordem machado, faca, tocha, arco, flechas, uma por vez; custo como "Galho 1/2", o que falta em vermelho, "Fazer" apagado quando não dá ou enquanto outra é feita; fechar o Tab interrompe sem gastar; "Você fez: ..."; o golpe acerta até ~50° de onde se olha e golpe no ar não faz barulho; a árvore tomba acelerando e some, sem tronco caído; o último golpe espera espaço no inventário; golpes lembrados só na sessão; toco de 0,35 m sem colisão; animação "Cortar" de 0,6 s; a tocha na barra aparece apagada na mão; ferramentas de desenvolvimento. Modelos do machado, da madeira e do toco aprovados. |
 
+## NBB-145: Construção em grade (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| CN1-A | No modo de construção (B), as teclas 1 a 4 (e a roda) escolhem fundação, parede, porta e telhado; a barra rápida vira uma barra de peças com o custo de cada uma. Botão esquerdo coloca, R gira. A madeira sai direto do inventário. |
+| CN2-A | Desmontar: no modo B, mirando numa peça, segurar o botão direito por 1 s; devolve metade da madeira (para baixo). |
+| CN3 | Fundação na célula para onde se olha, a até 6 m; parede e porta se encaixam na borda da fundação mais próxima da mira (R vira o lado em que a porta abre); telhado em cima de uma célula com paredes. Vermelho quando falta madeira, o desnível passa de 1 m, há árvore, pedra grande, jogador ou outra peça no caminho, ou falta apoio. |
+| CN4-A | Peças rústicas como a cabana: paredes de toras, piso e telhado de tábuas; a fundação é um piso de tábuas sobre toras que desce até o chão; o telhado de cada célula fica levemente inclinado na direção escolhida com R. Feitas por código e revisadas na galeria. |
+| CN5-A | Paredes e porta fechada bloqueiam a passagem e o golpe da criatura: um abrigo fechado é seguro. |
+| CN6 | E abre e fecha a porta, com giro de 0,5 s; aberta, deixa passar o jogador e a criatura. |
+| CN7 | Sem testes de encaixe e apoio (X1-C); as construções entram nas mudanças do mundo (save na NBB-147). |
+
 ## Pendentes (proposto)
 
 Nenhuma.

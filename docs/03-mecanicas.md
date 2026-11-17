@@ -135,8 +135,8 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   | Porta (parede com porta) | 4 madeiras | Em cima de uma fundação; abre e fecha com E. |
   | Telhado | 3 madeiras | Em cima de duas paredes, ou de uma parede e outro telhado. |
 
-- **RF-53** No modo de construção (B), a peça aparece transparente: **verde** se pode ser colocada e **vermelha** se não pode. Desmontar devolve metade do custo.
-- **RF-54** A criatura **não atravessa paredes nem portas fechadas**. Ela não destrói construções.
+- **RF-53** No modo de construção (B), a peça aparece transparente: **verde** se pode ser colocada e **vermelha** se não pode. As teclas 1 a 4 escolhem a peça, o botão esquerdo coloca, R gira (CN1-A). Segurar o botão direito por 1 s numa peça a desmonta e devolve metade do custo (CN2-A).
+- **RF-54** A criatura **não atravessa paredes nem portas fechadas**, e o golpe dela também não passa por elas (CN5-A). Ela não destrói construções.
 - **RF-55** A **fogueira** queima **5 min**; E com um galho na mão soma **2 min**, até **10 min**. Apagada, não ilumina nem afasta a criatura (PG4-A).
 - **RF-56** O jogador **começa sem nada** (PG1-A): faca, tocha, arco e flechas vêm do crafting (PG5-A).
 - **RF-57** **Inventário** (IN1-A): 6 espaços na barra rápida e 18 na mochila. Pilhas de 20 (recursos e flechas), 10 (comida e cartuchos) e 1 (ferramentas). O item selecionado na barra aparece na mão (IN6-B); com carne selecionada, o botão esquerdo come (IN2-A). O Tab não pausa o jogo (IN3-A).
