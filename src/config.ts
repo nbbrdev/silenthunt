@@ -311,6 +311,11 @@ export const CONFIG = {
     activeDistance: 70,
     /** PR2: the deer is twice as wary: it hears and sees twice as far as the rabbit. */
     senseFactor: { rabbit: 1, deer: 2 },
+    /**
+     * FA1-A: while grazing they are distracted and hear only this fraction of a noise's radius
+     * (a crouched step on leaves, 2.8 m, reaches a grazing rabbit only within 1.4 m).
+     */
+    grazeHearing: 0.5,
     /** PR2: field of view (degrees): a blind spot of 90° behind them. */
     viewConeDegrees: 270,
     /** PR2: a second noise within this long turns the alert into flight. */

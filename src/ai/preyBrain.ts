@@ -201,7 +201,9 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
       return;
     }
     const here = this.position();
-    const reach = event.radius * CONFIG.prey.senseFactor[this.kind];
+    // FA1-A: grazing, it is distracted and hears only part of the noise.
+    const distracted = this.currentState === "graze" ? CONFIG.prey.grazeHearing : 1;
+    const reach = event.radius * CONFIG.prey.senseFactor[this.kind] * distracted;
     if (Math.hypot(event.position.x - here.x, event.position.z - here.z) > reach) {
       return;
     }

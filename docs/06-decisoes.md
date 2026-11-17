@@ -289,6 +289,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | MA4 | Botão esquerdo: estocada de 0,4 s, novo golpe só depois de 0,6 s. Acerta o que estiver a até 1,5 m num cone de 30° no centro da tela: presa calma morre, em alerta foge, fugindo nada; a criatura recua. |
 | MA5 | Mãos com balanço leve parado (respiração), balanço no ritmo do passo e a estocada. |
 | MA6 | Sem testes da regra do ataque furtivo (X1-C); sem som de golpe por enquanto (NBB-149). |
+| FA1-A | Animal pastando está distraído: ouve só a metade do raio do ruído (em alerta, volta a ouvir normal). Assim o passo agachado nas folhas (2,8 m) só alcança um coelho pastando a 1,4 m, e dá para chegar por trás até a faca (1,5 m). O cervo, que ouve o dobro, continua difícil. |
 
 ## Pendentes (proposto)
 
