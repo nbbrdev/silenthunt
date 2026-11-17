@@ -10,7 +10,7 @@ Repo: `nbbrdev/silenthunt` (público) · Linear: time "Nbbr dev" (chave `NBB`), 
 - Mudou `docs/`? Atualize o Linear Doc correspondente na mesma sessão, e vice-versa.
 
 ## Fase atual
-**M3 · Caçar** (meta: `v0.4.0`). O M0 e o M1 terminaram em 2026-11-16 e o M2 (NBB-133 a NBB-136) em 2026-11-17. Ordem do M3: NBB-137 a NBB-141 concluídas (modelos das presas, IA das presas, mãos e faca, arco, espingarda) → NBB-142 (carcaça, fome e cozinhar). Antes do M4: rodada de **progressão** (PG, pendente em `docs/06-decisoes.md`). Em 2026-11-16 o usuário decidiu manter todo o escopo (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C). Em 2026-11-17 (PZ1): **esquecer o prazo**: sem cortes nem pressa por causa da data.
+**Entre o M3 e o M4.** O M0 e o M1 terminaram em 2026-11-16; o M2 (NBB-133 a NBB-136) e o M3 (NBB-137 a NBB-142, meta `v0.4.0`, a tag é do usuário) em 2026-11-17. Próximo passo: rodada de **progressão** (PG, pendente em `docs/06-decisoes.md`), antes do M4 (NBB-143 em diante). A fogueira básica já existe (CZ1-A, tecla G provisória). Em 2026-11-16 o usuário decidiu manter todo o escopo (R1-B), sem PRs (R2) e **sem testes automáticos novos** (X1-C). Em 2026-11-17 (PZ1): **esquecer o prazo**: sem cortes nem pressa por causa da data.
 
 Lembretes:
 - A conta ativa do `gh` foi trocada para `nbbrdev` em 2026-11-12 (vale para todos os terminais).
