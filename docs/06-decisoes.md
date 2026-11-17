@@ -248,6 +248,7 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | VD5 | Renascer: ponto inicial (a cama vem na NBB-146), vida cheia, o relógio segue, a criatura é mandada para longe e a tocha é mantida. |
 | VD6 | Sem testes da lógica de vida (X1-C); `silentHunt.health()` e `silentHunt.damage(n)` só em desenvolvimento. |
 | VD7-B | **A vida só volta de dia** (1 por segundo, com fome acima de 50); **à noite o corpo não sara**. Sem isso a criatura nunca mataria: um golpe sararia antes de ela voltar. Muda o RF-40. |
+| VD8 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok"): barra de 160 px vermelho-escura na altura do medidor de ruído; bordas em degradê desenhado por código (clarão vermelho vivo; vida baixa pulsando entre 50% e 90% a cada 1,6 s); tremor de até ~1,7°; tela de morte em bege-acinzentado com botão escuro, dias contados pelo tempo jogado desde o começo ou o último renascer; amanhecer e entardecer contam como dia; controles travados e criatura mandada para longe na morte e ao renascer; renasce em pé olhando reto; recusa da captura do mouse tratada; `DayClock.elapsed` e `cycleSeconds`. |
 
 ## Pendentes (proposto)
 
