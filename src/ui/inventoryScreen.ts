@@ -207,8 +207,11 @@ export class InventoryScreen {
     this.cursorView = createSlot("inventoryCursor");
     this.cursorView.frame.thickness = 0;
     this.cursorView.frame.background = "transparent";
-    this.cursorView.frame.isPointerBlocker = false;
-    this.cursorView.frame.isHitTestVisible = false;
+    // Clicks go through it to the slot underneath: the frame and everything in it.
+    for (const control of [this.cursorView.frame, this.cursorView.icon, this.cursorView.count]) {
+      control.isPointerBlocker = false;
+      control.isHitTestVisible = false;
+    }
     this.cursorView.frame.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     this.cursorView.frame.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
     this.cursorView.frame.isVisible = false;
