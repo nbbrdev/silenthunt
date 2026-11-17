@@ -95,8 +95,9 @@ async function start(): Promise<void> {
       world.clock,
       CONFIG.world.defaultSeed,
     );
-    createGameAudio(player.camera)
-      .then((audio) => presence.loadSounds(audio))
+    const audio = createGameAudio(player.camera);
+    audio
+      .then((engine) => presence.loadSounds(engine))
       .catch((error: unknown) => console.warn("Sons da criatura não carregados:", error));
 
     // NBB-138: rabbits and deer spread over the chunks (PR1).
@@ -158,6 +159,9 @@ async function start(): Promise<void> {
       },
       hud,
     );
+    audio
+      .then((engine) => shotgun.loadSounds(engine))
+      .catch((error: unknown) => console.warn("Sons da espingarda não carregados:", error));
     const cabins = new CabinManager(
       scene,
       world.terrain,

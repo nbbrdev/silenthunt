@@ -335,6 +335,13 @@ export const CONFIG = {
     flashSeconds: 0.06,
     recoilSeconds: 0.25,
     aimFov: 0.62,
+    /** ES4-A: files in `public/sounds/shotgun/` (CC0, from Freesound; see CREDITS.md). */
+    sounds: {
+      shot: "shot.mp3",
+      reload: "reload.mp3",
+      shotVolume: 1,
+      reloadVolume: 0.8,
+    },
   },
   /** The abandoned cabins (RF-34, ES1, ES5). Meters. */
   cabins: {

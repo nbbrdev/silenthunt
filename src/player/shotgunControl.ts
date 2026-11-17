@@ -1,17 +1,21 @@
 import {
   Color3,
   Constants,
+  CreateSoundAsync,
   Mesh,
   MeshBuilder,
   PointLight,
   StandardMaterial,
   Vector3,
+  type AudioEngineV2,
   type Scene,
+  type StaticSound,
 } from "@babylonjs/core";
 import { Control, Ellipse, TextBlock, type AdvancedDynamicTexture } from "@babylonjs/gui";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import type { PreyBrainBehavior } from "../ai/preyBrain";
 import { CONFIG } from "../config";
+import { soundUrl } from "../core/audio";
 import type { Input } from "../core/input";
 import { MUZZLE } from "../models/items/shotgun";
 import { getSoftDotTexture } from "../models/textures";
@@ -61,6 +65,8 @@ export class ShotgunControl {
   private flashLeft = 0;
   private reloadLeft = 0;
   private fireRequested = false;
+  private shotSound: StaticSound | undefined;
+  private reloadSound: StaticSound | undefined;
 
   constructor(
     scene: Scene,
@@ -124,6 +130,20 @@ export class ShotgunControl {
     scene.onBeforeRenderObservable.add(() => {
       this.update(input, Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
     });
+  }
+
+  /**
+   * Loads the shot and reload sounds (ES4-A). They come from the player's own hands, so they are
+   * not placed in 3D.
+   */
+  async loadSounds(audio: AudioEngineV2): Promise<void> {
+    const settings = CONFIG.shotgun.sounds;
+    const load = (file: string, volume: number) =>
+      CreateSoundAsync(file, soundUrl(`shotgun/${file}`), { volume, maxInstances: 2 }, audio);
+    [this.shotSound, this.reloadSound] = await Promise.all([
+      load(settings.shot, settings.shotVolume),
+      load(settings.reload, settings.reloadVolume),
+    ]);
   }
 
   /** Cartridges found (a chest, ES5). */
@@ -202,6 +222,7 @@ export class ShotgunControl {
       return;
     }
     this.reloadLeft = settings.reloadSeconds;
+    this.reloadSound?.play();
   }
 
   private shoot(): void {
@@ -211,6 +232,7 @@ export class ShotgunControl {
     this.recoilLeft = settings.recoilSeconds;
     this.flashLeft = settings.flashSeconds;
     this.player.shake(0.15, 0.03);
+    this.shotSound?.play();
     // RF-34 / RF-10: heard 150 m away.
     this.world.noise.emit(this.player.feet, CONFIG.noise.radius.shotgun, "shotgun");
 

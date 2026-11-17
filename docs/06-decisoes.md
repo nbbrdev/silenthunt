@@ -318,6 +318,9 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | ES4-A | Sons do tiro e da recarga buscados agora (Freesound CC0, o usuário escolhe), antes da NBB-149. |
 | ES5 | E abre o baú, com mensagem de 3 s ("Você encontrou: ..."). Outros baús: 35% de chance de 1–2 cartuchos. Baús abertos são lembrados na sessão (save na NBB-147). "Cartuchos: N" no canto com a espingarda na mão. |
 | ES6 | Sem testes da munição e do loot (X1-C). |
+| ES7 | Detalhes propostos por Claude e aprovados ("1 a 6 - Ok"): a espingarda vem descarregada; cabana de 4 × 3 m (paredes de 2,1 m, cumeeira a 3,05 m), colisão por caixas e piso 2 cm acima do chão; E alcança 1,8 m; clarão de 0,06 s e tranco de 0,25 s; espingarda baixa no quadril e no olho ao mirar (FOV 0,62); o cone ganha a margem do tamanho do alvo; troncos, pedras grandes, paredes e morros barram o tiro; o contador soma cano e reserva. Os obstáculos ganharam altura (pedra até o topo, tronco até 6 m, parede até a cumeeira), o que corrige também a flecha. |
+| SN1-A | Som do tiro: "Shotgun Shot 01" (LilMati, CC0), uma Beretta 687 de dois canos. |
+| SN2-A | Som da recarga: "Single Barreled Shotgun Loading" (sentryx86, CC0), recortado em 2 s: abrir, dois cartuchos, fechar. |
 
 ## Pendentes (proposto)
 
