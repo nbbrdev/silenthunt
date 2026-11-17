@@ -99,14 +99,14 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-32** **Faca** (M8-A): alcance de 1,5 m. Se a presa **não está em alerta nem fugindo**, mata na hora. Se está em alerta, ela foge. Contra a criatura: não causa dano, mas faz ela recuar.
 - **RF-33** **Arco:** segurar para puxar (até 1 s). A flecha cai com a gravidade (calculada pelo jogo, AR3-A). Um acerto mata o coelho; o cervo precisa de dois (o primeiro o faz fugir ferido). A flecha pode ser recuperada (chance de quebrar: 25%).
 - **RF-34** **Espingarda:** um tiro mata qualquer presa até 40 m. Barulho de 150 m (RF-10) chama a criatura **mesmo de dia**. É encontrada uma vez no mundo, numa cabana abandonada perto do início, com 4 cartuchos; mais cartuchos aparecem raramente em baús dessas cabanas.
-- **RF-35** Presa abatida vira **carcaça**: interagir dá a carne crua. Carne crua: +10 de fome. Carne cozida na fogueira (10 s): +30.
+- **RF-35** Presa abatida vira **carcaça**: segurar E com a faca na mão (coelho 2 s, cervo 5 s) dá a carne crua e, no cervo, 1 couro; sobra um resto de ossos e pele (CA1-B a CA4-A). Carne crua: +10 de fome. Carne cozida na fogueira (10 s, até 4 de uma vez): +30 (CZ2-A).
 
 ## Necessidades
 
 **(G6)** (M9-A)
 
 - **RF-40** **Vida** 0–100. Volta 1 por segundo quando a fome está acima de 50, **só de dia** (à noite o corpo não sara, VD7-B) e só 5 s depois do último dano (VD3-B).
-- **RF-41** **Fome** 100 → 0 em **2 ciclos de dia e noite** (32 min). Com fome 0, perde 1 de vida a cada 2 s.
+- **RF-41** **Fome** 100 → 0 em **2 ciclos de dia e noite** (32 min). Com fome 0, perde 1 de vida a cada 2 s. Ao renascer, a fome volta a 50 (FO4-B).
 - **RF-42** **Fôlego** 0–100. Correr gasta 15 por segundo; recupera 20 por segundo parado ou andando. Sem fôlego, não corre.
 
 ## Coleta, crafting e construção

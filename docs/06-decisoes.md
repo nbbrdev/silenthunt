@@ -323,6 +323,23 @@ O usuário aprovou o modelo e as animações em 2026-11-16 ("modelos ok").
 | SN2-A | Som da recarga: "Single Barreled Shotgun Loading" (sentryx86, CC0), recortado em 2 s: abrir, dois cartuchos, fechar. |
 | SN3 | Detalhes propostos por Claude e aprovados ("1 a 4 - Ok", "modelos ok"): tiro com os primeiros 1,75 s e o fim suavizado; recarga montada no ritmo da animação (abrir 0 s, cartuchos 0,55 s e 1,05 s, fechar 1,75 s); sons em mono e sem 3D, por saírem das mãos do jogador; volumes 1,0 (tiro) e 0,8 (recarga). |
 
+## NBB-142: Carcaça, fome e cozinhar (2026-11-17)
+
+| Código | Decisão |
+|---|---|
+| CA1-B | Limpar a carcaça é segurar E (coelho 2 s, cervo 5 s), com barra de progresso; o jogador fica parado e exposto; soltar cancela. |
+| CA2-A | Limpar exige a faca na mão (tecla 1); com outro item, a dica diz "Precisa da faca". |
+| CA3-B | Depois de limpa, a carcaça vira um resto (ossos e pele no chão), feito por código, que fica até o chunk ser descarregado. |
+| CA4-A | O cervo dá 1 couro (a cama pede 2, então 2 cervos). |
+| FO1-A | Provisório até o inventário (NBB-143): contador no canto com carne crua, carne cozida e couro. |
+| FO2-A | Provisório até o inventário: Q come uma carne na hora (a cozida primeiro, senão a crua), com mensagem curta. |
+| FO3-B | Barra de fome âmbar ao lado da vida, só com a fome abaixo de 50 (quando a vida para de voltar); abaixo de 20, pulsa devagar. |
+| FO4-B | Ao renascer, a fome volta a 50. |
+| CZ1-A | A fogueira básica é adiantada para esta issue: modelo (pedras em círculo, toras e chamas), luz e a criatura mantendo 8 m (RF-24). Provisório: tecla G coloca uma à frente, sem custo, uma por vez, sem apagar sozinha até a rodada de progressão (PG). A NBB-146 fica com a cama e a receita da fogueira. |
+| CZ2-A | E perto da fogueira põe uma carne crua no espeto (até 4 ao mesmo tempo); ela escurece e fica pronta em 10 s; E pega a cozida. Não queima. O jogador pode se afastar. |
+| CZ3 | Modelos da fogueira, da carne e do resto feitos por código e revisados na galeria e por capturas (dia, noite, neblina); as chamas reaproveitam a técnica da tocha. |
+| CZ4 | Sem testes de fome e cozimento (X1-C). |
+
 ## Pendentes (proposto)
 
 | Código | Assunto | Quando |

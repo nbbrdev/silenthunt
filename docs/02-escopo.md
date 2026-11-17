@@ -47,13 +47,13 @@ Cada linha vira **uma issue**, entregue por commits direto na `main` (R2, 2026-1
 17. **Mãos em primeira pessoa e faca:** golpe e ataque furtivo (M8-A). [Frontend]
 18. **Arco e flechas:** mira, puxar, trajetória com Havok, recuperar flechas. [Frontend]
 19. **Espingarda:** rara, munição escassa, barulho que chama a criatura. [Frontend]
-20. **Carcaça, carne, fome e cozinhar na fogueira (M9-A).** [Frontend]
+20. **Carcaça, carne, fome e cozinhar na fogueira (M9-A).** A fogueira básica (modelo, luz, afastar a criatura) entra aqui (CZ1-A). [Frontend]
 
 ### M4 · Sobreviver
 21. **Coleta e inventário:** cortar árvores, pegar pedras e galhos, inventário e barra rápida. [Frontend]
 22. **Crafting:** receitas da tabela em [03-mecanicas](03-mecanicas.md#coleta-crafting-e-construção). [Frontend]
 23. **Construção em grade (M10-A):** pré-visualização, encaixe, regra de apoio, desmontar. [Frontend]
-24. **Fogueira e cama:** fogueira afasta a criatura e cozinha; cama define onde renascer. [Frontend]
+24. **Fogueira e cama:** receita e construção da fogueira (a fogueira em si vem da issue 20, CZ1-A); cama define onde renascer. [Frontend]
 25. **Save no IndexedDB (T3-A):** semente, chunks alterados, construções, jogador, inventário. [Frontend]
 26. **Morte com mochila (M12-A).** [Frontend]
 
