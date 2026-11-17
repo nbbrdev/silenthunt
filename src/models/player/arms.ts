@@ -204,6 +204,9 @@ export const arms: ModelGenerator = {
   label: "Braços",
   create(scene: Scene, seed: number): GeneratedModel {
     const model = createArmsModel(scene, seed);
+    // In the game the arms hang below the camera; here they are lifted above the ground.
+    model.root.position.y = 0.6;
+    model.left.setEnabled(true);
     return { root: model.root, animations: model.animations };
   },
 };
