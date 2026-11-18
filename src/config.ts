@@ -668,6 +668,19 @@ export const CONFIG = {
     /** Each play's pitch varies by up to ±5%. */
     pitchJitter: 0.05,
   },
+  /** NBB-149 (SM5-A, MU1-A, MU2): the music, from `assets-private/music/` (G10, out of Git). */
+  music: {
+    /** MU1-A: the list of tracks the build makes (empty without the private folder). */
+    list: "music/index.json",
+    /** The first track 1–3 min after the game opens; then 5–10 min of silence between them. */
+    firstDelay: [60, 180] as const,
+    gap: [300, 600] as const,
+    fadeInSeconds: 3,
+    fadeOutSeconds: 5,
+    /** Only by day: below this daylight none starts, and the one playing fades out. */
+    minDaylight: 0.5,
+    duskFadeSeconds: 10,
+  },
   /** NBB-149 (AN1-B to AN3): the prey's 3D sounds (CC0, see CREDITS.md). Volumes from 0 to 1. */
   preySounds: {
     files: {
@@ -751,7 +764,7 @@ export const CONFIG = {
   audio: {
     masterVolume: 0.8,
     /** SM7: each group's volume, under the master volume. */
-    groups: { effects: 1, ambience: 0.7, music: 0.5 },
+    groups: { effects: 1, ambience: 0.7, music: 0.3 },
   },
   /** HUD (NO1-A: Babylon GUI). */
   hud: {

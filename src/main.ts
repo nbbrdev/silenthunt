@@ -13,6 +13,7 @@ import { BowControl } from "./player/bowControl";
 import { ShotgunControl } from "./player/shotgunControl";
 import { InteractionSystem } from "./systems/interactions";
 import { AmbienceSystem } from "./systems/ambience";
+import { MusicPlayer } from "./systems/music";
 import { PreySounds } from "./systems/preySounds";
 import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
@@ -135,11 +136,15 @@ async function start(): Promise<void> {
     audio
       .then((audio) => footsteps.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons dos passos não carregados:", error));
-    // NBB-149: the forest's sound (SM4-A).
+    // NBB-149: the forest's sound (SM4-A) and the music, by day (SM5-A).
     const ambience = new AmbienceSystem(scene, world.clock, player.camera);
     audio
       .then((audio) => ambience.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons do ambiente não carregados:", error));
+    const music = new MusicPlayer(scene, world.clock);
+    audio
+      .then((audio) => music.load(audio))
+      .catch((error: unknown) => console.warn("Música não carregada:", error));
 
     // NBB-138: rabbits and deer spread over the chunks (PR1).
     const prey = new PreyManager(
@@ -545,6 +550,9 @@ async function start(): Promise<void> {
             respawn: beds.respawnPoint?.asArray().map((value) => Math.round(value * 10) / 10),
             sleeping: beds.isSleeping,
           }),
+          /** NBB-149: the music (tracks found, what plays, seconds to the next); the next now. */
+          music: () => music.debugState(),
+          musicNext: () => music.debugNext(),
           /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */
           preySounds: () => ({ ...preySounds.played }),
           /** NBB-149: how many times each tool or weapon sound has played. */
