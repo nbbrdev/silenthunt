@@ -438,6 +438,20 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MO8 | Sem testes da mochila (X1-C). |
 | MO9 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok", "Modelo - Ok"): alcance de 2 m (`backpack.reach`); texto "[E] Pegar mochila"; a mochila fica no chão sob os pés (ou no piso, se o jogador estava sobre uma fundação), virada para onde ele olhava; os cartuchos do cano entram como um grupo à parte; o espaço selecionado da barra é mantido; o save da morte também enche o fôlego e começa a nova vida, mantendo a direção do olhar; modelo com fivela de latão, bolso, aba sobre a ponta e cor `canvas` (296 triângulos); as mochilas ficam sempre no mundo; `silentHunt.backpacks()` (desenvolvimento). |
 
+## NBB-149: Som (2026-11-18)
+
+| Código | Decisão |
+|---|---|
+| SM1-A | Lista inteira, sem sons de interface: passos por chão (terra, musgo, folhas, gravetos), galho estalando, pouso; vento, pássaros de dia, grilos e corujas à noite; fogueira (crepitar 3D, acender, apagar) e tocha (acender, chiado); faca, arco, machado (madeira, pedra, árvore caindo); bufo de alarme e galope do cervo, fuga do coelho, grito ao morrer; pegar coisas, limpar carcaça, comer, colocar e desmontar peça, porta, baú. |
+| SM2-B | O usuário escolhe entre 2–3 candidatos nos sons de clima e aviso (passos, ambiente, fogo, bufo e galope do cervo, arco, machado). Os pequenos (pegar, comer, porta, baú, pouso, peças, acerto da faca, flecha cravando, grito dos animais) Claude escolhe e o usuário revisa no jogo. |
+| SM3-A | CC0 de preferência; CC-BY só quando claramente melhor, avisado na proposta e creditado no `CREDITS.md`. Efeitos do Epidemic Sound ficam de fora. |
+| SM4-A | Ambiente em camadas em loop (vento sempre, pássaros de dia, grilos à noite) que trocam suavemente no entardecer e no amanhecer, e sons soltos 3D de vez em quando numa direção aleatória (coruja, pássaro distante, galho estalando longe). |
+| SM5-A | Música rara e baixa, só de dia: uma faixa a cada 5–10 min, com silêncio entre elas; à noite, nada. O jogo procura as faixas em `assets-private/music/` e funciona sem elas. As faixas e a licença do Epidemic Sound para jogo ficam com o usuário. |
+| SM6-A | Aqui só o `CREDITS.md`; a tela de créditos vai para a NBB-150 (menus). |
+| SM7 | Volumes por grupo no `config.ts` (efeitos, ambiente, música) abaixo do mestre (0,8); o menu de opções usa os mesmos grupos. |
+| SM8 | Uma rodada de candidatos e um commit por grupo: passos, ambiente, animais, ferramentas e armas, fogo e ações, música. |
+| SM9 | Sem testes de som (X1-C). |
+
 ## Pendentes (proposto)
 
 Nenhuma.
