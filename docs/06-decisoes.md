@@ -418,11 +418,24 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 |---|---|
 | SV1-A | O save guarda o que dura: jogador (posição, vida, fome, fôlego), inventário, tocha (tempo restante), hora do dia; o que foi pego, cortado ou quebrado; construções (portas abertas ou fechadas); fogueiras (combustível e espeto); camas; baús abertos, espingarda pega e cartuchos no cano; animais mortos e carcaças limpas. Fica fora o passageiro: flechas cravadas, posição dos animais vivos e da criatura (ela volta longe), corpo de animal ainda não limpo. |
 | SV2-A | Até o menu (NBB-150), ao abrir o jogo ele continua sozinho o mundo salvo; começar de novo só por `silentHunt.newWorld()` (desenvolvimento). |
-| SV3 | Salva a cada 60 s, ao acordar e, até a pausa existir, quando a aba fica escondida ou a página fecha. Não salva com a tela de morte aberta; salva logo depois de renascer. |
+| SV3 | Salva a cada 60 s, ao acordar e, até a pausa existir, quando a aba fica escondida ou a página fecha. Não salva com a tela de morte aberta; salva logo depois de renascer. (MO5-A: também salva no instante da morte, já como se tivesse renascido.) |
 | SV4-A | Um "Salvando..." discreto no canto inferior direito por 1,5 s. |
 | SV5 | O save guarda a versão do formato (1). Se o formato mudar sem conversão, começa um mundo novo e avisa "O mundo salvo era de uma versão antiga". |
 | SV6 | Sem testes do save (X1-C). |
 | SV7 | Detalhes propostos por Claude e aprovados ("1 a 10 - Ok"): o save guarda também o início da vida atual (dias sobrevividos), os cartuchos no cano e a semente (só informativa); o item preso ao mouse no inventário entra no save; os 60 s recomeçam a cada save; "Salvando..." branco, 14 px, opacidade 0,6; falha ao ler ou gravar só avisa no console (save ilegível vira mundo novo, sem mensagem); o jogo espera o save ser lido antes de começar; a criatura começa longe; `silentHunt.save()` e `silentHunt.newWorld()` (desenvolvimento); `save.everySeconds` no `config.ts`. |
+
+## NBB-148: Morte com mochila (2026-11-18)
+
+| Código | Decisão |
+|---|---|
+| MO1-A | A mochila leva os 24 espaços e o item preso ao mouse; os cartuchos do cano viram cartuchos na mochila. A tocha da mão fica com o jogador, apagada e com o tempo que sobrou (VD5). Inventário vazio não deixa mochila. |
+| MO2-A | E na mochila pega tudo o que couber; o resto fica nela, com o aviso "Inventário cheio". Vazia, ela some. |
+| MO3-A | A mochila não some com o tempo: fica até ser esvaziada, em qualquer chunk, e entra no save. |
+| MO4-A | Sem marcador: só a memória do jogador. O modelo é de lona clara, que se destaca no chão escuro e na luz da tocha. |
+| MO5-A | No instante da morte o mundo é salvo com a mochila no chão e o jogador como se tivesse renascido (na cama, vida cheia, fome de renascer): fechar a aba na tela de morte não desfaz a morte. Muda a SV3. |
+| MO6-A | O formato do save continua na versão 1; um save sem mochilas carrega com nenhuma. |
+| MO7 | Modelo: mochila de lona bege caída de lado, com corpo arredondado, aba de couro com fivela, duas alças e um rolo de fibra embaixo; até 300 triângulos; revisada na galeria. |
+| MO8 | Sem testes da mochila (X1-C). |
 
 ## Pendentes (proposto)
 

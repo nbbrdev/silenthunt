@@ -109,6 +109,7 @@ tests/                    // testes do Vitest, espelhando src/
 | Animal | até 2.500 triângulos |
 | Criatura | até 4.000 triângulos |
 | Peça de construção | até 200 triângulos |
+| Mochila | até 300 triângulos (MO7) |
 | Ossos por esqueleto | até 30 |
 
 ## Save (T3-A)
