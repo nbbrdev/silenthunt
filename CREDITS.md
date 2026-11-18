@@ -1,5 +1,7 @@
 # Créditos
 
+Silent Hunt foi feito por nbbrdev.
+
 Todos os modelos 3D do Silent Hunt são gerados por código (regra do desafio). Os sons abaixo vêm de terceiros.
 
 ## Sons

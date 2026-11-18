@@ -490,6 +490,8 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MN6 | Menu à esquerda sobre a floresta, título "Silent Hunt" grande, botões só de texto em branco suave que acendem em laranja (a cor do fogo) ao passar o mouse. |
 | MN7 | Textos: menu "Continuar", "Novo mundo", "Opções", "Créditos"; confirmação "Começar um mundo novo? O mundo atual será apagado.", "Apagar e começar", "Cancelar"; pausa "Pausado", "Voltar ao jogo", "Opções", "Menu principal"; opções "Sensibilidade do mouse", "Volume geral", "Efeitos", "Ambiente", "Música", "Voltar"; créditos "Créditos", "Voltar". |
 | MN8 | Sai o `silentHunt.newWorld()` (o menu faz isso, SV2-A); sem testes novos (X1-C). |
+| MN9 | Autor nos créditos: **nbbrdev** ("Silent Hunt foi feito por nbbrdev.", no `CREDITS.md`). |
+| MN10 | Detalhes propostos por Claude e aprovados ("1 a 11 - Ok"): depois de "Novo mundo" a página recarrega numa tela com o botão "Clique para começar"; sem save, "Novo mundo" começa direto; a pausa só abre com o jogador no controle (não morto, dormindo nem no inventário) e também pausa o som; F e Tab não funcionam pausado; um tempo de quadro único (`frameSeconds`, 0 na pausa) em todos os sistemas; créditos como "Som — Autor (Licença)", com as seções "Fonte" e "Tecnologia" no `CREDITS.md`; tamanhos 76/44/30/20, sombra a 45%, sliders laranja com o valor ao lado, opções salvas ao voltar; a fonte em `public/fonts/` (TTF e OFL); a fonte do HUD em cada controle de topo; `silentHunt.menu()` e `silentHunt.play()`; o tamanho dos textos do HUD pode subir depois (a Crimson Pro é mais baixa que a Arial). |
 
 ## Pendentes (proposto)
 
