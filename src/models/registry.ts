@@ -3,6 +3,7 @@ import { rabbit } from "./animals/rabbit";
 import { remains } from "./animals/remains";
 import { meat } from "./items/meat";
 import { axe } from "./items/axe";
+import { backpack } from "./items/backpack";
 import { cartridge, fat, fiber, leather, wood } from "./items/resources";
 import { stump } from "./nature/stump";
 import { bed } from "./structures/bed";
@@ -58,4 +59,5 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   doorPiece,
   roofPiece,
   bed,
+  backpack,
 ];

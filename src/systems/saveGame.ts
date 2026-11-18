@@ -11,6 +11,7 @@ import type { Inventory, Stack } from "../player/inventory";
 import type { Player } from "../player/player";
 import type { ShotgunControl } from "../player/shotgunControl";
 import type { PlayerTorch } from "../player/torch";
+import type { BackpackManager, SavedBackpack } from "../world/backpacks";
 import type { BedManager } from "../world/beds";
 import type { CabinManager } from "../world/cabins";
 import type { CampfireManager, SavedFire } from "../world/campfires";
@@ -46,6 +47,8 @@ interface SaveData {
   beds: BedManager["saved"];
   cabins: { opened: string[]; shotgunTaken: boolean };
   shotgunLoaded: number;
+  /** NBB-148: missing in saves from before the backpacks: none (MO6-A). */
+  backpacks?: SavedBackpack[];
 }
 
 /** Everything the save reads from and writes back to. */
@@ -64,6 +67,7 @@ export interface SaveParts {
   structures: StructureManager;
   campfires: CampfireManager;
   beds: BedManager;
+  backpacks: BackpackManager;
   creature: CreatureBrainBehavior;
   interactions: InteractionSystem;
   /** When this life began (the death screen counts the days survived from it). */
@@ -181,6 +185,33 @@ export class SaveGame {
     }
   }
 
+  /**
+   * MO5-A: saves the moment the player dies, with the backpack already on the ground and the
+   * player as if respawned (at `respawn`, full health, the respawn hunger, a new life), so closing
+   * the tab on the death screen does not undo the death.
+   */
+  async saveAfterDeath(respawn: Vector3): Promise<void> {
+    this.sinceSave = 0;
+    if (!this.ready || this.discarding) {
+      return;
+    }
+    const data = this.collect();
+    const { player } = CONFIG;
+    data.player = {
+      ...data.player,
+      feet: [respawn.x, respawn.y, respawn.z],
+      health: player.health.max,
+      hunger: player.hunger.respawnValue,
+      stamina: player.stamina.max,
+      lifeStart: this.parts.clock.elapsed,
+    };
+    try {
+      await writeSave(data);
+    } catch (error: unknown) {
+      console.warn("O mundo não pôde ser salvo:", error);
+    }
+  }
+
   /** Development only (SV2-A): forgets the saved world and starts a new one. */
   async newWorld(): Promise<void> {
     this.discarding = true;
@@ -218,6 +249,7 @@ export class SaveGame {
       beds: p.beds.saved,
       cabins: p.cabins.state,
       shotgunLoaded: p.shotgun.cartridges.loaded,
+      backpacks: p.backpacks.saved,
     };
   }
 
@@ -231,6 +263,7 @@ export class SaveGame {
     p.structures.restore(data.structures);
     p.campfires.restore(data.fires);
     p.beds.restore(data.beds);
+    p.backpacks.restore(data.backpacks ?? []);
     p.inventory.restore(data.inventory.slots, data.inventory.selected);
     p.shotgun.loadedCartridges = data.shotgunLoaded;
     p.health.restore(data.player.health);

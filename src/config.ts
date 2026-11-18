@@ -564,6 +564,11 @@ export const CONFIG = {
     /** E reaches the spit this close (meters). */
     reach: 2,
   },
+  /** NBB-148: the backpack left where the player died (RF-60, MO1-A to MO3-A). */
+  backpack: {
+    /** E reaches it this close (meters). */
+    reach: 2,
+  },
   /** NBB-147: the save (RF-61, SV3). */
   save: {
     /** It saves on its own this often (seconds). */
@@ -706,6 +711,8 @@ export const CONFIG = {
     cutWood: { r: 0.72, g: 0.6, b: 0.42 },
     axeStone: { r: 0.36, g: 0.36, b: 0.35 },
     leather: { r: 0.44, g: 0.3, b: 0.18 },
+    /** MO4-A, MO7: the backpack's light canvas, easy to spot on the dark ground. */
+    canvas: { r: 0.74, g: 0.68, b: 0.52 },
     cartridgeShell: { r: 0.55, g: 0.12, b: 0.1 },
     brass: { r: 0.72, g: 0.58, b: 0.3 },
     /** Forest floor texture colors (the ground has no vertex colors). */

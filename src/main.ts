@@ -23,6 +23,7 @@ import { BuildingMode } from "./systems/building";
 import { ChoppingSystem } from "./systems/chopping";
 import { StructureManager } from "./world/structures";
 import { BedManager } from "./world/beds";
+import { BackpackManager } from "./world/backpacks";
 import { PlacingSystem } from "./systems/placing";
 import { StumpField } from "./world/stumps";
 import { Inventory } from "./player/inventory";
@@ -309,8 +310,27 @@ async function start(): Promise<void> {
       // SV3: the new life is saved right away.
       void saveGame.save();
     });
+    // NBB-148: what the player carried stays in a backpack where they died (RF-60, MO1-A).
+    const backpacks = new BackpackManager(scene, player, {
+      terrain: world.terrain,
+      structures,
+      inventory,
+      interactions,
+    });
     health.onDied.add(() => {
+      // Closing the screen puts back whatever the mouse was holding.
       inventoryScreen.close(false);
+      const carried = inventory.saved.filter((stack) => stack !== null);
+      const loaded = shotgun.cartridges.loaded;
+      if (loaded > 0) {
+        carried.push({ item: "cartridge", count: loaded });
+        shotgun.loadedCartridges = 0;
+      }
+      inventory.restore(new Array<null>(inventory.size).fill(null), inventory.selected);
+      const at = player.feet;
+      backpacks.drop(at.x, at.y, at.z, player.view.yaw, carried);
+      // MO5-A: saved now, as if already respawned.
+      void saveGame.saveAfterDeath(beds.respawnPoint ?? feet);
       player.controlsEnabled = false;
       gameInput.pointerLockEnabled = false;
       creatureBrain.sendAway();
@@ -335,6 +355,7 @@ async function start(): Promise<void> {
         structures,
         campfires,
         beds,
+        backpacks,
         creature: creatureBrain,
         interactions,
         life,
@@ -492,6 +513,8 @@ async function start(): Promise<void> {
             respawn: beds.respawnPoint?.asArray().map((value) => Math.round(value * 10) / 10),
             sleeping: beds.isSleeping,
           }),
+          /** NBB-148: the backpacks on the ground. */
+          backpacks: () => backpacks.list,
           /** NBB-147: saves now; forgets the saved world and starts a new one (SV2-A). */
           save: () => saveGame.save(),
           newWorld: () => saveGame.newWorld(),
