@@ -68,6 +68,28 @@ export interface SaveParts {
   interactions: InteractionSystem;
   /** When this life began (the death screen counts the days survived from it). */
   life: { start: number };
+  /** What the mouse holds in the inventory screen, outside the slots. */
+  heldByMouse: () => Stack | undefined;
+}
+
+/** Puts a stack into saved slots as the inventory would (same item first, then empty slots). */
+function mergeInto(slots: (Stack | null)[], held: Stack): void {
+  const max = CONFIG.inventory.stack[held.item];
+  let left = held.count;
+  for (const stack of slots) {
+    if (left > 0 && stack?.item === held.item && stack.count < max) {
+      const moved = Math.min(left, max - stack.count);
+      stack.count += moved;
+      left -= moved;
+    }
+  }
+  for (let index = 0; index < slots.length && left > 0; index++) {
+    if (!slots[index]) {
+      const moved = Math.min(left, max);
+      slots[index] = { item: held.item, count: moved };
+      left -= moved;
+    }
+  }
 }
 
 /**
@@ -169,6 +191,11 @@ export class SaveGame {
   private collect(): SaveData {
     const p = this.parts;
     const feet = p.player.feet;
+    const slots = p.inventory.saved;
+    const held = p.heldByMouse();
+    if (held) {
+      mergeInto(slots, held);
+    }
     return {
       version: FORMAT_VERSION,
       seed: CONFIG.world.defaultSeed,
@@ -183,7 +210,7 @@ export class SaveGame {
         torchSeconds: p.torch.remainingSeconds,
         lifeStart: p.life.start,
       },
-      inventory: { slots: p.inventory.saved, selected: p.inventory.selected },
+      inventory: { slots, selected: p.inventory.selected },
       chunks: p.chunks.changes,
       killed: p.prey.killedIds,
       structures: p.structures.saved,

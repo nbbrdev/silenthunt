@@ -266,6 +266,11 @@ export class InventoryScreen {
     this.refresh();
   }
 
+  /** NBB-147: what the mouse is holding, outside the slots (the save puts it back in them). */
+  get heldByMouse(): Stack | undefined {
+    return this.cursor ? { ...this.cursor } : undefined;
+  }
+
   /** Closes the screen (the death screen takes over, VD4); `recapture` takes the mouse back. */
   close(recapture: boolean): void {
     if (!this.open) {

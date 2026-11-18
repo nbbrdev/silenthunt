@@ -338,6 +338,7 @@ async function start(): Promise<void> {
         creature: creatureBrain,
         interactions,
         life,
+        heldByMouse: () => inventoryScreen.heldByMouse,
       },
       hud,
     );
