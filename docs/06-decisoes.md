@@ -410,6 +410,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | CM3 | Modelo: saco de dormir de couro aberto no chão, uma pele por cima e um travesseiro de fibra, feito por código (até 200 triângulos) e revisado na galeria. |
 | DO1 | Dormir: a tela escurece em 1,5 s, o relógio pula para o amanhecer e clareia; a fome cai como se o tempo passasse (\~20 numa noite inteira); a vida não volta (VD7-B). Avisos: "Só dá para dormir à noite" e "Não dá para dormir: há perigo por perto". |
 | DO2 | Sem testes das regras de dormir (X1-C). |
+| FG5 | Detalhes propostos por Claude e aprovados ("1 a 11 - Ok"): fogueira e cama levam 3 s no crafting, uma por espaço; na mão, fogueira pequena sem chama e cama enrolada; prévia vermelha encostada em tronco, pedra grande, parede ou perto de outra fogueira ou cama; cama com a cabeceira longe do jogador; textos ("Clique para colocar", "Algo no caminho", "Pôr lenha (3:20)", "A fogueira está cheia", "Acender (2:00)", "Fogueira apagada: acenda com um galho na mão", "Fogueira (4:53)", "segure E: apagar", "Você vai renascer nesta cama", "[E] Dormir · segure E: recolher"); carne só cozinha com o fogo aceso; chama morrendo até \~20–35%; dorme só na noite, renasce na cama; uma ação passa na frente de um aviso no E; o toque age ao soltar e a barra de segurar aparece após 0,15 s; ferramentas de desenvolvimento. |
 
 ## Pendentes (proposto)
 
