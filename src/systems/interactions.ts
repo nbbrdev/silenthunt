@@ -3,6 +3,7 @@ import { Control, Rectangle, TextBlock, type AdvancedDynamicTexture } from "@bab
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import type { Player } from "../player/player";
+import type { EffectName, SoundEffects } from "./soundEffects";
 
 /** Something the player can do with E right now (G2: "Interagir"). */
 export interface Interaction {
@@ -25,6 +26,12 @@ export interface Interaction {
    */
   holdAct?: () => void;
   holdLabel?: string;
+  /** NBB-149 (AC1): heard when `act` happens. */
+  sound?: EffectName;
+  /** Heard when `holdAct` happens. */
+  holdActSound?: EffectName;
+  /** Heard (looping) while E is being held for `act` (cleaning a carcass). */
+  holdingSound?: EffectName;
 }
 
 /** How long E is held for the second action (FG3-A, CM2). */
@@ -52,6 +59,9 @@ export class InteractionSystem {
   private waitForRelease = false;
   /** E went down on a press-or-hold interaction and is not decided yet. */
   private pressing = false;
+  /** NBB-149 (AC1): the interactions' sounds, and the one looping during a hold. */
+  sounds: SoundEffects | undefined;
+  private holdingSound: EffectName | undefined;
 
   constructor(scene: Scene, input: Input, player: Player, ui: AdvancedDynamicTexture) {
     this.hint = new TextBlock("interactionHint", "");
@@ -115,7 +125,7 @@ export class InteractionSystem {
       if (nearest.holdSeconds === undefined) {
         this.resetHold();
         if (input.wasPressed("KeyE")) {
-          nearest.act();
+          this.act(nearest);
         }
         return;
       }
@@ -152,7 +162,7 @@ export class InteractionSystem {
       // Let go before the hold: it was a press.
       this.pressing = false;
       this.resetHold();
-      interaction.act?.();
+      this.act(interaction);
       return;
     }
     this.holdSeconds += seconds;
@@ -164,6 +174,20 @@ export class InteractionSystem {
       this.resetHold();
       this.waitForRelease = true;
       interaction.holdAct?.();
+      if (interaction.holdActSound) {
+        this.sounds?.play(interaction.holdActSound);
+      }
+    }
+  }
+
+  /** Does `act`, with its sound. */
+  private act(interaction: Interaction): void {
+    if (!interaction.act) {
+      return;
+    }
+    interaction.act();
+    if (interaction.sound) {
+      this.sounds?.play(interaction.sound);
     }
   }
 
@@ -175,8 +199,13 @@ export class InteractionSystem {
       return;
     }
     if (this.holdId !== interaction.id) {
+      this.stopHoldingSound();
       this.holdId = interaction.id;
       this.holdSeconds = 0;
+      if (interaction.holdingSound) {
+        this.holdingSound = interaction.holdingSound;
+        this.sounds?.play(interaction.holdingSound);
+      }
     }
     this.holdSeconds += seconds;
     this.progressFrame.isVisible = true;
@@ -184,7 +213,7 @@ export class InteractionSystem {
     if (this.holdSeconds >= total) {
       this.resetHold();
       this.waitForRelease = true;
-      interaction.act?.();
+      this.act(interaction);
     }
   }
 
@@ -192,6 +221,14 @@ export class InteractionSystem {
     this.holdId = undefined;
     this.holdSeconds = 0;
     this.progressFrame.isVisible = false;
+    this.stopHoldingSound();
+  }
+
+  private stopHoldingSound(): void {
+    if (this.holdingSound) {
+      this.sounds?.stop(this.holdingSound);
+      this.holdingSound = undefined;
+    }
   }
 
   /**

@@ -9,6 +9,7 @@ import {
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import { createTorchModel, type TorchModel } from "../models/items/torch";
+import type { SoundEffects } from "../systems/soundEffects";
 import type { Inventory } from "./inventory";
 
 /**
@@ -30,6 +31,8 @@ export class PlayerTorch {
   /** Burning time left on the torch in hand (0: there is none). */
   private secondsLeft = 0;
   private time = 0;
+  /** NBB-149 (CH2-A, CH3): lighting the torch and its crackle are heard. */
+  sounds: SoundEffects | undefined;
 
   /**
    * @param hand the left hand that holds it (the arms' "handL" node).
@@ -112,9 +115,19 @@ export class PlayerTorch {
       this.secondsLeft = CONFIG.torch.burnSeconds;
     }
     this.setLit(!this.lit);
+    if (this.lit) {
+      // CH2-A: lighting it is heard.
+      this.sounds?.play("ignite");
+    }
   }
 
   private setLit(lit: boolean): void {
+    if (lit && !this.lit) {
+      // CH3: while lit, it crackles softly.
+      this.sounds?.play("torchCrackle");
+    } else if (!lit) {
+      this.sounds?.stop("torchCrackle");
+    }
     this.lit = lit;
     // An unlit torch is put away: nothing in the hand.
     this.model.root.setEnabled(lit);

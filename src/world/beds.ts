@@ -144,6 +144,7 @@ export class BedManager {
       act: () => this.trySleep(bed),
       holdAct: () => this.rollUp(bed),
       holdLabel: "recolher",
+      holdActSound: "pickup",
     };
   }
 

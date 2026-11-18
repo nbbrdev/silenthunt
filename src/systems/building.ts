@@ -30,6 +30,7 @@ import type { PieceKind, Plan, StructureManager } from "../world/structures";
 import type { Terrain } from "../world/terrain";
 import type { InteractionSystem } from "./interactions";
 import type { NoiseSystem } from "./noise";
+import type { SoundEffects } from "./soundEffects";
 
 const PIECES: { kind: PieceKind; label: string }[] = [
   { kind: "foundation", label: "Fundação" },
@@ -176,6 +177,8 @@ export class BuildingMode {
 
   /** Development only: holds (true) or lets go of (false) the right button; undefined: real mouse. */
   debugHold: boolean | undefined;
+  /** NBB-149 (AC1): placing and taking apart a piece are heard. */
+  sounds: SoundEffects | undefined;
 
   get isActive(): boolean {
     return this.active;
@@ -215,6 +218,7 @@ export class BuildingMode {
     }
     this.world.structures.place(plan, this.turn);
     this.world.noise.emit(plan.position, CONFIG.noise.radius.build, "build");
+    this.sounds?.play("place");
   }
 
   private update(seconds: number): void {
@@ -336,6 +340,7 @@ export class BuildingMode {
     if (kind) {
       const refund = Math.floor(CONFIG.building.cost[kind] / 2);
       inventory.add("wood", refund);
+      this.sounds?.play("dismantle");
       interactions.say(`Você recuperou: ${refund} ${refund === 1 ? "madeira" : "madeiras"}`);
     }
   }

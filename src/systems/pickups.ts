@@ -41,6 +41,7 @@ export class PickupSystem {
         label,
         distance,
         id: `${nearest.chunkKey}:${nearest.index}`,
+        sound: "pickup",
         act: () => {
           chunks.removePlacement(nearest.chunkKey, nearest.index);
           inventory.add(item, count);

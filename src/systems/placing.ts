@@ -19,6 +19,7 @@ import type { CampfireManager } from "../world/campfires";
 import type { ChunkManager } from "../world/chunks";
 import type { StructureManager } from "../world/structures";
 import type { Terrain } from "../world/terrain";
+import type { SoundEffects } from "./soundEffects";
 
 const OK_COLOR = new Color3(0.35, 0.95, 0.4);
 const BAD_COLOR = new Color3(1, 0.3, 0.25);
@@ -122,7 +123,11 @@ export class PlacingSystem {
       // Like the preview: the head away from the player.
       this.world.beds.placeAt(x, y, z, spot.heading + Math.PI);
     }
+    this.sounds?.play("place");
   }
+
+  /** NBB-149 (AC1): putting something down is heard. */
+  sounds: SoundEffects | undefined;
 
   private update(): void {
     const held = this.world.equipment.current;

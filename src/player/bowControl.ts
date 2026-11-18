@@ -95,6 +95,7 @@ export class BowControl {
       return {
         label: "Pegar flecha",
         distance,
+        sound: "pickup",
         act: () => {
           if (this.arrows.pickUp(this.player.position, reach)) {
             this.inventory.add("arrow", 1);

@@ -117,6 +117,7 @@ export class BackpackManager {
       label: "Pegar mochila",
       distance,
       id: `backpack${backpack.id}`,
+      sound: "pickup",
       act: () => this.take(backpack),
     };
   }

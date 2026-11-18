@@ -1,4 +1,4 @@
-import { Color3, PointLight, Vector3, type Scene } from "@babylonjs/core";
+import { Color3, PointLight, Vector3, type Scene, type StaticSound } from "@babylonjs/core";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import { CONFIG } from "../config";
 import { createMeatModel, type MeatModel } from "../models/items/meat";
@@ -7,6 +7,7 @@ import type { Equipment } from "../player/equipment";
 import type { Inventory } from "../player/inventory";
 import type { Player } from "../player/player";
 import type { Interaction, InteractionSystem } from "../systems/interactions";
+import type { SoundEffects } from "../systems/soundEffects";
 import type { VisibilitySystem } from "../systems/visibility";
 
 interface SpitSlot {
@@ -22,6 +23,10 @@ interface Fire {
   slots: SpitSlot[];
   /** RF-55: burning time left (0: a cold fire). */
   fuel: number;
+  /** CH1-B: its own 3D crackle (once the sounds are loaded) and how loud it is now. */
+  crackle: StaticSound | undefined;
+  crackleLevel: number;
+  cracklePending: boolean;
 }
 
 /** A fire as the save keeps it (NBB-147). */
@@ -58,6 +63,8 @@ export class CampfireManager {
   private readonly fires: Fire[] = [];
   private time = 0;
   private nextId = 1;
+  /** NBB-149 (CH1-B): each fire's crackle. */
+  sounds: SoundEffects | undefined;
 
   constructor(scene: Scene, player: Player, world: CampfireWorld) {
     this.scene = scene;
@@ -74,10 +81,11 @@ export class CampfireManager {
   }
 
   /** Each fire: where, burning time left and its spit (development). */
-  get list(): { at: number[]; fuel: number; spit: string[] }[] {
+  get list(): { at: number[]; fuel: number; crackle: number; spit: string[] }[] {
     return this.fires.map((fire) => ({
       at: fire.model.root.position.asArray().map((value) => Math.round(value * 10) / 10),
       fuel: Math.round(fire.fuel),
+      crackle: Math.round((fire.crackle?.volume ?? -1) * 100) / 100,
       spit: fire.slots.map((slot) =>
         slot.state === "cooking" ? `cooking ${slot.seconds.toFixed(1)}s` : slot.state,
       ),
@@ -159,7 +167,16 @@ export class CampfireManager {
       const slot: SpitSlot = { meat, state: "empty", seconds: 0 };
       return slot;
     });
-    this.fires.push({ id: this.nextId++, model, light, slots, fuel: CONFIG.campfire.burnSeconds });
+    this.fires.push({
+      id: this.nextId++,
+      model,
+      light,
+      slots,
+      fuel: CONFIG.campfire.burnSeconds,
+      crackle: undefined,
+      crackleLevel: 0,
+      cracklePending: false,
+    });
     this.refreshCreatureFires();
   }
 
@@ -206,7 +223,12 @@ export class CampfireManager {
 
     if (equipment.current === "branch") {
       if (!lit) {
-        return { label: "Acender (2:00)", distance, act: () => this.addFuel(fire) };
+        return {
+          label: "Acender (2:00)",
+          distance,
+          sound: "ignite",
+          act: () => this.addFuel(fire),
+        };
       }
       if (fire.fuel > CONFIG.campfire.maxSeconds - 1) {
         return { label: `A fogueira está cheia (${clock(fire.fuel)})`, distance, ...putOut };
@@ -214,6 +236,7 @@ export class CampfireManager {
       return {
         label: `Pôr lenha (${clock(fire.fuel)})`,
         distance,
+        sound: "place",
         act: () => this.addFuel(fire),
         ...putOut,
       };
@@ -229,6 +252,7 @@ export class CampfireManager {
       return {
         label: "Pegar carne cozida",
         distance,
+        sound: "pickup",
         act: () => {
           this.empty(cooked);
           inventory.add("cookedMeat", 1);
@@ -241,6 +265,7 @@ export class CampfireManager {
       return {
         label: "Cozinhar carne",
         distance,
+        sound: "pickup",
         act: () => {
           if (!inventory.remove("rawMeat", 1)) {
             return;
@@ -273,6 +298,26 @@ export class CampfireManager {
     fire.fuel = 0;
     this.world.interactions.say("Fogueira apagada");
     this.refreshCreatureFires();
+  }
+
+  /** CH1-B, CH3: the crackle follows the flames; when the fire goes out it fades in 1 s. */
+  private crackle(fire: Fire, target: number, seconds: number): void {
+    const sounds = this.sounds;
+    if (!sounds?.isLoaded) {
+      return;
+    }
+    if (!fire.crackle && !fire.cracklePending) {
+      fire.cracklePending = true;
+      void sounds.campfireCrackle(fire.model.root).then((sound) => {
+        fire.crackle = sound;
+      });
+    }
+    const { volume, fadeSeconds } = CONFIG.campfire.sound;
+    const step = seconds / fadeSeconds;
+    fire.crackleLevel += Math.max(-step, Math.min(step, target - fire.crackleLevel));
+    if (fire.crackle) {
+      fire.crackle.volume = volume * fire.crackleLevel;
+    }
   }
 
   private empty(slot: SpitSlot): void {
@@ -310,6 +355,7 @@ export class CampfireManager {
         fire.model.fire.stop();
       }
       fire.model.fire.emitRate = 260 * (0.2 + 0.8 * strength);
+      this.crackle(fire, lit ? 0.4 + 0.6 * strength : 0, seconds);
 
       // CZ2-A: meat only cooks on a lit fire.
       for (const slot of fire.slots) {

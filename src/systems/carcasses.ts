@@ -13,7 +13,7 @@ const NAMES: Partial<Record<ItemId, [string, string]>> = {
   leather: ["couro", "couros"],
 };
 import type { ChunkManager } from "../world/chunks";
-import type { InteractionSystem } from "./interactions";
+import type { Interaction, InteractionSystem } from "./interactions";
 
 interface Remains {
   node: TransformNode;
@@ -67,7 +67,7 @@ export class CarcassSystem {
     return this.cleaned.size;
   }
 
-  private nearestCarcass() {
+  private nearestCarcass(): Interaction | undefined {
     const eye = this.scene.activeCamera?.globalPosition;
     if (!eye) {
       return undefined;
@@ -102,6 +102,8 @@ export class CarcassSystem {
       distance,
       id: animal.id,
       holdSeconds: settings.harvestSeconds[animal.kind],
+      // AC1: the knife cutting, while E is held.
+      holdingSound: "carcass",
       act: () => this.clean(animal),
     };
   }

@@ -647,6 +647,7 @@ export class StructureManager {
         best = {
           label: piece.open ? "Fechar porta" : "Abrir porta",
           distance,
+          sound: "door",
           act: () => this.toggleDoor(piece),
         };
       }

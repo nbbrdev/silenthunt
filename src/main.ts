@@ -232,6 +232,11 @@ async function start(): Promise<void> {
     knife.sounds = effects;
     arrows.sounds = effects;
     chopping.sounds = effects;
+    // CH1-B to CH3, AC1: fire, the torch and the actions.
+    interactions.sounds = effects;
+    eating.sounds = effects;
+    building.sounds = effects;
+    torch.sounds = effects;
     audio
       .then((audio) => effects.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons das ferramentas não carregados:", error));
@@ -308,6 +313,8 @@ async function start(): Promise<void> {
       },
       hud,
     );
+    campfires.sounds = effects;
+    placing.sounds = effects;
     const onHeld = (tool: Held) => {
       hands.equip(tool);
       knife.enabled = tool === "knife";

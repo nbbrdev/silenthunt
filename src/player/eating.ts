@@ -2,6 +2,7 @@ import type { Scene } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import type { InteractionSystem } from "../systems/interactions";
+import type { SoundEffects } from "../systems/soundEffects";
 import type { Equipment } from "./equipment";
 import type { PlayerHunger } from "./hunger";
 import type { Inventory } from "./inventory";
@@ -17,6 +18,8 @@ export class Eating {
   private readonly inventory: Inventory;
   private readonly hunger: PlayerHunger;
   private readonly interactions: InteractionSystem;
+  /** NBB-149 (AC1): eating is heard. */
+  sounds: SoundEffects | undefined;
 
   constructor(
     scene: Scene,
@@ -53,6 +56,7 @@ export class Eating {
     }
     const settings = CONFIG.player.hunger;
     this.hunger.eat(held === "cookedMeat" ? settings.cookedMeat : settings.rawMeat);
+    this.sounds?.play("eat");
     this.interactions.say(`Você comeu: ${held === "cookedMeat" ? "carne cozida" : "carne crua"}`);
   }
 }

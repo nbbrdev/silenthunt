@@ -583,6 +583,11 @@ export const CONFIG = {
     slots: 4,
     /** E reaches the spit this close (meters). */
     reach: 2,
+    /**
+     * NBB-149 (CH1-B, CH3): each lit fire crackles in 3D, softer as the flames shrink; put out
+     * or burnt out, the crackle fades in `fadeSeconds`.
+     */
+    sound: { file: "fire/campfire.mp3", volume: 0.6, hearingDistance: 25, fadeSeconds: 1 },
   },
   /**
    * NBB-149 (SM4-A, AM1–AM7): the forest's sound, from `public/sounds/ambience/` (CC0, see
@@ -607,17 +612,32 @@ export const CONFIG = {
     /** AM6: how often the lone sound is a branch cracking (more often at night). */
     snapChance: { day: 0.25, night: 0.4 },
   },
-  /** NBB-149 (FE1–FE7): the tools' and weapons' sounds, from `public/sounds/tools/` (CC0). */
+  /**
+   * NBB-149 (FE1–FE7, CH2, CH3, AC1): the tools', weapons' and actions' sounds, from
+   * `public/sounds/` (CC0, see CREDITS.md). Volumes from 0 to 1.
+   */
   effectSounds: {
     files: {
-      bowDraw: ["bow-draw.mp3"],
-      bowRelease: ["bow-release.mp3"],
-      knifeSwing: ["knife-swing.mp3"],
-      knifeHit: ["knife-hit.mp3"],
-      chop: ["chop-1.mp3", "chop-2.mp3", "chop-3.mp3", "chop-4.mp3"],
-      stoneHit: ["stone-hit.mp3"],
-      treeFall: ["tree-fall.mp3"],
-      arrowHit: ["arrow-hit.mp3"],
+      bowDraw: ["tools/bow-draw.mp3"],
+      bowRelease: ["tools/bow-release.mp3"],
+      knifeSwing: ["tools/knife-swing.mp3"],
+      knifeHit: ["tools/knife-hit.mp3"],
+      chop: ["tools/chop-1.mp3", "tools/chop-2.mp3", "tools/chop-3.mp3", "tools/chop-4.mp3"],
+      stoneHit: ["tools/stone-hit.mp3"],
+      treeFall: ["tools/tree-fall.mp3"],
+      arrowHit: ["tools/arrow-hit.mp3"],
+      /** CH2-A: lighting the torch or a fire. */
+      ignite: ["fire/ignite.mp3"],
+      /** CH3: the torch in hand crackles like the campfire, softer and higher. */
+      torchCrackle: ["fire/campfire.mp3"],
+      /** AC1: picking something up is a leaves footstep, soft and higher (a rustle). */
+      pickup: [1, 2, 3, 4, 5, 6].map((n) => `player/step-leaves-${n}.mp3`),
+      eat: ["actions/eat.mp3"],
+      carcass: ["actions/carcass.mp3"],
+      place: ["actions/place.mp3"],
+      dismantle: ["actions/dismantle.mp3"],
+      door: ["actions/door.mp3"],
+      chest: ["actions/chest.mp3"],
     },
     volume: {
       bowDraw: 0.5,
@@ -628,9 +648,22 @@ export const CONFIG = {
       stoneHit: 0.8,
       treeFall: 1,
       arrowHit: 0.8,
+      ignite: 0.7,
+      torchCrackle: 0.15,
+      pickup: 0.35,
+      eat: 0.6,
+      carcass: 0.6,
+      place: 0.7,
+      dismantle: 0.7,
+      door: 0.6,
+      chest: 0.7,
     },
+    /** Pitch of some effects (1 = as recorded). */
+    rates: { pickup: 1.3, torchCrackle: 1.3 },
     /** Heard from where they happen (3D); the others come from the player's hands. */
     spatial: ["knifeHit", "treeFall", "arrowHit"],
+    /** These loop until stopped (while cleaning a carcass, while the torch burns). */
+    loops: ["carcass", "torchCrackle"],
     hearingDistance: 50,
     /** Each play's pitch varies by up to ±5%. */
     pitchJitter: 0.05,

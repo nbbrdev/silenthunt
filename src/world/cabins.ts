@@ -214,7 +214,12 @@ export class CabinManager {
       if (!this.opened.has(cabin.site.id)) {
         const distance = flatDistance(this.toWorld(cabin, this.model.chestCenter), player);
         if (distance <= reach && (!best || distance < best.distance)) {
-          best = { label: "Abrir baú", distance, act: () => this.openChest(cabin) };
+          best = {
+            label: "Abrir baú",
+            distance,
+            sound: "chest",
+            act: () => this.openChest(cabin),
+          };
         }
       }
       if (cabin.shotgun) {
@@ -222,7 +227,12 @@ export class CabinManager {
         if (distance <= reach && (!best || distance < best.distance)) {
           best =
             this.inventory.spaceFor("shotgun") > 0
-              ? { label: "Pegar espingarda", distance, act: () => this.takeShotgun(cabin) }
+              ? {
+                  label: "Pegar espingarda",
+                  distance,
+                  sound: "pickup",
+                  act: () => this.takeShotgun(cabin),
+                }
               : { label: "Inventário cheio", distance };
         }
       }
