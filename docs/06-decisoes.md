@@ -466,6 +466,11 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | FE6 | Sons pequenos escolhidos por Claude: faca no ar "Small Knife Whoosh" (Shamewap), acerto "Knife Stab Melon" (jawbutch), flecha cravando "ARROW_WOOD_IMPACT_SINGLE_ARCHERY_01" (JoeDinesSound), todos CC0. |
 | FE7 | O rangido do arco toca enquanto puxa e para ao soltar; estalo no disparo; flecha cravando em 3D onde para (num animal, o acerto da faca); faca no ar a cada estocada e acerto só quando atinge; machado na madeira ou na pedra a cada golpe que acerta; árvore caindo em 3D. |
 | FE8 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): recortes em mono com pico normalizado; volumes puxada 0,5, disparo 0,8, faca no ar 0,5, acerto 0,8, machado 0,9, pedra 0,8, árvore 1, flecha 0,8, tom ±5%; acerto, árvore e flecha em 3D até 50 m; árvore ouvida 2 m acima da base; módulo `SoundEffects` com os sons por nome; `silentHunt.effects()`. |
+| CH1-B | Fogueira crepitando: "Campfire 01" (HECKFRICKER, CC0), em loop 3D em cada fogueira acesa. |
+| CH2-A | Acender (fogueira com galho e tocha com F): "Tumbleweed Firestarter Torch Ignite" (loganzsound, CC0). |
+| CH3 | Apagar não tem som próprio: o crepitar some em ~1 s. A tocha acesa crepita como a fogueira, bem baixo e mais agudo, saindo da mão. |
+| AC1 | Sons das ações escolhidos por Claude, todos CC0: pegar é um passo de folhas baixo e agudo; comer "Eating a Toastie" (squashy555); limpar carcaça "vlees_snijden" (dutchlady), enquanto segura E; colocar peça, fogueira ou cama e pôr lenha "Wood Fall 2" (Manim8); desmontar "Planks Clattering" (Fission9); porta "Wooden_Door_Squeak_04" (BlondPanda); baú "Wooden Chest Open" (The_Frisbee_of_Peace). |
+| AC2 | Detalhes propostos por Claude e aprovados ("1 a 6 - Ok"): loops sem emenda (fogueira 60 s, carcaça 4,4 s); crepitar da fogueira a 0,6, de 40% a 100% com a força da chama, ouvido até 25 m, cada fogueira num ponto diferente do loop; volumes acender 0,7, tocha 0,15, pegar 0,35, comer 0,6, carcaça 0,6, colocar 0,7, desmontar 0,7, porta 0,6, baú 0,7 (tocha e pegar 30% mais agudos); pegar também ao pôr carne no espeto e recolher a cama; a porta usa o mesmo rangido para abrir e fechar; a interação ganhou campos de som (`sound`, `holdActSound`, `holdingSound`); `silentHunt.campfires()` mostra o volume do crepitar. |
 
 ## Pendentes (proposto)
 
