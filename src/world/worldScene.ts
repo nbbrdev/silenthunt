@@ -1,6 +1,7 @@
 import { Scene, Vector3, type Engine, type HavokPlugin } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { DayClock } from "../core/dayClock";
+import { frameSeconds } from "../core/gameTime";
 import { getGroundMaterial } from "../models/materials";
 import { Atmosphere } from "./atmosphere";
 import { ChunkManager } from "./chunks";
@@ -20,10 +21,9 @@ export function createWorld(engine: Engine, physics: HavokPlugin, seed: number):
   scene.enablePhysics(new Vector3(0, CONFIG.physics.gravity, 0), physics);
 
   const clock = new DayClock();
-  // A long pause (e.g. another tab) should not skip a whole night: at most 0.1 s per frame.
-  scene.onBeforeRenderObservable.add(() =>
-    clock.update(Math.min(engine.getDeltaTime() / 1000, 0.1)),
-  );
+  // A long pause (e.g. another tab) should not skip a whole night: at most 0.1 s per frame. The
+  // clock stops while the game is paused (MN3-A).
+  scene.onBeforeRenderObservable.add(() => clock.update(frameSeconds(scene)));
   new Atmosphere(scene, clock);
 
   const terrain = new Terrain(seed);

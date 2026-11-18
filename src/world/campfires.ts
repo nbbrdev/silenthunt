@@ -1,6 +1,7 @@
 import { Color3, PointLight, Vector3, type Scene, type StaticSound } from "@babylonjs/core";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { createMeatModel, type MeatModel } from "../models/items/meat";
 import { createCampfireModel, type CampfireModel } from "../models/structures/campfire";
 import type { Equipment } from "../player/equipment";
@@ -76,7 +77,7 @@ export class CampfireManager {
       );
     world.interactions.add(() => this.interaction());
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

@@ -14,6 +14,7 @@ import { Control, Ellipse, TextBlock, type AdvancedDynamicTexture } from "@babyl
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import type { PreyBrainBehavior } from "../ai/preyBrain";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { soundUrl, type GameAudio } from "../core/audio";
 import type { Input } from "../core/input";
 import { MUZZLE } from "../models/items/shotgun";
@@ -129,7 +130,7 @@ export class ShotgunControl {
     ui.addControl(this.counter);
 
     scene.onBeforeRenderObservable.add(() => {
-      this.update(input, Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(input, frameSeconds(scene));
     });
   }
 

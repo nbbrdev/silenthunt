@@ -1,5 +1,6 @@
 import { Color3, MeshBuilder, Vector3, type LinesMesh, type Scene } from "@babylonjs/core";
 import type { NoiseSystem } from "../systems/noise";
+import { frameSeconds } from "./gameTime";
 import type { Input } from "./input";
 
 const RING_SECONDS = 1.5;
@@ -17,7 +18,7 @@ export function enableNoiseRings(scene: Scene, noise: NoiseSystem, input: Input)
     if (input.wasPressed("KeyN")) {
       enabled = !enabled;
     }
-    const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+    const seconds = frameSeconds(scene);
     for (let i = rings.length - 1; i >= 0; i--) {
       const ring = rings[i];
       if (!ring) {

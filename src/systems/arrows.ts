@@ -2,6 +2,7 @@ import { Quaternion, Vector3, type InstancedMesh, type Mesh, type Scene } from "
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import type { PreyBrainBehavior } from "../ai/preyBrain";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { createRandom } from "../core/random";
 import { createArrowMesh } from "../models/items/bow";
 import type { ChunkManager } from "../world/chunks";
@@ -58,7 +59,7 @@ export class ArrowSystem {
     this.source = createArrowMesh(scene);
     this.source.setEnabled(false);
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

@@ -1,5 +1,6 @@
 import { Observable, type Scene } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { Inventory } from "./inventory";
 import { ITEM_LABELS, type Recipe } from "./items";
 
@@ -20,7 +21,7 @@ export class Crafting {
     this.inventory = inventory;
     this.say = say;
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

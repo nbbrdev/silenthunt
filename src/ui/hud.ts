@@ -1,6 +1,7 @@
 import type { Scene } from "@babylonjs/core";
 import { AdvancedDynamicTexture, Control, Rectangle } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { PlayerHealth } from "../player/health";
 import type { PlayerHunger } from "../player/hunger";
 import type { NoiseSystem } from "../systems/noise";
@@ -21,6 +22,19 @@ export function createHud(
   createHealthBar(ui, scene, health);
   createHungerBar(ui, scene, hunger);
   return ui;
+}
+
+/**
+ * MN1-C: gives every text of a UI the game's font. Babylon GUI ignores a font set on the root
+ * itself, so it goes on each control at the top (their own children inherit it). Call it once
+ * the UI is built.
+ */
+export function applyGameFont(ui: AdvancedDynamicTexture): void {
+  for (const control of ui.rootContainer.children) {
+    if (!control.fontFamily) {
+      control.fontFamily = CONFIG.hud.fontFamily;
+    }
+  }
 }
 
 /**
@@ -56,7 +70,7 @@ function createHungerBar(ui: AdvancedDynamicTexture, scene: Scene, hunger: Playe
 
   let time = 0;
   scene.onBeforeRenderObservable.add(() => {
-    const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+    const seconds = frameSeconds(scene);
     time += seconds;
     fill.width = `${Math.round(hunger.fraction * healthBarWidthPx)}px`;
     const visible = hunger.value < hungerBarBelow;
@@ -100,7 +114,7 @@ function createHealthBar(ui: AdvancedDynamicTexture, scene: Scene, health: Playe
 
   let secondsFull = Infinity;
   scene.onBeforeRenderObservable.add(() => {
-    const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+    const seconds = frameSeconds(scene);
     fill.width = `${Math.round(health.fraction * healthBarWidthPx)}px`;
     secondsFull = health.fraction >= 1 ? secondsFull + seconds : 0;
     // Visible while hurt; after healing, waits a moment and fades out in half a second.
@@ -152,7 +166,7 @@ function createNoiseMeter(
   });
 
   scene.onBeforeRenderObservable.add(() => {
-    const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+    const seconds = frameSeconds(scene);
     pulse = Math.max(0, pulse - seconds * noisePulseFade);
     const radius = Math.max(currentRadius(), pulseRadius * pulse);
     const share = Math.min(radius / noiseMeterMax, 1);

@@ -1,5 +1,6 @@
 import { Quaternion, TransformNode, Vector3, type Scene } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
 import type { Equipment } from "../player/equipment";
 import type { PlayerHands } from "../player/hands";
@@ -65,7 +66,7 @@ export class ChoppingSystem {
     this.inventory = world.inventory;
     this.interactions = world.interactions;
     scene.onBeforeRenderObservable.add(() => {
-      const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      const seconds = frameSeconds(scene);
       const swing =
         equipment.current === "axe" && player.controlsEnabled && input.wasPressed("Mouse0");
       if (swing) {

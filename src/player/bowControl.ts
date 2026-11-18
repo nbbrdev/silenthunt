@@ -1,6 +1,7 @@
 import { Vector3, type Scene } from "@babylonjs/core";
 import { Control, Ellipse, TextBlock, type AdvancedDynamicTexture } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
 import type { ArrowSystem } from "../systems/arrows";
 import type { InteractionSystem } from "../systems/interactions";
@@ -105,7 +106,7 @@ export class BowControl {
     });
 
     scene.onBeforeRenderObservable.add(() => {
-      this.update(input, Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(input, frameSeconds(scene));
     });
   }
 

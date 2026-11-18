@@ -2,6 +2,7 @@ import { Vector3, type Scene } from "@babylonjs/core";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import type { PreyBrainBehavior } from "../ai/preyBrain";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
 import type { NoiseSystem } from "../systems/noise";
 import type { SoundEffects } from "../systems/soundEffects";
@@ -46,7 +47,7 @@ export class KnifeAttack {
     this.noise = noise;
     this.targets = targets;
     scene.onBeforeRenderObservable.add(() => {
-      const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      const seconds = frameSeconds(scene);
       this.cooldown -= seconds;
       if (
         this.enabled &&

@@ -14,6 +14,7 @@ import {
   type AdvancedDynamicTexture,
 } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
 import {
   createDoorModel,
@@ -171,7 +172,7 @@ export class BuildingMode {
     this.progressFrame.addControl(this.progressFill);
 
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

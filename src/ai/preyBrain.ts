@@ -9,6 +9,7 @@ import {
   type Vector3,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { createRandom, randomInRange } from "../core/random";
 import type { Player } from "../player/player";
 import type { NoiseEvent, NoiseSystem } from "../systems/noise";
@@ -110,7 +111,7 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
     target.rotationQuaternion = null;
     const { scene, noise } = this.senses;
     this.renderObserver = scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
     this.noiseObserver = noise.onNoise.add((event) => this.hear(event));
   }

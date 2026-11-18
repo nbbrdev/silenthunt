@@ -3,6 +3,7 @@ import { Control, TextBlock, type AdvancedDynamicTexture } from "@babylonjs/gui"
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import type { PreyManager } from "../ai/preyManager";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { DayClock } from "../core/dayClock";
 import { deleteSave, readSave, writeSave } from "../core/saveStore";
 import type { PlayerHealth } from "../player/health";
@@ -135,7 +136,7 @@ export class SaveGame {
     });
     window.addEventListener("pagehide", () => void this.save());
     scene.onBeforeRenderObservable.add(() => {
-      const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      const seconds = frameSeconds(scene);
       this.indicatorLeft = Math.max(0, this.indicatorLeft - seconds);
       this.indicator.isVisible = this.indicatorLeft > 0;
       this.indicator.alpha = Math.min(1, this.indicatorLeft * 2) * 0.6;
@@ -212,7 +213,7 @@ export class SaveGame {
     }
   }
 
-  /** Development only (SV2-A): forgets the saved world and starts a new one. */
+  /** RF-61, MN2-A ("Novo mundo" in the menu): forgets the saved world and starts a new one. */
   async newWorld(): Promise<void> {
     this.discarding = true;
     await deleteSave();

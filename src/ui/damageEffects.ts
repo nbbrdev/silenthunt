@@ -1,6 +1,7 @@
 import type { Scene } from "@babylonjs/core";
 import { Image, type AdvancedDynamicTexture } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { PlayerHealth } from "../player/health";
 import type { Player } from "../player/player";
 
@@ -30,7 +31,7 @@ export function createDamageEffects(
   });
 
   scene.onBeforeRenderObservable.add(() => {
-    const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+    const seconds = frameSeconds(scene);
     flashLeft = Math.max(0, flashLeft - seconds);
     flash.alpha = flashLeft / settings.damageFlashSeconds;
     // Hidden while clear, so the full-screen image is not drawn for nothing.

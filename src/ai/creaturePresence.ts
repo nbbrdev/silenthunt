@@ -8,6 +8,7 @@ import {
   type TransformNode,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { soundUrl, type GameAudio } from "../core/audio";
 import type { DayClock } from "../core/dayClock";
 import { createRandom, randomRange } from "../core/random";
@@ -55,7 +56,7 @@ export class CreaturePresence {
     this.eyes = root.getChildMeshes(false, (node) => node.name.startsWith("creatureEye"));
 
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
     brain.onStateChanged.add((state) => {
       if (state === "attack") {

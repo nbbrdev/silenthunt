@@ -11,6 +11,7 @@ import {
   type Scene,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import {
   createDoorModel,
   createFoundationMesh,
@@ -115,7 +116,7 @@ export class StructureManager {
     chunks.obstacleProviders.push((x, z, radius) => this.obstaclesNear(x, z, radius));
     interactions.add(() => this.doorInteraction());
     scene.onBeforeRenderObservable.add(() => {
-      this.animateDoors(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.animateDoors(frameSeconds(scene));
     });
   }
 

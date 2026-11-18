@@ -7,6 +7,7 @@ import {
   type TransformNode,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds, isPaused } from "../core/gameTime";
 import type { Input } from "../core/input";
 import { createTorchModel, type TorchModel } from "../models/items/torch";
 import type { SoundEffects } from "../systems/soundEffects";
@@ -69,10 +70,10 @@ export class PlayerTorch {
 
     this.setLit(false);
     scene.onBeforeRenderObservable.add(() => {
-      if (input.wasPressed("KeyF") && !this.isBlocked) {
+      if (input.wasPressed("KeyF") && !this.isBlocked && !isPaused()) {
         this.toggle();
       }
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

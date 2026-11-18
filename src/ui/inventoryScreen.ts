@@ -10,6 +10,7 @@ import {
   type Vector2WithInfo,
 } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
 import type { Crafting } from "../player/crafting";
 import type { Inventory, Stack } from "../player/inventory";
@@ -239,7 +240,7 @@ export class InventoryScreen {
       }
     });
     scene.onBeforeRenderObservable.add(() => {
-      const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      const seconds = frameSeconds(scene);
       this.nameLeft = Math.max(0, this.nameLeft - seconds);
       this.nameText.alpha = Math.min(1, this.nameLeft * 3) * 0.8;
       const progress = this.crafting.progress;

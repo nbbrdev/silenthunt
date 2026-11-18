@@ -8,6 +8,7 @@ import {
   type AdvancedDynamicTexture,
 } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 
 /**
  * VD4: the death screen. The screen fades to black, then shows "Você morreu", how many days the
@@ -62,7 +63,7 @@ export class DeathScreen {
       if (!this.fading) {
         return;
       }
-      const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      const seconds = frameSeconds(scene);
       this.cover.alpha = Math.min(1, this.cover.alpha + seconds / CONFIG.hud.deathFadeSeconds);
       if (this.cover.alpha >= 1) {
         this.fading = false;

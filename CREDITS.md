@@ -41,3 +41,11 @@ Sons do [Freesound](https://freesound.org). A licença **CC0** (domínio públic
 | `public/sounds/actions/dismantle.mp3`                          | [Planks Clattering](https://freesound.org/people/Fission9/sounds/478238/)                                  | Fission9             | CC0     | Um trecho de 1,1 s, em mono e com volume normalizado                                    |
 | `public/sounds/actions/door.mp3`                               | [Wooden_Door_Squeak_04](https://freesound.org/people/BlondPanda/sounds/778462/)                            | BlondPanda           | CC0     | Mono e volume normalizado                                                               |
 | `public/sounds/actions/chest.mp3`                              | [Wooden Chest Open.wav](https://freesound.org/people/The_Frisbee_of_Peace/sounds/573654/)                  | The_Frisbee_of_Peace | CC0     | Mono e volume normalizado                                                               |
+
+## Fonte
+
+Crimson Pro, dos autores do projeto Crimson Pro, com a licença SIL Open Font License 1.1 (`public/fonts/CrimsonPro-OFL.txt`).
+
+## Tecnologia
+
+Babylon.js (licença Apache 2.0) e Havok para Babylon.js (licença MIT).

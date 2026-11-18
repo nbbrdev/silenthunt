@@ -20,8 +20,17 @@ export class Input {
    */
   readonly onKeyDownNow = new Observable<string>();
 
+  /** MN3-A: the mouse was let go (Esc, or another window took it): the game pauses. */
+  readonly onPointerReleased = new Observable<void>();
+
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
+    document.addEventListener("pointerlockchange", () => {
+      if (!this.isPointerLocked) {
+        this.down.clear();
+        this.onPointerReleased.notifyObservers();
+      }
+    });
     window.addEventListener("keydown", (event) => {
       if (event.code === "Space" || event.code === "Tab") {
         // Space would otherwise scroll the page, and Tab move the focus away from the game.

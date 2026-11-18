@@ -7,6 +7,7 @@ import {
 } from "@babylonjs/core";
 import type { PreyBrainBehavior, PreyKind, PreyState } from "../ai/preyBrain";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { soundUrl, type GameAudio } from "../core/audio";
 
 /** One 3D sound set that follows an animal. */
@@ -39,7 +40,7 @@ export class PreySounds {
     this.animals = animals;
     this.ears = ears;
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

@@ -767,7 +767,24 @@ export const CONFIG = {
     groups: { effects: 1, ambience: 0.7, music: 0.3 },
   },
   /** HUD (NO1-A: Babylon GUI). */
+  /** NBB-150 (MN6): the menus, on the left over the forest. */
+  menu: {
+    textColor: "rgba(236, 230, 218, 0.85)",
+    /** The fire's orange, when the mouse is over a button. */
+    hoverColor: "#ff9a3c",
+    shade: "rgba(0, 0, 0, 0.45)",
+    titleSize: 76,
+    headingSize: 44,
+    buttonSize: 30,
+    textSize: 20,
+    /** Distance from the left edge (pixels). */
+    left: 96,
+    /** MN4: the mouse sensitivity can go from 0.25× to 2×. */
+    sensitivityRange: [0.25, 2] as const,
+  },
   hud: {
+    /** MN1-C: the game's font (public/fonts, OFL), for the HUD, the menus and the credits. */
+    fontFamily: "Crimson Pro",
     /** NO2: the noise meter is full at this radius (meters). */
     noiseMeterMax: 20,
     noiseMeterWidthPx: 220,

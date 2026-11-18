@@ -9,6 +9,7 @@ import {
   type TransformNode,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { DayClock } from "../core/dayClock";
 import { createRandom, randomInRange } from "../core/random";
 import type { Player } from "../player/player";
@@ -149,7 +150,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     const { scene, noise } = this.senses;
     this.renderObserver = scene.onBeforeRenderObservable.add(() => {
       // A long pause (another tab) must not teleport it: at most 0.1 s per frame.
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
     this.noiseObserver = noise.onNoise.add((event) => this.hear(event));
   }

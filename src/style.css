@@ -1,3 +1,11 @@
+/* MN1-C: Crimson Pro (SIL Open Font License 1.1, see public/fonts/CrimsonPro-OFL.txt). */
+@font-face {
+  font-family: "Crimson Pro";
+  src: url("/fonts/CrimsonPro.ttf") format("truetype");
+  font-weight: 200 900;
+  font-display: block;
+}
+
 html,
 body {
   margin: 0;

@@ -1,6 +1,7 @@
 import type { Scene } from "@babylonjs/core";
 import { Control, Rectangle, TextBlock, type AdvancedDynamicTexture } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
 import type { Player } from "../player/player";
 import type { EffectName, SoundEffects } from "./soundEffects";
@@ -98,7 +99,7 @@ export class InteractionSystem {
     ui.addControl(this.message);
 
     scene.onBeforeRenderObservable.add(() => {
-      const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      const seconds = frameSeconds(scene);
       this.messageLeft = Math.max(0, this.messageLeft - seconds);
       this.message.isVisible = this.messageLeft > 0;
       this.message.alpha = Math.min(1, this.messageLeft * 2) * 0.85;

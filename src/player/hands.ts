@@ -6,6 +6,7 @@ import {
   type TransformNode,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import {
   BRACE_HEIGHT,
   DRAW_LENGTH,
@@ -151,7 +152,7 @@ export class PlayerHands {
     this.arms.idle?.start(true);
 
     scene.onBeforeRenderObservable.add(() => {
-      this.sway(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.sway(frameSeconds(scene));
     });
   }
 

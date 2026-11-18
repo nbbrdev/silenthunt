@@ -1,5 +1,6 @@
 import { CreateStreamingSoundAsync, type Scene, type StreamingSound } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { GameAudio } from "../core/audio";
 import type { DayClock } from "../core/dayClock";
 
@@ -31,7 +32,7 @@ export class MusicPlayer {
     this.clock = clock;
     this.wait = randomBetween(CONFIG.music.firstDelay);
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 
@@ -43,6 +44,11 @@ export class MusicPlayer {
       ? list.filter((item): item is string => typeof item === "string")
       : [];
     this.audio = audio;
+  }
+
+  /** True if the private folder has tracks (the credits name the music then, MN5-A). */
+  get hasTracks(): boolean {
+    return this.tracks.length > 0;
   }
 
   /** Development: how many tracks, what is playing and how long until the next. */

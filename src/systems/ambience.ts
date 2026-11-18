@@ -7,6 +7,7 @@ import {
   type StaticSound,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { soundUrl, type GameAudio } from "../core/audio";
 import type { DayClock } from "../core/dayClock";
 
@@ -36,7 +37,7 @@ export class AmbienceSystem {
     this.emitter = new TransformNode("ambienceEmitter", scene);
     this.nextOneShot = this.randomWait();
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

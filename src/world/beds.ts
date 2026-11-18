@@ -7,6 +7,7 @@ import {
 } from "@babylonjs/core";
 import { Rectangle, type AdvancedDynamicTexture } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import type { DayClock } from "../core/dayClock";
 import { createBedMesh } from "../models/structures/bed";
 import type { PlayerHunger } from "../player/hunger";
@@ -63,7 +64,7 @@ export class BedManager {
     ui.addControl(this.fade);
     world.interactions.add(() => this.interaction());
     scene.onBeforeRenderObservable.add(() => {
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
+      this.update(frameSeconds(scene));
     });
   }
 

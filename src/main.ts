@@ -6,6 +6,10 @@ import { CONFIG } from "./config";
 import { createGameAudio } from "./core/audio";
 import { Input } from "./core/input";
 import { createHavokPlugin } from "./core/physics";
+import { frameSeconds } from "./core/gameTime";
+import { applyVolumes, loadOptions } from "./core/options";
+import { GameMenus } from "./ui/menus";
+import { applyGameFont } from "./ui/hud";
 import { creature } from "./models/creature/creature";
 import { setupPostProcessing } from "./core/postProcessing";
 import { Footsteps } from "./player/footsteps";
@@ -68,6 +72,8 @@ async function start(): Promise<void> {
     const { createGalleryScene } = await import("./ui/gallery");
     scene = createGalleryScene(engine);
   } else {
+    // MN1-C: the game's font is ready before any text is drawn.
+    await document.fonts.load(`20px "${CONFIG.hud.fontFamily}"`).catch(() => undefined);
     const physics = await createHavokPlugin();
     const world = createWorld(engine, physics, CONFIG.world.defaultSeed);
     scene = world.scene;
@@ -75,6 +81,9 @@ async function start(): Promise<void> {
     const { spawn } = CONFIG.player;
     const feet = new Vector3(spawn.x, world.terrain.heightAt(spawn.x, spawn.z), spawn.z);
     const player = new Player(scene, input, feet);
+    // MN4: the player's options (kept in the browser, apart from the world).
+    const options = loadOptions();
+    player.sensitivityScale = options.sensitivity;
     setupPostProcessing(scene, player.camera);
     scene.onBeforeRenderObservable.add(() => world.chunks.update(player.position));
     const noise = new NoiseSystem();
@@ -96,7 +105,7 @@ async function start(): Promise<void> {
     const health: PlayerHealth = new PlayerHealth(world.clock, (): number => hunger.value);
     const hunger: PlayerHunger = new PlayerHunger(health);
     scene.onBeforeRenderObservable.add(() => {
-      const seconds = Math.min(engine.getDeltaTime() / 1000, 0.1);
+      const seconds = frameSeconds(scene);
       health.update(seconds);
       hunger.update(seconds);
     });
@@ -400,7 +409,25 @@ async function start(): Promise<void> {
       },
       hud,
     );
-    await saveGame.load();
+    const hasSave = await saveGame.load();
+
+    // NBB-150: the menus (MN2-A to MN7). The game opens on the main menu, with the world frozen.
+    void audio.then((audio) => applyVolumes(options, audio)).catch(() => undefined);
+    const menus = new GameMenus(scene, {
+      input,
+      player,
+      hud,
+      audio,
+      options,
+      hasSave,
+      hasMusic: () => music.hasTracks,
+      canPause: () => player.controlsEnabled && !health.isDead,
+      save: () => saveGame.save(),
+      newWorld: () => saveGame.newWorld(),
+    });
+    inventoryScreen.canOpen = () => !health.isDead && menus.isPlaying;
+    // MN1-C: the whole HUD in the game's font, now that it is built.
+    applyGameFont(hud);
 
     if (import.meta.env.DEV) {
       const devInput = input;
@@ -570,7 +597,9 @@ async function start(): Promise<void> {
           backpacks: () => backpacks.list,
           /** NBB-147: saves now; forgets the saved world and starts a new one (SV2-A). */
           save: () => saveGame.save(),
-          newWorld: () => saveGame.newWorld(),
+          /** NBB-150: which menu is open ("jogo" if none); leave the menus and play. */
+          menu: () => menus.current,
+          play: () => menus.debugPlay(),
           /** The cabins around and the shotgun's cartridges (development). */
           cabins: () => cabins.sites,
           cartridges: () => shotgun.cartridges,

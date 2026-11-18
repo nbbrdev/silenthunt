@@ -1,5 +1,6 @@
 import { CreateSoundAsync, type Scene, type StaticSound } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { frameSeconds } from "../core/gameTime";
 import { soundUrl, type GameAudio } from "../core/audio";
 import { movementNoise, type NoiseSystem } from "../systems/noise";
 import type { ChunkManager } from "../world/chunks";
@@ -40,9 +41,7 @@ export class Footsteps {
       this.play(this.sounds?.steps.dirt, landingVolume, landingRate);
       this.checkBranch();
     });
-    scene.onBeforeRenderObservable.add(() =>
-      this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1)),
-    );
+    scene.onBeforeRenderObservable.add(() => this.update(frameSeconds(scene)));
   }
 
   /** Loads the steps of each ground and the branch cracks (PA1–PA5, CC0). */

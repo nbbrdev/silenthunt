@@ -9,6 +9,7 @@ import {
   type Scene,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { isPaused } from "../core/gameTime";
 import type { Input } from "../core/input";
 import { canRun, updateStamina } from "./stamina";
 
@@ -32,6 +33,8 @@ export class Player {
   readonly camera: FreeCamera;
   /** Current stamina, from 0 to CONFIG.player.stamina.max (RF-42). */
   stamina: number = CONFIG.player.stamina.max;
+  /** MN4: the mouse sensitivity chosen in the options (1 = the base one). */
+  sensitivityScale = 1;
   /** Fired when the player touches the ground after a jump or fall (it makes noise, RF-10). */
   readonly onLanded = new Observable<void>();
   /** How the player is moving right now (drives the footstep noise). */
@@ -158,7 +161,8 @@ export class Player {
   private update(): void {
     const frameSeconds = this.scene.getEngine().getDeltaTime() / 1000;
     const dt = Math.min(frameSeconds, CONFIG.physics.maxPlayerStepSeconds);
-    if (dt <= 0) {
+    // MN3-A: the player stands still while the game is paused.
+    if (dt <= 0 || isPaused()) {
       return;
     }
 
@@ -221,10 +225,12 @@ export class Player {
   }
 
   private updateLook(): void {
-    const { mouseSensitivity, maxPitch } = CONFIG.player;
+    const { maxPitch } = CONFIG.player;
+    // MN4: the player's own sensitivity (options) scales the base one.
+    const sensitivity = CONFIG.player.mouseSensitivity * this.sensitivityScale;
     const mouse = this.input.consumeMouseMovement();
-    this.yaw += mouse.x * mouseSensitivity;
-    this.pitch = Math.min(maxPitch, Math.max(-maxPitch, this.pitch + mouse.y * mouseSensitivity));
+    this.yaw += mouse.x * sensitivity;
+    this.pitch = Math.min(maxPitch, Math.max(-maxPitch, this.pitch + mouse.y * sensitivity));
   }
 
   /** Velocity for this frame, following Babylon's character controller example. */
