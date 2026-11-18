@@ -458,6 +458,10 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | AM6 | Sons soltos a cada 20–60 s, 3D a 30–60 m numa direção aleatória: corvo de dia, coruja à noite, galho estalando nos dois (com os estalos dos passos, mais baixos e graves). Não fazem ruído para a criatura nem para os animais. |
 | AM7 | O vento toca sempre; pássaros e grilos trocam com a luz do dia no entardecer e no amanhecer. |
 | AM8 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok"): loops de 60 s em estéreo, sem emenda, do trecho mais estável de cada gravação; três grasnados de 1,6 s e a coruja inteira; volumes vento 0,5, pássaros 0,45, grilos 0,5, coruja 0,9, corvo 0,8, galho distante 0,7 (tom 20% mais grave); galho em 25% dos sons soltos de dia e 40% à noite; corvo e coruja 4 m acima, galho perto do chão, tom ±5%, ouvidos até 80 m; "de dia" é luz acima de 50%; `silentHunt.ambience()` e `silentHunt.ambienceOneShot()`. |
+| AN1-B | Alarme do cervo: latido de corço "barkingroedeer" (raoul_slayer, CC0). Não há bufo de cervo limpo em CC0. |
+| AN2-A | Galope do cervo e fuga do coelho montados com os passos de folhas e gravetos, em 3D (não há gravação de galope de cervo em CC0 ou CC-BY). |
+| AN3 | O cervo bale ao morrer ("Deer Meewing 01", msantoro11, CC0); o coelho morre em silêncio (não há grito de coelho em CC0 ou CC-BY). |
+| AN4 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): 3 latidos de 1 s e 2 balidos de 0,9 s, mono, sem graves, chiado reduzido; um latido por grupo (outro só após 4 s), ao passar de pastar para alerta ou fuga; só o cervo e o coelho em fuga mais próximos são ouvidos; galope de três batidas e pausa (tom 20% mais grave), coelho em duas batidas (40% mais agudo); volumes latido 1, balido 0,8, galope 0,7, coelho 0,35, tom ±6%; audição latido 70 m, balido e galope 40 m, coelho 18 m; `silentHunt.preySounds()` e `silentHunt.killPrey(id)`. |
 
 ## Pendentes (proposto)
 
