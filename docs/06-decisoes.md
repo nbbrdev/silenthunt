@@ -397,6 +397,20 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | CN7 | Sem testes de encaixe e apoio (X1-C); as construções entram nas mudanças do mundo (save na NBB-147). |
 | CN8 | Detalhes propostos por Claude e aprovados ("1 a 12 - Ok", "modelos ok"): laterais da porta em tábuas em pé (limite de 200 triângulos); paredes de 2,4 m, vão da porta de 1 × 2,05 m, piso 12 cm acima do chão, telhado com \~10°; bloqueada 8 s junto à parede, a criatura desiste e recua; avisos da prévia ("Já tem uma peça aqui", "O chão é inclinado demais", "Algo no caminho", "Você está no caminho", "Precisa de paredes", "Precisa de uma fundação", "Falta madeira", "Mire no chão, a até 6 m") e a linha de ajuda; barra de peças com o custo, em vermelho quando falta; prévia 40% transparente; parede com fundação de um lado só; não se passa por baixo da fundação; porta abre 100°, R escolhe o lado; mão vazia no modo de construção, Tab funcionando; construções ficam o jogo todo (save na NBB-147); ferramentas de desenvolvimento. |
 
+## NBB-146: Fogueira e cama (2026-11-18)
+
+| Código | Decisão |
+|---|---|
+| FG1-A | Fogueira e cama viram itens do crafting. Com o item na barra rápida, uma prévia verde ou vermelha aparece 1,8 m à frente e o botão esquerdo coloca (no chão ou no piso; vermelha encostada em tronco, pedra grande ou parede). A tecla G provisória sai. |
+| FG2-A | Quantas fogueiras o jogador fizer, cada uma com seu combustível e seu espeto. |
+| FG3-A | Nos últimos 30 s a chama diminui e apaga; fica a fogueira fria (pedras e cinza), que um galho reacende (2 min). Segurar E por 1 s apaga de propósito (o combustível restante se perde). |
+| FG4 | Perto da fogueira, E com um galho na mão põe lenha ("Pôr lenha (3:20)"); com outra coisa na mão, E cozinha e pega a carne (CZ2-A). A madeira não é lenha. |
+| CM1-A | A cama vira o ponto de renascer ao ser colocada; E nela dorme (se der) e também a confirma. |
+| CM2 | Segurar E por 1 s recolhe a cama para o inventário; sem cama, renasce no ponto inicial. |
+| CM3 | Modelo: saco de dormir de couro aberto no chão, uma pele por cima e um travesseiro de fibra, feito por código (até 200 triângulos) e revisado na galeria. |
+| DO1 | Dormir: a tela escurece em 1,5 s, o relógio pula para o amanhecer e clareia; a fome cai como se o tempo passasse (\~20 numa noite inteira); a vida não volta (VD7-B). Avisos: "Só dá para dormir à noite" e "Não dá para dormir: há perigo por perto". |
+| DO2 | Sem testes das regras de dormir (X1-C). |
+
 ## Pendentes (proposto)
 
 Nenhuma.

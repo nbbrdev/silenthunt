@@ -137,7 +137,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 
 - **RF-53** No modo de construção (B), a peça aparece transparente: **verde** se pode ser colocada e **vermelha** se não pode. As teclas 1 a 4 escolhem a peça, o botão esquerdo coloca, R gira (CN1-A). Segurar o botão direito por 1 s numa peça a desmonta e devolve metade do custo (CN2-A).
 - **RF-54** A criatura **não atravessa paredes nem portas fechadas**, e o golpe dela também não passa por elas (CN5-A). Ela não destrói construções.
-- **RF-55** A **fogueira** queima **5 min**; E com um galho na mão soma **2 min**, até **10 min**. Apagada, não ilumina nem afasta a criatura (PG4-A).
+- **RF-55** A **fogueira** queima **5 min**; E com um galho na mão soma **2 min**, até **10 min**. Apagada, não ilumina nem afasta a criatura (PG4-A). Feita no crafting e colocada pela barra rápida, quantas o jogador quiser (FG1-A, FG2-A); nos últimos 30 s a chama diminui; fria, um galho a reacende; segurar E por 1 s a apaga (FG3-A).
 - **RF-56** O jogador **começa sem nada** (PG1-A): faca, tocha, arco e flechas vêm do crafting (PG5-A).
 - **RF-57** **Inventário** (IN1-A): 6 espaços na barra rápida e 18 na mochila. Pilhas de 20 (recursos e flechas), 10 (comida e cartuchos) e 1 (ferramentas). O item selecionado na barra aparece na mão (IN6-B); com carne selecionada, o botão esquerdo come (IN2-A). O Tab não pausa o jogo (IN3-A).
 - **RF-58** **Coleta à mão** (CL1): E pega um galho do chão ou uma pedra pequena; segurar E por 1,5 s num arbusto dá 2 fibras. O que foi pego some do mundo.
@@ -147,4 +147,4 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 
 - **RF-60** Ao morrer (M12-A), uma **mochila** com todo o inventário fica no local. O jogador renasce na última cama usada (ou no ponto inicial). Se morrer de novo antes de pegar a mochila, a mochila antiga continua lá (podem existir várias).
 - **RF-61** O jogo salva automaticamente a cada **60 s**, ao dormir e ao pausar (G6, T3-A). Um único mundo salvo por vez; "Novo mundo" pede confirmação antes de apagar o atual.
-- **RF-62** Dormir na cama, de noite e sem a criatura a menos de 30 m, pula para o amanhecer.
+- **RF-62** Dormir na cama, de noite e sem a criatura a menos de 30 m, pula para o amanhecer. A fome cai como se o tempo passasse; a vida não volta (DO1). A cama vira o ponto de renascer ao ser colocada; segurar E a recolhe (CM1-A, CM2).
