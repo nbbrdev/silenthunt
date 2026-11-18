@@ -5,6 +5,7 @@ import type { Input } from "../core/input";
 import type { ArrowSystem } from "../systems/arrows";
 import type { InteractionSystem } from "../systems/interactions";
 import type { NoiseSystem } from "../systems/noise";
+import type { SoundEffects } from "../systems/soundEffects";
 import type { Equipment } from "./equipment";
 import type { PlayerHands } from "./hands";
 import type { Inventory } from "./inventory";
@@ -29,6 +30,8 @@ export class BowControl {
   private drawing = false;
   private drawSeconds = 0;
   private aim = 0;
+  /** NBB-149 (FE1, FE2): drawing and shooting are heard. */
+  sounds: SoundEffects | undefined;
 
   constructor(
     scene: Scene,
@@ -126,9 +129,14 @@ export class BowControl {
     const drawHeld = this.debugButtons?.draw ?? input.isDown("Mouse0");
     const aimHeld = this.debugButtons?.aim ?? input.isDown("Mouse2");
     if (canAct && arrowsLeft > 0 && drawHeld) {
+      if (!this.drawing) {
+        // FE1-A, FE7: the string creaks while it is drawn.
+        this.sounds?.play("bowDraw");
+      }
       this.drawing = true;
       this.drawSeconds = Math.min(this.drawSeconds + seconds, settings.fullDrawSeconds);
     } else if (this.drawing) {
+      this.sounds?.stop("bowDraw");
       const draw = this.drawSeconds / settings.fullDrawSeconds;
       if (canAct && draw >= settings.minDraw) {
         this.shoot(draw);
@@ -163,6 +171,7 @@ export class BowControl {
       return;
     }
     this.arrows.fire(origin, direction, minSpeed + (maxSpeed - minSpeed) * draw);
+    this.sounds?.play("bowRelease");
     this.noise.emit(this.player.feet, CONFIG.noise.radius.bow, "bow");
   }
 }

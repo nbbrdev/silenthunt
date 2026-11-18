@@ -4,6 +4,7 @@ import type { PreyBrainBehavior } from "../ai/preyBrain";
 import { CONFIG } from "../config";
 import type { Input } from "../core/input";
 import type { NoiseSystem } from "../systems/noise";
+import type { SoundEffects } from "../systems/soundEffects";
 import type { PlayerHands } from "./hands";
 import type { Player } from "./player";
 
@@ -26,6 +27,8 @@ export class KnifeAttack {
   private readonly targets: KnifeTargets;
   /** AR1: only while the knife is in hand. */
   enabled = true;
+  /** NBB-149 (FE6): the thrust and the hit are heard. */
+  sounds: SoundEffects | undefined;
   private cooldown = 0;
   /** Seconds until the thrust reaches its farthest point (negative: no thrust going on). */
   private hitIn = -1;
@@ -68,6 +71,7 @@ export class KnifeAttack {
     this.cooldown = cooldownSeconds;
     this.hitIn = hitAtSeconds;
     this.hands.stab();
+    this.sounds?.play("knifeSwing");
   }
 
   private resolveHit(): void {
@@ -109,10 +113,13 @@ export class KnifeAttack {
       ? reachOf(creature.x, creature.z, CONFIG.creature.bodyRadius)
       : undefined;
 
-    if (creatureDistance !== undefined && creatureDistance < nearestDistance) {
+    if (creatureDistance !== undefined && creatureDistance < nearestDistance && creature) {
       // RF-32: no damage, but it backs off.
       this.targets.creature.repel();
+      this.sounds?.play("knifeHit", creature);
     } else if (nearestPrey) {
+      const position = nearestPrey.attachedNode?.position;
+      this.sounds?.play("knifeHit", position);
       // RF-32 / M8-A: the silent kill only works on prey that has not noticed the player.
       if (nearestPrey.state === "graze") {
         nearestPrey.kill();

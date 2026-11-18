@@ -607,6 +607,34 @@ export const CONFIG = {
     /** AM6: how often the lone sound is a branch cracking (more often at night). */
     snapChance: { day: 0.25, night: 0.4 },
   },
+  /** NBB-149 (FE1–FE7): the tools' and weapons' sounds, from `public/sounds/tools/` (CC0). */
+  effectSounds: {
+    files: {
+      bowDraw: ["bow-draw.mp3"],
+      bowRelease: ["bow-release.mp3"],
+      knifeSwing: ["knife-swing.mp3"],
+      knifeHit: ["knife-hit.mp3"],
+      chop: ["chop-1.mp3", "chop-2.mp3", "chop-3.mp3", "chop-4.mp3"],
+      stoneHit: ["stone-hit.mp3"],
+      treeFall: ["tree-fall.mp3"],
+      arrowHit: ["arrow-hit.mp3"],
+    },
+    volume: {
+      bowDraw: 0.5,
+      bowRelease: 0.8,
+      knifeSwing: 0.5,
+      knifeHit: 0.8,
+      chop: 0.9,
+      stoneHit: 0.8,
+      treeFall: 1,
+      arrowHit: 0.8,
+    },
+    /** Heard from where they happen (3D); the others come from the player's hands. */
+    spatial: ["knifeHit", "treeFall", "arrowHit"],
+    hearingDistance: 50,
+    /** Each play's pitch varies by up to ±5%. */
+    pitchJitter: 0.05,
+  },
   /** NBB-149 (AN1-B to AN3): the prey's 3D sounds (CC0, see CREDITS.md). Volumes from 0 to 1. */
   preySounds: {
     files: {

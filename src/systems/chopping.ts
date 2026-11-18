@@ -9,6 +9,7 @@ import type { ChunkManager, Choppable } from "../world/chunks";
 import type { StumpField } from "../world/stumps";
 import type { InteractionSystem } from "./interactions";
 import type { NoiseSystem } from "./noise";
+import type { SoundEffects } from "./soundEffects";
 
 /** A tree on its way down (MC1-A). */
 interface Falling {
@@ -38,6 +39,8 @@ export class ChoppingSystem {
   private readonly falling: Falling[] = [];
   private cooldown = 0;
   private hitIn = -1;
+  /** NBB-149 (FE3–FE5): the blows and the falling tree are heard. */
+  sounds: SoundEffects | undefined;
 
   constructor(
     scene: Scene,
@@ -118,6 +121,7 @@ export class ChoppingSystem {
     const settings = CONFIG.axe;
     const id = `${target.chunkKey}:${target.index}`;
     const isRock = target.kind === "rock";
+    this.sounds?.play(isRock ? "stoneHit" : "chop");
     const gives: number = isRock
       ? settings.stones
       : settings.wood[target.kind as keyof typeof settings.wood];
@@ -161,6 +165,7 @@ export class ChoppingSystem {
     const axis = Vector3.Cross(Vector3.Up(), away).normalize();
     pivot.rotationQuaternion = Quaternion.Identity();
     this.falling.push({ pivot, axis, seconds: 0 });
+    this.sounds?.play("treeFall", new Vector3(target.x, target.y + 2, target.z));
   }
 
   /** The nearest tree or big rock within reach, roughly in front of the view. */

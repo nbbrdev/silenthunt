@@ -7,6 +7,7 @@ import { createArrowMesh } from "../models/items/bow";
 import type { ChunkManager } from "../world/chunks";
 import type { Terrain } from "../world/terrain";
 import type { NoiseSystem } from "./noise";
+import type { SoundEffects } from "./soundEffects";
 
 interface FlyingArrow {
   mesh: InstancedMesh;
@@ -48,6 +49,8 @@ export class ArrowSystem {
   private readonly flying: FlyingArrow[] = [];
   private readonly stuck: StuckArrow[] = [];
   private count = 0;
+  /** NBB-149 (FE6, FE7): where an arrow stops is heard. */
+  sounds: SoundEffects | undefined;
 
   constructor(scene: Scene, world: ArrowWorld, seed: number) {
     this.world = world;
@@ -162,6 +165,8 @@ export class ArrowSystem {
     if (!onAnimal) {
       this.world.noise.emit(position, CONFIG.bow.impactNoise, "arrow");
     }
+    // FE7: the arrow is heard where it stops; on an animal, as a hit.
+    this.sounds?.play(onAnimal ? "knifeHit" : "arrowHit", position);
     if (this.random() < CONFIG.bow.breakChance) {
       arrow.mesh.dispose();
       return;

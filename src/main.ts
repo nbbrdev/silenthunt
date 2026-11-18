@@ -14,6 +14,7 @@ import { ShotgunControl } from "./player/shotgunControl";
 import { InteractionSystem } from "./systems/interactions";
 import { AmbienceSystem } from "./systems/ambience";
 import { PreySounds } from "./systems/preySounds";
+import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
 import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
@@ -225,6 +226,15 @@ async function start(): Promise<void> {
       interactions,
       inventory,
     );
+    // NBB-149: the sounds of the bow, the knife, the arrows and the axe (FE1–FE7).
+    const effects = new SoundEffects(scene);
+    bow.sounds = effects;
+    knife.sounds = effects;
+    arrows.sounds = effects;
+    chopping.sounds = effects;
+    audio
+      .then((audio) => effects.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons das ferramentas não carregados:", error));
     // NBB-141: the cabins (the first one has the shotgun) and the shotgun itself (ES2).
     const shotgun = new ShotgunControl(
       scene,
@@ -530,6 +540,8 @@ async function start(): Promise<void> {
           }),
           /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */
           preySounds: () => ({ ...preySounds.played }),
+          /** NBB-149: how many times each tool or weapon sound has played. */
+          effects: () => ({ ...effects.played }),
           /** Kills an animal by its id (see `prey()`), as a hit would. */
           killPrey: (id: string) =>
             prey
