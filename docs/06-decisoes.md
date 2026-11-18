@@ -422,6 +422,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | SV4-A | Um "Salvando..." discreto no canto inferior direito por 1,5 s. |
 | SV5 | O save guarda a versão do formato (1). Se o formato mudar sem conversão, começa um mundo novo e avisa "O mundo salvo era de uma versão antiga". |
 | SV6 | Sem testes do save (X1-C). |
+| SV7 | Detalhes propostos por Claude e aprovados ("1 a 10 - Ok"): o save guarda também o início da vida atual (dias sobrevividos), os cartuchos no cano e a semente (só informativa); o item preso ao mouse no inventário entra no save; os 60 s recomeçam a cada save; "Salvando..." branco, 14 px, opacidade 0,6; falha ao ler ou gravar só avisa no console (save ilegível vira mundo novo, sem mensagem); o jogo espera o save ser lido antes de começar; a criatura começa longe; `silentHunt.save()` e `silentHunt.newWorld()` (desenvolvimento); `save.everySeconds` no `config.ts`. |
 
 ## Pendentes (proposto)
 
