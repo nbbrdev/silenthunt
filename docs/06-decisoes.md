@@ -436,6 +436,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MO6-A | O formato do save continua na versão 1; um save sem mochilas carrega com nenhuma. |
 | MO7 | Modelo: mochila de lona bege caída de lado, com corpo arredondado, aba de couro com fivela, duas alças e um rolo de fibra embaixo; até 300 triângulos; revisada na galeria. |
 | MO8 | Sem testes da mochila (X1-C). |
+| MO9 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok", "Modelo - Ok"): alcance de 2 m (`backpack.reach`); texto "[E] Pegar mochila"; a mochila fica no chão sob os pés (ou no piso, se o jogador estava sobre uma fundação), virada para onde ele olhava; os cartuchos do cano entram como um grupo à parte; o espaço selecionado da barra é mantido; o save da morte também enche o fôlego e começa a nova vida, mantendo a direção do olhar; modelo com fivela de latão, bolso, aba sobre a ponta e cor `canvas` (296 triângulos); as mochilas ficam sempre no mundo; `silentHunt.backpacks()` (desenvolvimento). |
 
 ## Pendentes (proposto)
 
