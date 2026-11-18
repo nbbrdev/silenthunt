@@ -86,6 +86,12 @@ export class DayClock {
     this.setTime(this.seconds + realSeconds * this.speed);
   }
 
+  /** NBB-147: back to a saved time of day and time lived. */
+  restore(time: number, elapsed: number): void {
+    this.elapsedSeconds = elapsed;
+    this.setTime(time);
+  }
+
   /**
    * RF-62 / DO1: sleeping skips ahead to the next dawn; the skipped time counts as lived (the
    * days survived, VD4). Returns how many seconds were skipped.

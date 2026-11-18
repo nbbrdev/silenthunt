@@ -24,6 +24,16 @@ interface Fire {
   fuel: number;
 }
 
+/** A fire as the save keeps it (NBB-147). */
+export interface SavedFire {
+  x: number;
+  y: number;
+  z: number;
+  heading: number;
+  fuel: number;
+  spit: { state: SpitSlot["state"]; seconds: number }[];
+}
+
 /** What the campfires touch in the rest of the game. */
 export interface CampfireWorld {
   creature: CreatureBrainBehavior;
@@ -72,6 +82,46 @@ export class CampfireManager {
         slot.state === "cooking" ? `cooking ${slot.seconds.toFixed(1)}s` : slot.state,
       ),
     }));
+  }
+
+  /** NBB-147: every fire, for the save. */
+  get saved(): SavedFire[] {
+    return this.fires.map((fire) => {
+      const { x, y, z } = fire.model.root.position;
+      return {
+        x,
+        y,
+        z,
+        heading: fire.model.root.rotation.y,
+        fuel: fire.fuel,
+        spit: fire.slots.map((slot) => ({ state: slot.state, seconds: slot.seconds })),
+      };
+    });
+  }
+
+  /** NBB-147: a saved game's fires, with their fuel and what was on the spit. */
+  restore(saved: readonly SavedFire[]): void {
+    for (const data of saved) {
+      this.placeAt(data.x, data.y, data.z, data.heading);
+      const fire = this.fires[this.fires.length - 1];
+      if (!fire) {
+        continue;
+      }
+      fire.fuel = data.fuel;
+      data.spit.forEach((saved, index) => {
+        const slot = fire.slots[index];
+        if (!slot || saved.state === "empty") {
+          return;
+        }
+        slot.state = saved.state;
+        slot.seconds = saved.seconds;
+        slot.meat.setCooked(
+          saved.state === "cooked" ? 1 : saved.seconds / CONFIG.campfire.cookSeconds,
+        );
+        slot.meat.flesh.setEnabled(true);
+      });
+    }
+    this.refreshCreatureFires();
   }
 
   /** True if a fire stands this close to (x, z) (a new one cannot go on top of it). */

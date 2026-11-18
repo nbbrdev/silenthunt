@@ -135,6 +135,17 @@ export class Player {
   }
 
   /** Development only: turns the view to face the point (x, z), level with the horizon. */
+  /** Where the player looks (NBB-147: saved and restored). */
+  get view(): { yaw: number; pitch: number } {
+    return { yaw: this.yaw, pitch: this.pitch };
+  }
+
+  set view(view: { yaw: number; pitch: number }) {
+    this.yaw = view.yaw;
+    this.pitch = view.pitch;
+    this.camera.rotation.set(this.pitch, this.yaw, 0);
+  }
+
   debugFace(x: number, z: number, y?: number): void {
     const center = this.controller.getPosition();
     this.yaw = Math.atan2(x - center.x, z - center.z);

@@ -74,6 +74,28 @@ export class CabinManager {
     interactions.add(() => this.nearestInteraction());
   }
 
+  /** NBB-147: the chests opened and whether the shotgun was taken. */
+  get state(): { opened: string[]; shotgunTaken: boolean } {
+    return { opened: [...this.opened], shotgunTaken: this.shotgunTaken };
+  }
+
+  /** NBB-147: back to a saved game's chests and shotgun. */
+  restore(state: { opened: string[]; shotgunTaken: boolean }): void {
+    for (const id of state.opened) {
+      this.opened.add(id);
+    }
+    this.shotgunTaken = state.shotgunTaken;
+    for (const cabin of this.spawned.values()) {
+      if (this.opened.has(cabin.site.id)) {
+        cabin.lid.rotation.x = LID_OPEN;
+      }
+      if (this.shotgunTaken && cabin.shotgun) {
+        cabin.shotgun.root.dispose();
+        cabin.shotgun = undefined;
+      }
+    }
+  }
+
   /** Where the first cabin is (development console). */
   get sites(): CabinSite[] {
     return [...this.spawned.values()].map((cabin) => cabin.site);

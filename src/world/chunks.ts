@@ -233,6 +233,22 @@ export class ChunkManager {
     return found.sort((a, b) => a.distance - b.distance);
   }
 
+  /** NBB-147: the chunks' changes, for the save ("cx,cz" → indexes of what was taken). */
+  get changes(): Record<string, number[]> {
+    return Object.fromEntries(
+      [...this.removedByChunk].map(([key, indexes]) => [key, [...indexes]]),
+    );
+  }
+
+  /** NBB-147: the changes of a saved game, applied to the chunks loaded now and the rest. */
+  restoreChanges(changes: Record<string, number[]>): void {
+    for (const [key, indexes] of Object.entries(changes)) {
+      for (const index of indexes) {
+        this.removePlacement(key, index);
+      }
+    }
+  }
+
   /** CL1: the player took this placement: it disappears and is remembered in the chunk's changes. */
   removePlacement(key: string, index: number): void {
     const removed = this.removedByChunk.get(key) ?? new Set<number>();

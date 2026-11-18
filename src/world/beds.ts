@@ -1,4 +1,10 @@
-import type { InstancedMesh, Mesh, Scene, Vector3 } from "@babylonjs/core";
+import {
+  Observable,
+  type InstancedMesh,
+  type Mesh,
+  type Scene,
+  type Vector3,
+} from "@babylonjs/core";
 import { Rectangle, type AdvancedDynamicTexture } from "@babylonjs/gui";
 import { CONFIG } from "../config";
 import type { DayClock } from "../core/dayClock";
@@ -30,6 +36,9 @@ export interface BedWorld {
  * the screen fades in. E also makes it the respawn place again. Holding E rolls it up.
  */
 export class BedManager {
+  /** Fired when the player wakes up at dawn (the game saves then, SV3). */
+  readonly onWoke = new Observable<void>();
+
   private readonly player: Player;
   private readonly world: BedWorld;
   private readonly template: Mesh;
@@ -76,7 +85,7 @@ export class BedManager {
   }
 
   /** FG1-A / CM1-A: a bed put down; it becomes the respawn place. */
-  placeAt(x: number, y: number, z: number, heading = 0): void {
+  placeAt(x: number, y: number, z: number, heading = 0, quiet = false): void {
     const mesh = this.template.createInstance(`bed${this.nextId}`);
     mesh.setEnabled(true);
     mesh.position.set(x, y, z);
@@ -84,7 +93,33 @@ export class BedManager {
     const bed = { id: this.nextId++, mesh };
     this.beds.push(bed);
     this.respawnBed = bed;
-    this.world.interactions.say("Você vai renascer nesta cama");
+    if (!quiet) {
+      this.world.interactions.say("Você vai renascer nesta cama");
+    }
+  }
+
+  /** NBB-147: the beds and which one is the respawn place (−1: none), for the save. */
+  get saved(): { beds: { x: number; y: number; z: number; heading: number }[]; respawn: number } {
+    return {
+      beds: this.beds.map(({ mesh }) => ({
+        x: mesh.position.x,
+        y: mesh.position.y,
+        z: mesh.position.z,
+        heading: mesh.rotation.y,
+      })),
+      respawn: this.respawnBed ? this.beds.indexOf(this.respawnBed) : -1,
+    };
+  }
+
+  /** NBB-147: a saved game's beds. */
+  restore(saved: {
+    beds: { x: number; y: number; z: number; heading: number }[];
+    respawn: number;
+  }): void {
+    for (const bed of saved.beds) {
+      this.placeAt(bed.x, bed.y, bed.z, bed.heading, true);
+    }
+    this.respawnBed = this.beds[saved.respawn];
   }
 
   /** E sleeps (and makes it the respawn place); holding E rolls it up (CM2). */
@@ -165,6 +200,7 @@ export class BedManager {
       this.sleep = undefined;
       this.fade.isVisible = false;
       this.player.controlsEnabled = true;
+      this.onWoke.notifyObservers();
     }
   }
 }

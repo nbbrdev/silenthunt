@@ -38,6 +38,17 @@ export interface Slot {
   axis?: "x" | "z";
 }
 
+/** A piece as the save keeps it (NBB-147). */
+export interface SavedPiece {
+  kind: PieceKind;
+  i: number;
+  j: number;
+  axis?: "x" | "z";
+  y: number;
+  turn: number;
+  open?: boolean;
+}
+
 /** A piece the player could place, and whether it can go there now (RF-53, CN3). */
 export interface Plan {
   slot: Slot;
@@ -118,6 +129,49 @@ export class StructureManager {
     return [...this.pieces.values()].map(
       ({ slot }) => `${slot.kind}${slot.axis ? `-${slot.axis}` : ""} ${slot.i},${slot.j}`,
     );
+  }
+
+  /** NBB-147: every piece, for the save. */
+  get saved(): SavedPiece[] {
+    return [...this.pieces.values()].map((piece) => ({
+      kind: piece.slot.kind,
+      i: piece.slot.i,
+      j: piece.slot.j,
+      axis: piece.slot.axis,
+      y: piece.y,
+      turn: piece.turn,
+      open: piece.open,
+    }));
+  }
+
+  /** NBB-147: builds a saved game's pieces again, where they stood. */
+  restore(saved: readonly SavedPiece[]): void {
+    const { cell } = CONFIG.building;
+    // Foundations first: the others stand on them.
+    const order: PieceKind[] = ["foundation", "wall", "door", "roof"];
+    const sorted = [...saved].sort((a, b) => order.indexOf(a.kind) - order.indexOf(b.kind));
+    for (const piece of sorted) {
+      const slot: Slot = { kind: piece.kind, i: piece.i, j: piece.j, axis: piece.axis };
+      if (this.pieces.has(key(slot))) {
+        continue;
+      }
+      let position: Vector3;
+      let rotationY: number;
+      if (piece.kind === "foundation" || piece.kind === "roof") {
+        position = new Vector3((piece.i + 0.5) * cell, piece.y, (piece.j + 0.5) * cell);
+        rotationY = piece.kind === "roof" ? (piece.turn * Math.PI) / 2 : 0;
+      } else {
+        const { from, to } = edgeEnds(slot);
+        position = from.add(to).scale(0.5);
+        position.y = piece.y;
+        rotationY = (piece.axis === "z" ? Math.PI / 2 : 0) + (piece.turn % 2) * Math.PI;
+      }
+      this.place({ slot, position, rotationY, problem: undefined }, piece.turn);
+      const placed = this.pieces.get(key(slot));
+      if (placed && piece.open) {
+        this.toggleDoor(placed);
+      }
+    }
   }
 
   /** The top of the foundation at (x, z), if there is one (the player aims at floors too). */

@@ -26,6 +26,21 @@ export class StumpField {
     });
   }
 
+  /** NBB-147: after a saved game is loaded, the stumps of the chunks loaded now. */
+  rebuild(chunks: ChunkManager): void {
+    for (const stumps of this.byChunk.values()) {
+      for (const stump of stumps) {
+        stump.dispose();
+      }
+    }
+    this.byChunk.clear();
+    for (const chunk of chunks.loadedChunks()) {
+      for (const tree of chunks.felledTrees(chunk.key)) {
+        this.add(tree);
+      }
+    }
+  }
+
   /** A stump where this tree stood. */
   add(tree: Choppable): void {
     const stump = this.template.createInstance(`stump-${tree.chunkKey}:${tree.index}`);

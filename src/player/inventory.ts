@@ -48,6 +48,21 @@ export class Inventory {
     }
   }
 
+  /** NBB-147: every slot (empty ones as null), for the save. */
+  get saved(): (Stack | null)[] {
+    return this.slots.map((stack) => (stack ? { ...stack } : null));
+  }
+
+  /** NBB-147: a saved game's slots and selected quick-bar slot. */
+  restore(slots: readonly (Stack | null)[], selected: number): void {
+    for (let index = 0; index < this.slots.length; index++) {
+      const stack = slots[index];
+      this.slots[index] = stack && stack.count > 0 ? { ...stack } : undefined;
+    }
+    this.selectedSlot = Math.max(0, Math.min(CONFIG.inventory.hotbarSlots - 1, selected));
+    this.onChanged.notifyObservers();
+  }
+
   slot(index: number): Stack | undefined {
     const stack = this.slots[index];
     return stack ? { ...stack } : undefined;

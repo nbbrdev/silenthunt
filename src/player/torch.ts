@@ -94,6 +94,14 @@ export class PlayerTorch {
     return this.secondsLeft;
   }
 
+  /** NBB-147: the torch in hand comes back with the time it had left, put away. */
+  restore(secondsLeft: number): void {
+    this.secondsLeft = secondsLeft;
+    if (this.lit) {
+      this.setLit(false);
+    }
+  }
+
   private toggle(): void {
     if (!this.lit && this.secondsLeft <= 0) {
       // TC1-A: no torch in hand (or it burnt out): take one from the inventory.

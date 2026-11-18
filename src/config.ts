@@ -564,6 +564,11 @@ export const CONFIG = {
     /** E reaches the spit this close (meters). */
     reach: 2,
   },
+  /** NBB-147: the save (RF-61, SV3). */
+  save: {
+    /** It saves on its own this often (seconds). */
+    everySeconds: 60,
+  },
   /** NBB-146: the bed (RF-60, RF-62, CM1-A, CM2, DO1). */
   bed: {
     /** E reaches it this close (meters). */

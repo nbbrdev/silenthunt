@@ -28,6 +28,7 @@ import { StumpField } from "./world/stumps";
 import { Inventory } from "./player/inventory";
 import type { Held, ItemId } from "./player/items";
 import { PickupSystem } from "./systems/pickups";
+import { SaveGame } from "./systems/saveGame";
 import { createItemIcons } from "./ui/itemIcons";
 import { InventoryScreen } from "./ui/inventoryScreen";
 import { CarcassSystem } from "./systems/carcasses";
@@ -293,7 +294,7 @@ async function start(): Promise<void> {
     // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
     creatureBrain.onPlayerHit.add((damage) => health.damage(damage));
     const gameInput = input;
-    let lifeStart = world.clock.elapsed;
+    const life = { start: world.clock.elapsed };
     const deathScreen = new DeathScreen(hud, scene, () => {
       // VD5: back at the start, full health, the creature far away; the clock and torch go on.
       // RF-60 / CM1-A: at the bed, if there is one.
@@ -304,15 +305,43 @@ async function start(): Promise<void> {
       creatureBrain.sendAway();
       player.controlsEnabled = true;
       gameInput.pointerLockEnabled = true;
-      lifeStart = world.clock.elapsed;
+      life.start = world.clock.elapsed;
+      // SV3: the new life is saved right away.
+      void saveGame.save();
     });
     health.onDied.add(() => {
       inventoryScreen.close(false);
       player.controlsEnabled = false;
       gameInput.pointerLockEnabled = false;
       creatureBrain.sendAway();
-      deathScreen.show(Math.floor((world.clock.elapsed - lifeStart) / world.clock.cycleSeconds));
+      deathScreen.show(Math.floor((world.clock.elapsed - life.start) / world.clock.cycleSeconds));
     });
+
+    // NBB-147: the save in IndexedDB (SV1-A to SV5). Opening the game continues the saved world.
+    const saveGame = new SaveGame(
+      scene,
+      {
+        clock: world.clock,
+        player,
+        health,
+        hunger,
+        torch,
+        inventory,
+        shotgun,
+        chunks: world.chunks,
+        stumps,
+        prey,
+        cabins,
+        structures,
+        campfires,
+        beds,
+        creature: creatureBrain,
+        interactions,
+        life,
+      },
+      hud,
+    );
+    await saveGame.load();
 
     if (import.meta.env.DEV) {
       const devInput = input;
@@ -462,6 +491,9 @@ async function start(): Promise<void> {
             respawn: beds.respawnPoint?.asArray().map((value) => Math.round(value * 10) / 10),
             sleeping: beds.isSleeping,
           }),
+          /** NBB-147: saves now; forgets the saved world and starts a new one (SV2-A). */
+          save: () => saveGame.save(),
+          newWorld: () => saveGame.newWorld(),
           /** The cabins around and the shotgun's cartridges (development). */
           cabins: () => cabins.sites,
           cartridges: () => shotgun.cartridges,

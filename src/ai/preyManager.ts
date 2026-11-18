@@ -36,6 +36,29 @@ export class PreyManager {
     }
   }
 
+  /** NBB-147: the animals killed ("chunkKey:index"), which do not come back. */
+  get killedIds(): string[] {
+    return [...this.killed];
+  }
+
+  /** NBB-147: animals killed in a saved game; those already standing around are taken away. */
+  restoreKilled(ids: readonly string[]): void {
+    for (const id of ids) {
+      this.killed.add(id);
+    }
+    for (const [key, animals] of this.byChunk) {
+      const alive = animals.filter((animal) => {
+        if (!this.killed.has(animal.brain.id)) {
+          return true;
+        }
+        animal.brain.sleep();
+        this.pool[animal.brain.kind].push(animal);
+        return false;
+      });
+      this.byChunk.set(key, alive);
+    }
+  }
+
   /** Every animal in the world right now (debugging, and the weapons later). */
   animals(): PreyBrainBehavior[] {
     return [...this.byChunk.values()].flat().map((animal) => animal.brain);

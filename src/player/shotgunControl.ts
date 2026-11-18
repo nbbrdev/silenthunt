@@ -153,6 +153,11 @@ export class ShotgunControl {
     return { loaded: this.loaded, spare: this.world.inventory.count("cartridge") };
   }
 
+  /** NBB-147: the cartridges that were in the barrels. */
+  set loadedCartridges(count: number) {
+    this.loaded = Math.max(0, Math.min(CONFIG.shotgun.barrels, count));
+  }
+
   /** Development only: fires as a left click would. */
   debugFire(): void {
     this.fireRequested = true;

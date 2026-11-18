@@ -62,6 +62,11 @@ export class PlayerHealth {
     }
   }
 
+  /** NBB-147: the health of a saved game. */
+  restore(value: number): void {
+    this.current = Math.max(1, Math.min(CONFIG.player.health.max, value));
+  }
+
   /** VD5: back to full health when respawning. */
   revive(): void {
     this.current = CONFIG.player.health.max;
