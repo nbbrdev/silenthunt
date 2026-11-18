@@ -607,6 +607,27 @@ export const CONFIG = {
     /** AM6: how often the lone sound is a branch cracking (more often at night). */
     snapChance: { day: 0.25, night: 0.4 },
   },
+  /** NBB-149 (AN1-B to AN3): the prey's 3D sounds (CC0, see CREDITS.md). Volumes from 0 to 1. */
+  preySounds: {
+    files: {
+      alarm: ["animals/deer-alarm-1.mp3", "animals/deer-alarm-2.mp3", "animals/deer-alarm-3.mp3"],
+      cry: ["animals/deer-cry-1.mp3", "animals/deer-cry-2.mp3"],
+      /** AN2-A: running is made of the footsteps' leaves and twigs. */
+      deerRun: [1, 2, 3, 4, 5, 6].flatMap((n) => [
+        `player/step-leaves-${n}.mp3`,
+        `player/step-twigs-${n}.mp3`,
+      ]),
+      rabbitRun: [1, 2, 3, 4, 5, 6].map((n) => `player/step-leaves-${n}.mp3`),
+    },
+    volume: { alarm: 1, cry: 0.8, deer: 0.7, rabbit: 0.35 },
+    /** Running pitch: the deer heavier, the rabbit lighter. */
+    rate: { deer: 0.8, rabbit: 1.4 },
+    /** Seconds between beats, repeating: a gallop (three quick beats and a pause) and hops. */
+    rhythm: { deer: [0.09, 0.09, 0.26], rabbit: [0.07, 0.22] },
+    /** A deer group barks once; another bark only after this long (seconds). */
+    alarmEvery: 4,
+    hearingDistance: { alarm: 70, cry: 40, deerRun: 40, rabbitRun: 18 },
+  },
   /** NBB-148: the backpack left where the player died (RF-60, MO1-A to MO3-A). */
   backpack: {
     /** E reaches it this close (meters). */

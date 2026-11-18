@@ -13,6 +13,7 @@ import { BowControl } from "./player/bowControl";
 import { ShotgunControl } from "./player/shotgunControl";
 import { InteractionSystem } from "./systems/interactions";
 import { AmbienceSystem } from "./systems/ambience";
+import { PreySounds } from "./systems/preySounds";
 import { CabinManager } from "./world/cabins";
 import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
@@ -152,6 +153,11 @@ async function start(): Promise<void> {
       },
       CONFIG.world.defaultSeed,
     );
+    // NBB-149: their sounds (alarm, running, the deer's cry).
+    const preySounds = new PreySounds(scene, () => prey.animals(), player.camera);
+    audio
+      .then((audio) => preySounds.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons dos animais não carregados:", error));
     // NBB-139: the knife (RF-32, MA4).
     const knife = new KnifeAttack(scene, input, player, hands, noise, {
       prey: () => prey.animals(),
@@ -522,6 +528,14 @@ async function start(): Promise<void> {
             respawn: beds.respawnPoint?.asArray().map((value) => Math.round(value * 10) / 10),
             sleeping: beds.isSleeping,
           }),
+          /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */
+          preySounds: () => ({ ...preySounds.played }),
+          /** Kills an animal by its id (see `prey()`), as a hit would. */
+          killPrey: (id: string) =>
+            prey
+              .animals()
+              .find((animal) => animal.id === id)
+              ?.kill(),
           /** NBB-149: the ambience (loop volumes, next lone sound); a lone sound now. */
           ambience: () => ambience.debugState(),
           ambienceOneShot: () => ambience.debugOneShot(),
