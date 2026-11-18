@@ -395,6 +395,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | CN5-A | Paredes e porta fechada bloqueiam a passagem e o golpe da criatura: um abrigo fechado é seguro. |
 | CN6 | E abre e fecha a porta, com giro de 0,5 s; aberta, deixa passar o jogador e a criatura. |
 | CN7 | Sem testes de encaixe e apoio (X1-C); as construções entram nas mudanças do mundo (save na NBB-147). |
+| CN8 | Detalhes propostos por Claude e aprovados ("1 a 12 - Ok"): laterais da porta em tábuas em pé (limite de 200 triângulos); paredes de 2,4 m, vão da porta de 1 × 2,05 m, piso 12 cm acima do chão, telhado com \~10°; bloqueada 8 s junto à parede, a criatura desiste e recua; avisos da prévia ("Já tem uma peça aqui", "O chão é inclinado demais", "Algo no caminho", "Você está no caminho", "Precisa de paredes", "Precisa de uma fundação", "Falta madeira", "Mire no chão, a até 6 m") e a linha de ajuda; barra de peças com o custo, em vermelho quando falta; prévia 40% transparente; parede com fundação de um lado só; não se passa por baixo da fundação; porta abre 100°, R escolhe o lado; mão vazia no modo de construção, Tab funcionando; construções ficam o jogo todo (save na NBB-147); ferramentas de desenvolvimento. |
 
 ## Pendentes (proposto)
 
