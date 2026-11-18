@@ -7,7 +7,6 @@ import {
   PointLight,
   StandardMaterial,
   Vector3,
-  type AudioEngineV2,
   type Scene,
   type StaticSound,
 } from "@babylonjs/core";
@@ -15,7 +14,7 @@ import { Control, Ellipse, TextBlock, type AdvancedDynamicTexture } from "@babyl
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import type { PreyBrainBehavior } from "../ai/preyBrain";
 import { CONFIG } from "../config";
-import { soundUrl } from "../core/audio";
+import { soundUrl, type GameAudio } from "../core/audio";
 import type { Input } from "../core/input";
 import { MUZZLE } from "../models/items/shotgun";
 import { getSoftDotTexture } from "../models/textures";
@@ -138,10 +137,15 @@ export class ShotgunControl {
    * Loads the shot and reload sounds (ES4-A). They come from the player's own hands, so they are
    * not placed in 3D.
    */
-  async loadSounds(audio: AudioEngineV2): Promise<void> {
+  async loadSounds(audio: GameAudio): Promise<void> {
     const settings = CONFIG.shotgun.sounds;
     const load = (file: string, volume: number) =>
-      CreateSoundAsync(file, soundUrl(`shotgun/${file}`), { volume, maxInstances: 2 }, audio);
+      CreateSoundAsync(
+        file,
+        soundUrl(`shotgun/${file}`),
+        { volume, maxInstances: 2, outBus: audio.effects },
+        audio.engine,
+      );
     [this.shotSound, this.reloadSound] = await Promise.all([
       load(settings.shot, settings.shotVolume),
       load(settings.reload, settings.reloadVolume),

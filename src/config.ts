@@ -180,6 +180,26 @@ export const CONFIG = {
     /** NO3: seconds between footsteps per gait. */
     stepInterval: { crouch: 0.8, walk: 0.55, run: 0.35 },
   },
+  /**
+   * NBB-149 (PA1–PA6): the sound of the player's own steps, from `public/sounds/player/` (CC0, see
+   * CREDITS.md). Each ground has 6 steps; the same steps are quieter or louder by gait (PA6-A).
+   */
+  footstepSounds: {
+    stepsPerGround: 6,
+    snaps: 4,
+    /** Volume by gait (0 to 1); crouched steps are also a little lower in pitch (muffled). */
+    volume: { crouch: 0.22, walk: 0.45, run: 0.75 },
+    crouchRate: 0.9,
+    /** Soft ground sounds softer (RF-11). */
+    groundVolume: { dirt: 1, moss: 0.75, leaves: 0.9, twigs: 0.9 },
+    /** Each step's pitch varies by up to ±8%, so they do not sound repeated. */
+    pitchJitter: 0.08,
+    /** NO4-B: the branch cracking underfoot, loud even when crouching. */
+    snapVolume: 0.9,
+    /** Landing after a jump: a heavy dirt step, lower in pitch. */
+    landingVolume: 0.85,
+    landingRate: 0.75,
+  },
   /** The torch (NBB-132). */
   torch: {
     /** RF-14 (G11): the light reaches about this far (meters). */
@@ -625,6 +645,8 @@ export const CONFIG = {
   /** SO4: sound. The player's volume control comes with the options menu (NBB-150). */
   audio: {
     masterVolume: 0.8,
+    /** SM7: each group's volume, under the master volume. */
+    groups: { effects: 1, ambience: 0.7, music: 0.5 },
   },
   /** HUD (NO1-A: Babylon GUI). */
   hud: {

@@ -127,8 +127,11 @@ async function start(): Promise<void> {
     );
     const audio = createGameAudio(player.camera);
     audio
-      .then((engine) => presence.loadSounds(engine))
+      .then((audio) => presence.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons da criatura não carregados:", error));
+    audio
+      .then((audio) => footsteps.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons dos passos não carregados:", error));
 
     // NBB-138: rabbits and deer spread over the chunks (PR1).
     const prey = new PreyManager(
@@ -228,7 +231,7 @@ async function start(): Promise<void> {
       hud,
     );
     audio
-      .then((engine) => shotgun.loadSounds(engine))
+      .then((audio) => shotgun.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons da espingarda não carregados:", error));
     const cabins = new CabinManager(
       scene,

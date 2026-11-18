@@ -2,14 +2,13 @@ import {
   CreateSoundAsync,
   Vector3,
   type AbstractMesh,
-  type AudioEngineV2,
   type Camera,
   type Scene,
   type StaticSound,
   type TransformNode,
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
-import { soundUrl } from "../core/audio";
+import { soundUrl, type GameAudio } from "../core/audio";
 import type { DayClock } from "../core/dayClock";
 import { createRandom, randomRange } from "../core/random";
 import { fogVisibility } from "../world/atmosphere";
@@ -67,7 +66,7 @@ export class CreaturePresence {
   }
 
   /** Loads the sounds (SO1-A files in `public/sounds/creature/`) and ties them to the body. */
-  async loadSounds(audio: AudioEngineV2): Promise<void> {
+  async loadSounds(audio: GameAudio): Promise<void> {
     const settings = CONFIG.creature.sounds;
     const load = async (file: string, loop = false): Promise<StaticSound> => {
       const sound = await CreateSoundAsync(
@@ -81,8 +80,9 @@ export class CreaturePresence {
           spatialDistanceModel: "linear",
           spatialMinDistance: 1,
           spatialMaxDistance: settings.hearingDistance,
+          outBus: audio.effects,
         },
-        audio,
+        audio.engine,
       );
       sound.spatial.attach(this.root);
       return sound;

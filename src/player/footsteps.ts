@@ -1,14 +1,18 @@
-import type { Scene } from "@babylonjs/core";
+import { CreateSoundAsync, type Scene, type StaticSound } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { soundUrl, type GameAudio } from "../core/audio";
 import { movementNoise, type NoiseSystem } from "../systems/noise";
 import type { ChunkManager } from "../world/chunks";
-import type { Terrain } from "../world/terrain";
+import type { GroundType, Terrain } from "../world/terrain";
 import type { Player } from "./player";
+
+const GROUNDS: readonly GroundType[] = ["dirt", "moss", "leaves", "twigs"];
 
 /**
  * The player's footsteps (NBB-131): each step is a noise event whose radius depends on the gait
  * (RF-10) and on the ground under the feet (RF-11). Steps come at the rhythm of NO3, landings
- * after a jump are noisy too, and stepping on a visible dry branch snaps it (NO4-B).
+ * after a jump are noisy too, and stepping on a visible dry branch snaps it (NO4-B). Each one is
+ * also heard (NBB-149): a step of that ground, quieter crouched and louder running (PA6-A).
  */
 export class Footsteps {
   private readonly player: Player;
@@ -16,6 +20,7 @@ export class Footsteps {
   private readonly chunks: ChunkManager;
   private readonly noise: NoiseSystem;
   private stepTimer = 0;
+  private sounds: { steps: Record<GroundType, StaticSound[]>; snaps: StaticSound[] } | undefined;
 
   constructor(
     scene: Scene,
@@ -31,11 +36,35 @@ export class Footsteps {
 
     player.onLanded.add(() => {
       this.noise.emit(this.player.feet, this.onGround(CONFIG.noise.radius.landing), "landing");
+      const { landingVolume, landingRate } = CONFIG.footstepSounds;
+      this.play(this.sounds?.steps.dirt, landingVolume, landingRate);
       this.checkBranch();
     });
     scene.onBeforeRenderObservable.add(() =>
       this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1)),
     );
+  }
+
+  /** Loads the steps of each ground and the branch cracks (PA1–PA5, CC0). */
+  async loadSounds(audio: GameAudio): Promise<void> {
+    const { stepsPerGround, snaps } = CONFIG.footstepSounds;
+    const load = (file: string) =>
+      CreateSoundAsync(
+        file,
+        soundUrl(`player/${file}.mp3`),
+        { maxInstances: 2, outBus: audio.effects },
+        audio.engine,
+      );
+    const range = (count: number) => Array.from({ length: count }, (_, index) => index + 1);
+    const [dirt, moss, leaves, twigs, snapSounds] = await Promise.all([
+      ...GROUNDS.map((ground) =>
+        Promise.all(range(stepsPerGround).map((n) => load(`step-${ground}-${n}`))),
+      ),
+      Promise.all(range(snaps).map((n) => load(`snap-${n}`))),
+    ]);
+    if (dirt && moss && leaves && twigs && snapSounds) {
+      this.sounds = { steps: { dirt, moss, leaves, twigs }, snaps: snapSounds };
+    }
   }
 
   /** Radius of the current gait on the current ground: what the HUD meter shows (RF-12). */
@@ -65,6 +94,13 @@ export class Footsteps {
     if (this.stepTimer >= 1) {
       this.stepTimer -= 1;
       this.noise.emit(this.player.feet, this.currentRadius(), "step");
+      const settings = CONFIG.footstepSounds;
+      const ground = this.groundType();
+      this.play(
+        this.sounds?.steps[ground],
+        settings.volume[gait] * settings.groundVolume[ground],
+        gait === "crouch" ? settings.crouchRate : 1,
+      );
       this.checkBranch();
     }
   }
@@ -74,11 +110,28 @@ export class Footsteps {
     if (this.chunks.stepOnBranch(feet.x, feet.z)) {
       // RF-11: a single loud crack, even when crouching.
       this.noise.emit(feet, CONFIG.noise.branchSnapRadius, "branch");
+      this.play(this.sounds?.snaps, CONFIG.footstepSounds.snapVolume, 1);
     }
   }
 
-  private onGround(baseRadius: number): number {
+  /** One of the sounds, at random, with its pitch varied a little. */
+  private play(sounds: readonly StaticSound[] | undefined, volume: number, rate: number): void {
+    const sound = sounds?.[Math.floor(Math.random() * sounds.length)];
+    if (!sound) {
+      return;
+    }
+    const jitter = CONFIG.footstepSounds.pitchJitter;
+    sound.playbackRate = rate * (1 + (Math.random() * 2 - 1) * jitter);
+    sound.volume = volume;
+    sound.play();
+  }
+
+  private groundType(): GroundType {
     const feet = this.player.feet;
-    return movementNoise(baseRadius, this.terrain.groundTypeAt(feet.x, feet.z));
+    return this.terrain.groundTypeAt(feet.x, feet.z);
+  }
+
+  private onGround(baseRadius: number): number {
+    return movementNoise(baseRadius, this.groundType());
   }
 }
