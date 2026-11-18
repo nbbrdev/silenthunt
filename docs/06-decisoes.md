@@ -451,6 +451,9 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | SM7 | Volumes por grupo no `config.ts` (efeitos, ambiente, música) abaixo do mestre (0,8); o menu de opções usa os mesmos grupos. |
 | SM8 | Uma rodada de candidatos e um commit por grupo: passos, ambiente, animais, ferramentas e armas, fogo e ações, música. |
 | SM9 | Sem testes de som (X1-C). |
+| PA1-A a PA5-A | Grupo 1 (passos), todos CC0: terra "Footsteps_6_Dirt_shoe" (monte32), musgo "Footsteps Moss" (Vrymaa), folhas "01-20 Footsteps, sneakers on dry leaves" (SpliceSound), gravetos "Forest_footsteps_6x" (Letterborne), galho estalando "Branches snapping" (northern87). |
+| PA6-A | Os mesmos passos para agachado, andando e correndo, com volume e tom variando. |
+| PA7 | Detalhes propostos por Claude e aprovados ("1 a 8 - Ok"): 6 passos por chão e 4 estalos, mono, pico normalizado; volumes agachado 0,22 (tom 10% mais grave), andando 0,45, correndo 0,75; por chão terra 1, musgo 0,75, folhas e gravetos 0,9; tom ±8%; estalo 0,9; pouso com passo de terra a 0,85 e tom 25% mais grave; passos do jogador sem 3D; grupos efeitos 1, ambiente 0,7, música 0,5 (criatura e espingarda no de efeitos). |
 
 ## Pendentes (proposto)
 
