@@ -86,4 +86,4 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 
 ## Fonte de letra (O7-A)
 
-Uma fonte do Google Fonts (licença OFL, que permite incluir os arquivos no repositório), **escolhida pelo usuário**. Usada no menu, no HUD e nos créditos.
+Uma fonte do Google Fonts (licença OFL, que permite incluir os arquivos no repositório), **escolhida pelo usuário**. Usada no menu, no HUD e nos créditos. **Escolhida (MN1-C): Crimson Pro**, uma serifa clássica de livro, sóbria e legível em qualquer tamanho.

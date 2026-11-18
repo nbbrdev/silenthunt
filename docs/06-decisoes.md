@@ -478,6 +478,19 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MU5-A | `@types/node` como dependência de desenvolvimento e um `tsconfig.node.json` só para o `vite.config.ts`; o `tsconfig` principal não inclui mais o `vite.config.ts`, e o script `typecheck` checa os dois. |
 | MU6 | Detalhes propostos por Claude e aprovados ("1 a 5 - Ok"): `@types/node` na linha 24, a do Node do projeto; faixas em streaming, uma de cada vez e descarregadas ao fim; as transições contam o tempo do jogo; faixa que não abre só avisa no console e espera o intervalo normal; `silentHunt.music()` e `silentHunt.musicNext()`. |
 
+## NBB-150: Menus (2026-11-18)
+
+| Código | Decisão |
+|---|---|
+| MN1-C | Fonte: **Crimson Pro** (Google Fonts, OFL), serifa clássica de livro, no menu, no HUD e nos créditos; os arquivos entram no repositório. |
+| MN2-A | O menu principal aparece sobre a floresta já carregada (mundo parado), ao abrir o jogo: "Continuar" (só com mundo salvo), "Novo mundo" (com confirmação, apaga o save e recarrega), "Opções" e "Créditos". O clique em "Continuar" captura o mouse e libera o som. |
+| MN3-A | Esc (o mouse solto) pausa e congela tudo: relógio, criatura, animais, física, animações e fogo. Menu de pausa: "Voltar ao jogo", "Opções" e "Menu principal" (salva antes). |
+| MN4 | Opções: sensibilidade do mouse (0,25× a 2×) e volumes geral, efeitos, ambiente e música; salvas no navegador, separadas do mundo ("Novo mundo" não as apaga). |
+| MN5-A | A tela de créditos lê o próprio `CREDITS.md` ao montar o jogo (uma fonte só da verdade); a música do Epidemic Sound entra só se a pasta existir. |
+| MN6 | Menu à esquerda sobre a floresta, título "Silent Hunt" grande, botões só de texto em branco suave que acendem em laranja (a cor do fogo) ao passar o mouse. |
+| MN7 | Textos: menu "Continuar", "Novo mundo", "Opções", "Créditos"; confirmação "Começar um mundo novo? O mundo atual será apagado.", "Apagar e começar", "Cancelar"; pausa "Pausado", "Voltar ao jogo", "Opções", "Menu principal"; opções "Sensibilidade do mouse", "Volume geral", "Efeitos", "Ambiente", "Música", "Voltar"; créditos "Créditos", "Voltar". |
+| MN8 | Sai o `silentHunt.newWorld()` (o menu faz isso, SV2-A); sem testes novos (X1-C). |
+
 ## Pendentes (proposto)
 
 Nenhuma.
