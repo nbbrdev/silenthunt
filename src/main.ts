@@ -12,6 +12,7 @@ import { Footsteps } from "./player/footsteps";
 import { BowControl } from "./player/bowControl";
 import { ShotgunControl } from "./player/shotgunControl";
 import { InteractionSystem } from "./systems/interactions";
+import { AmbienceSystem } from "./systems/ambience";
 import { CabinManager } from "./world/cabins";
 import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
@@ -132,6 +133,11 @@ async function start(): Promise<void> {
     audio
       .then((audio) => footsteps.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons dos passos não carregados:", error));
+    // NBB-149: the forest's sound (SM4-A).
+    const ambience = new AmbienceSystem(scene, world.clock, player.camera);
+    audio
+      .then((audio) => ambience.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons do ambiente não carregados:", error));
 
     // NBB-138: rabbits and deer spread over the chunks (PR1).
     const prey = new PreyManager(
@@ -516,6 +522,9 @@ async function start(): Promise<void> {
             respawn: beds.respawnPoint?.asArray().map((value) => Math.round(value * 10) / 10),
             sleeping: beds.isSleeping,
           }),
+          /** NBB-149: the ambience (loop volumes, next lone sound); a lone sound now. */
+          ambience: () => ambience.debugState(),
+          ambienceOneShot: () => ambience.debugOneShot(),
           /** NBB-148: the backpacks on the ground. */
           backpacks: () => backpacks.list,
           /** NBB-147: saves now; forgets the saved world and starts a new one (SV2-A). */

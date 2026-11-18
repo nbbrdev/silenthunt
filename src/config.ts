@@ -584,6 +584,29 @@ export const CONFIG = {
     /** E reaches the spit this close (meters). */
     reach: 2,
   },
+  /**
+   * NBB-149 (SM4-A, AM1–AM7): the forest's sound, from `public/sounds/ambience/` (CC0, see
+   * CREDITS.md). Volumes go from 0 to 1, under the ambience group's volume.
+   */
+  ambience: {
+    files: {
+      wind: "wind.mp3",
+      birds: "birds.mp3",
+      crickets: "crickets.mp3",
+      owls: ["owl.mp3"],
+      crows: ["crow-1.mp3", "crow-2.mp3", "crow-3.mp3"],
+      /** AM6: the distant crack is one of the footsteps' snaps, lower and quieter. */
+      snaps: ["snap-1.mp3", "snap-2.mp3", "snap-3.mp3", "snap-4.mp3"],
+    },
+    volume: { wind: 0.5, birds: 0.45, crickets: 0.5, owl: 0.9, crow: 0.8, snap: 0.7 },
+    snapRate: 0.8,
+    /** AM6: a lone sound every 20–60 s, 30–60 m away, heard up to 80 m. */
+    oneShotEvery: [20, 60],
+    oneShotDistance: [30, 60],
+    hearingDistance: 80,
+    /** AM6: how often the lone sound is a branch cracking (more often at night). */
+    snapChance: { day: 0.25, night: 0.4 },
+  },
   /** NBB-148: the backpack left where the player died (RF-60, MO1-A to MO3-A). */
   backpack: {
     /** E reaches it this close (meters). */
