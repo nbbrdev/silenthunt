@@ -19,7 +19,9 @@ import { PlayerHealth } from "./player/health";
 import { PlayerHunger } from "./player/hunger";
 import { Crafting } from "./player/crafting";
 import { Eating } from "./player/eating";
+import { BuildingMode } from "./systems/building";
 import { ChoppingSystem } from "./systems/chopping";
+import { StructureManager } from "./world/structures";
 import { StumpField } from "./world/stumps";
 import { Inventory } from "./player/inventory";
 import type { Held, ItemId } from "./player/items";
@@ -167,6 +169,25 @@ async function start(): Promise<void> {
       inventory,
       interactions,
     });
+    // NBB-145: the player's buildings and the building mode (B). Walls stop the creature's strike.
+    const structures = new StructureManager(scene, world.terrain, world.chunks, interactions);
+    creatureBrain.wallBetween = (ax, az, bx, bz) => structures.blocksLine(ax, az, bx, bz);
+    const building = new BuildingMode(
+      scene,
+      input,
+      player,
+      {
+        structures,
+        terrain: world.terrain,
+        chunks: world.chunks,
+        inventory,
+        equipment,
+        inventoryScreen,
+        noise,
+        interactions,
+      },
+      hud,
+    );
     inventoryScreen.canOpen = () => !health.isDead;
     createItemIcons(engine)
       .then((icons) => inventoryScreen.setIcons(icons))
@@ -347,6 +368,19 @@ async function start(): Promise<void> {
           eat: () => eating.eat(),
           /** NBB-144: swings the axe; starts a recipe by the item it makes; trees in reach. */
           swing: () => chopping.swing(),
+          /** NBB-145: building mode on/off, pick a piece (0–3), place it, and what stands. */
+          build: () => {
+            building.toggle();
+            return building.isActive;
+          },
+          buildPiece: (index: number) => building.select(index),
+          place: () => building.placeNow(),
+          dismantleHold: (hold?: boolean) => {
+            building.debugHold = hold;
+          },
+          pieces: () => structures.list(),
+          wallBetween: (ax: number, az: number, bx: number, bz: number) =>
+            structures.blocksLine(ax, az, bx, bz),
           craft: (item: ItemId) => {
             const recipe = crafting.recipes.find((candidate) => candidate.item === item);
             if (recipe) {

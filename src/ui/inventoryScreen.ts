@@ -53,6 +53,7 @@ export class InventoryScreen {
   private cursor: Stack | undefined;
   private open = false;
   private nameLeft = 0;
+  private hotbarIsHidden = false;
 
   constructor(
     scene: Scene,
@@ -253,6 +254,12 @@ export class InventoryScreen {
     return this.open;
   }
 
+  /** CN1-A: the building pieces' bar takes the quick bar's place while building. */
+  set hotbarHidden(hidden: boolean) {
+    this.hotbarIsHidden = hidden;
+    this.hotbarPanel.isVisible = !hidden && !this.open;
+  }
+
   /** IN7-A: the icons arrive once they are drawn. */
   setIcons(icons: Partial<Record<ItemId, string>>): void {
     this.icons = icons;
@@ -267,7 +274,7 @@ export class InventoryScreen {
     this.open = false;
     this.panel.isVisible = false;
     this.recipesPanel.isVisible = false;
-    this.hotbarPanel.isVisible = true;
+    this.hotbarPanel.isVisible = !this.hotbarIsHidden;
     // CF2-B: closing the screen stops what was being made (nothing is used up).
     this.crafting.stop();
     this.cursorView.frame.isVisible = false;

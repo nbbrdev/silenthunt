@@ -14,12 +14,16 @@ export class Equipment {
   readonly onChanged = new Observable<Held>();
   private held: Held;
   private readonly inventory: Inventory;
+  private isSuspended = false;
 
   constructor(scene: Scene, input: Input, inventory: Inventory) {
     this.inventory = inventory;
     this.held = inventory.selectedItem ?? "hand";
     inventory.onChanged.add(() => this.refresh());
     scene.onBeforeRenderObservable.add(() => {
+      if (this.isSuspended) {
+        return;
+      }
       SLOT_KEYS.forEach((key, slot) => {
         if (input.wasPressed(key)) {
           inventory.select(slot);
@@ -36,6 +40,15 @@ export class Equipment {
     return this.held;
   }
 
+  /**
+   * NBB-145 (CN1-A): while building, the hands are empty and 1 to 6 and the wheel pick building
+   * pieces instead of quick-bar slots.
+   */
+  set suspended(suspended: boolean) {
+    this.isSuspended = suspended;
+    this.refresh();
+  }
+
   /** Development only: selects the first quick-bar slot holding `item`. */
   equip(item: Held): void {
     for (let slot = 0; slot < 6; slot++) {
@@ -47,7 +60,7 @@ export class Equipment {
   }
 
   private refresh(): void {
-    const held = this.inventory.selectedItem ?? "hand";
+    const held = this.isSuspended ? "hand" : (this.inventory.selectedItem ?? "hand");
     if (held !== this.held) {
       this.held = held;
       this.onChanged.notifyObservers(held);

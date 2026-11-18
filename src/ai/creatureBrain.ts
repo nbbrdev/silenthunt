@@ -98,6 +98,14 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   private hesitateTime = 0;
   /** Attack: seconds since the strike began (negative while still running at the player). */
   private strikeTime = -1;
+  /** CN5-A: how long a wall has kept it from the player during this attack. */
+  private walledSeconds = 0;
+
+  /**
+   * NBB-145 (CN5-A): true if a wall or a closed door stands between two points, seen from above
+   * (set by the player's buildings). Its strike does not go through.
+   */
+  wallBetween: (ax: number, az: number, bx: number, bz: number) => boolean = () => false;
   private hitLanded = false;
   private lookedAt = false;
   /** AP1-A: how fast the player is coming toward it (meters per second, smoothed). */
@@ -218,6 +226,13 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     return fogVisibility(this.senses.clock.daylight);
   }
 
+  /** CN5-A: a wall or a closed door between it and the player. */
+  private isWalledOff(): boolean {
+    const body = this.attachedNode?.position;
+    const player = this.senses.player.position;
+    return body !== undefined && this.wallBetween(body.x, body.z, player.x, player.z);
+  }
+
   private distanceToPlayer(): number {
     const body = this.attachedNode?.position;
     const player = this.senses.player.position;
@@ -289,6 +304,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.backOffTime = 0;
     this.hesitateTime = 0;
     this.strikeTime = -1;
+    this.walledSeconds = 0;
     this.hitLanded = false;
     this.onStateChanged.notifyObservers(state);
     switch (state) {
@@ -489,7 +505,15 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         return;
       }
       const { x, z } = this.senses.player.position;
-      if (this.distanceToPlayer() > settings.strikeDistance) {
+      // CN5-A: a wall or a closed door between them: no strike. Kept out long, it gives up.
+      // Only counts once it is at the walls, not while still running toward them.
+      const walled = this.distanceToPlayer() <= settings.strikeDistance + 1.5 && this.isWalledOff();
+      this.walledSeconds = walled ? this.walledSeconds + seconds : 0;
+      if (this.walledSeconds > CONFIG.building.creatureGiveUpSeconds) {
+        this.enter("retreat");
+        return;
+      }
+      if (walled || this.distanceToPlayer() > settings.strikeDistance) {
         // CR3a: the run is the "Recuar" gallop.
         this.walk({ x, z }, settings.speed.attack, "Recuar", seconds);
         return;
@@ -501,7 +525,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.facePlayer(seconds);
     if (!this.hitLanded && this.strikeTime >= STRIKE_HIT_SECONDS) {
       this.hitLanded = true;
-      if (this.distanceToPlayer() <= settings.hitDistance) {
+      if (this.distanceToPlayer() <= settings.hitDistance && !this.isWalledOff()) {
         this.onPlayerHit.notifyObservers(settings.damage);
       }
     }

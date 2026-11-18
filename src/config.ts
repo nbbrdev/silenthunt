@@ -486,6 +486,28 @@ export const CONFIG = {
     /** Height of the stump left behind (meters). */
     stumpHeight: 0.35,
   },
+  /** NBB-145: building on the 2 m grid (RF-52 to RF-54, CN1-A to CN6). Meters and seconds. */
+  building: {
+    cell: 2,
+    /** RF-52: what each piece costs in wood. */
+    cost: { foundation: 4, wall: 3, door: 4, roof: 3 },
+    /** CN3: pieces go where the player looks, this far at most. */
+    reach: 6,
+    /** RF-52: a foundation accepts this much difference in the ground under it. */
+    maxSlope: 1,
+    /** The floor stands this high above the highest ground under it. */
+    floorLift: 0.12,
+    wallHeight: 2.4,
+    wallThickness: 0.26,
+    doorWidth: 1,
+    doorHeight: 2.05,
+    /** CN6: the door swings open in this long. */
+    doorSeconds: 0.5,
+    /** CN2-A: hold the right button this long to take a piece apart. */
+    dismantleSeconds: 1,
+    /** CN5-A: blocked by walls this long while attacking, the creature gives up. */
+    creatureGiveUpSeconds: 8,
+  },
   /** NBB-142: cleaning a carcass (RF-35, CA1-B to CA4-A). */
   carcass: {
     /** CA1-B: hold E this long, standing still, with the knife in hand (CA2-A). */

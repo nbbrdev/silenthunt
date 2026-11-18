@@ -74,6 +74,8 @@ export interface Obstacle {
   radius: number;
   /** How tall it is above the ground: arrows and shots above it fly past (0: nothing to hit). */
   height: number;
+  /** Part of the player's buildings (NBB-145): new pieces may stand next to it. */
+  structure?: boolean;
 }
 
 /** Trunks stop arrows and shots up to this height above the ground (meters). */
@@ -360,8 +362,15 @@ export class ChunkManager {
         }
       }
     }
+    // NBB-145: the player's walls and closed doors block like the cabin's.
+    for (const provider of this.obstacleProviders) {
+      found.push(...provider(x, z, radius));
+    }
     return found;
   }
+
+  /** Other things that block walking, arrows and shots (the player's buildings, NBB-145). */
+  readonly obstacleProviders: ((x: number, z: number, radius: number) => Obstacle[])[] = [];
 
   /** Loads everything around `position` right away (used before the game starts). */
   loadAround(position: Vector3): void {
