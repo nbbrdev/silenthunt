@@ -462,6 +462,10 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | AN2-A | Galope do cervo e fuga do coelho montados com os passos de folhas e gravetos, em 3D (não há gravação de galope de cervo em CC0 ou CC-BY). |
 | AN3 | O cervo bale ao morrer ("Deer Meewing 01", msantoro11, CC0); o coelho morre em silêncio (não há grito de coelho em CC0 ou CC-BY). |
 | AN4 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): 3 latidos de 1 s e 2 balidos de 0,9 s, mono, sem graves, chiado reduzido; um latido por grupo (outro só após 4 s), ao passar de pastar para alerta ou fuga; só o cervo e o coelho em fuga mais próximos são ouvidos; galope de três batidas e pausa (tom 20% mais grave), coelho em duas batidas (40% mais agudo); volumes latido 1, balido 0,8, galope 0,7, coelho 0,35, tom ±6%; audição latido 70 m, balido e galope 40 m, coelho 18 m; `silentHunt.preySounds()` e `silentHunt.killPrey(id)`. |
+| FE1-A a FE5-C | Grupo 4 (ferramentas e armas), todos CC0: puxar o arco "Bow Drawn" (Paveroux), soltar "Bow_release" (PorkMuncher), machado na madeira "Large Axe Chopping Small Log" (Hano_van_Dalen), na pedra "Pickaxe #2" (abstraktgeneriert), árvore caindo "Big Tree Fall in Forest" (Kinoton). |
+| FE6 | Sons pequenos escolhidos por Claude: faca no ar "Small Knife Whoosh" (Shamewap), acerto "Knife Stab Melon" (jawbutch), flecha cravando "ARROW_WOOD_IMPACT_SINGLE_ARCHERY_01" (JoeDinesSound), todos CC0. |
+| FE7 | O rangido do arco toca enquanto puxa e para ao soltar; estalo no disparo; flecha cravando em 3D onde para (num animal, o acerto da faca); faca no ar a cada estocada e acerto só quando atinge; machado na madeira ou na pedra a cada golpe que acerta; árvore caindo em 3D. |
+| FE8 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): recortes em mono com pico normalizado; volumes puxada 0,5, disparo 0,8, faca no ar 0,5, acerto 0,8, machado 0,9, pedra 0,8, árvore 1, flecha 0,8, tom ±5%; acerto, árvore e flecha em 3D até 50 m; árvore ouvida 2 m acima da base; módulo `SoundEffects` com os sons por nome; `silentHunt.effects()`. |
 
 ## Pendentes (proposto)
 
