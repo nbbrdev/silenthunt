@@ -34,6 +34,17 @@ const HOLD: Partial<Record<ItemId, { position: Vector3; rotation: Vector3; scale
     rotation: new Vector3(Math.PI / 2 - 0.3, 0, 0),
   },
   wood: { position: new Vector3(0, 0.03, 0.1), rotation: new Vector3(-0.25, 0, 0), scale: 0.55 },
+  // NBB-146: carried in front, to be put down (FG1-A).
+  campfire: {
+    position: new Vector3(-0.04, 0.05, 0.08),
+    rotation: new Vector3(0, 0, 0),
+    scale: 0.45,
+  },
+  bed: {
+    position: new Vector3(-0.03, 0.04, 0.07),
+    rotation: new Vector3(0, Math.PI / 2, 0),
+    scale: 0.28,
+  },
   cartridge: { position: new Vector3(0, 0.025, 0.03), rotation: new Vector3(-0.7, 0, 0) },
   // The branch lies along X: a quarter turn points it ahead, like the knife.
   branch: {

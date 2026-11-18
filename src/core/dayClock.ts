@@ -86,6 +86,17 @@ export class DayClock {
     this.setTime(this.seconds + realSeconds * this.speed);
   }
 
+  /**
+   * RF-62 / DO1: sleeping skips ahead to the next dawn; the skipped time counts as lived (the
+   * days survived, VD4). Returns how many seconds were skipped.
+   */
+  skipToDawn(): number {
+    const skipped = cycleLength() - this.seconds;
+    this.elapsedSeconds += skipped;
+    this.setTime(0);
+    return skipped;
+  }
+
   /** Jumps to a time of the cycle (seconds since dawn began). */
   setTime(seconds: number): void {
     const cycle = cycleLength();

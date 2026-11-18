@@ -22,6 +22,8 @@ import { Eating } from "./player/eating";
 import { BuildingMode } from "./systems/building";
 import { ChoppingSystem } from "./systems/chopping";
 import { StructureManager } from "./world/structures";
+import { BedManager } from "./world/beds";
+import { PlacingSystem } from "./systems/placing";
 import { StumpField } from "./world/stumps";
 import { Inventory } from "./player/inventory";
 import type { Held, ItemId } from "./player/items";
@@ -244,13 +246,41 @@ async function start(): Promise<void> {
       interactions,
       CONFIG.world.defaultSeed,
     );
-    const campfires = new CampfireManager(scene, input, player, {
-      terrain: world.terrain,
+    // NBB-146: campfires and beds, made by crafting and put down from the quick bar (FG1-A).
+    const campfires = new CampfireManager(scene, player, {
       creature: creatureBrain,
       visibility,
       inventory,
+      equipment,
       interactions,
     });
+    const beds = new BedManager(
+      scene,
+      player,
+      {
+        clock: world.clock,
+        hunger,
+        inventory,
+        interactions,
+        creaturePosition: () => creatureModel.root.position,
+      },
+      hud,
+    );
+    const placing = new PlacingSystem(
+      scene,
+      input,
+      player,
+      {
+        terrain: world.terrain,
+        chunks: world.chunks,
+        structures,
+        campfires,
+        beds,
+        inventory,
+        equipment,
+      },
+      hud,
+    );
     const onHeld = (tool: Held) => {
       hands.equip(tool);
       knife.enabled = tool === "knife";
@@ -266,7 +296,8 @@ async function start(): Promise<void> {
     let lifeStart = world.clock.elapsed;
     const deathScreen = new DeathScreen(hud, scene, () => {
       // VD5: back at the start, full health, the creature far away; the clock and torch go on.
-      player.respawn(feet);
+      // RF-60 / CM1-A: at the bed, if there is one.
+      player.respawn(beds.respawnPoint ?? feet);
       health.revive();
       // FO4-B: hungry, but not starving.
       hunger.set(CONFIG.player.hunger.respawnValue);
@@ -422,11 +453,15 @@ async function start(): Promise<void> {
             cleaned: carcasses.cleanedCount,
           }),
           giveMeat: (amount = 1) => inventory.add("rawMeat", amount),
-          campfire: () => ({
-            at: campfires.position?.asArray().map((value) => Math.round(value * 10) / 10),
-            spit: campfires.spit,
+          /** NBB-146: the fires (where, fuel, spit), putting one down, the held item down, beds. */
+          campfires: () => campfires.list,
+          placeFire: (x: number, z: number) =>
+            campfires.placeAt(x, world.terrain.heightAt(x, z), z),
+          placeHeld: () => placing.placeNow(),
+          bed: () => ({
+            respawn: beds.respawnPoint?.asArray().map((value) => Math.round(value * 10) / 10),
+            sleeping: beds.isSleeping,
           }),
-          placeFire: (x: number, z: number) => campfires.placeAt(x, z),
           /** The cabins around and the shotgun's cartridges (development). */
           cabins: () => cabins.sites,
           cartridges: () => shotgun.cartridges,

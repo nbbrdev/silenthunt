@@ -19,7 +19,16 @@ export interface Interaction {
   holdSeconds?: number;
   /** Tells holds apart: holding on to one thing and then reaching another starts over. */
   id?: string;
+  /**
+   * A second action for holding E (1 s) on the same thing, while a quick press does `act`
+   * (FG3-A: put out the fire; CM2: pick the bed up). Shown as "segure E: ...".
+   */
+  holdAct?: () => void;
+  holdLabel?: string;
 }
+
+/** How long E is held for the second action (FG3-A, CM2). */
+const SECOND_HOLD_SECONDS = 1;
 
 /** Offers an interaction for where the player is now, or nothing. */
 export type InteractionProvider = () => Interaction | undefined;
@@ -41,6 +50,8 @@ export class InteractionSystem {
   private holdSeconds = 0;
   /** After a hold finishes, E must be let go before another one starts. */
   private waitForRelease = false;
+  /** E went down on a press-or-hold interaction and is not decided yet. */
+  private pressing = false;
 
   constructor(scene: Scene, input: Input, player: Player, ui: AdvancedDynamicTexture) {
     this.hint = new TextBlock("interactionHint", "");
@@ -87,6 +98,12 @@ export class InteractionSystem {
       if (!input.isDown("KeyE")) {
         this.waitForRelease = false;
       }
+      if (nearest?.holdAct) {
+        this.hint.text = `${nearest.act ? "[E] " : ""}${nearest.label} · segure E: ${nearest.holdLabel ?? ""}`;
+        this.pressOrHold(nearest, input, seconds);
+        return;
+      }
+      this.pressing = false;
       if (!nearest?.act) {
         this.resetHold();
         if (nearest) {
@@ -116,6 +133,40 @@ export class InteractionSystem {
     this.messageLeft = CONFIG.cabins.messageSeconds;
   }
 
+  /**
+   * A quick press does `act` (when E is let go); holding E for a second does `holdAct`, with the
+   * progress bar showing once it is clearly a hold.
+   */
+  private pressOrHold(interaction: Interaction, input: Input, seconds: number): void {
+    if (input.wasPressed("KeyE") && !this.waitForRelease) {
+      this.pressing = true;
+      this.holdId = interaction.id;
+      this.holdSeconds = 0;
+    }
+    if (!this.pressing || this.holdId !== interaction.id) {
+      this.pressing = false;
+      this.progressFrame.isVisible = false;
+      return;
+    }
+    if (!input.isDown("KeyE")) {
+      // Let go before the hold: it was a press.
+      this.pressing = false;
+      this.resetHold();
+      interaction.act?.();
+      return;
+    }
+    this.holdSeconds += seconds;
+    this.progressFrame.isVisible = this.holdSeconds > 0.15;
+    const fraction = Math.min(1, this.holdSeconds / SECOND_HOLD_SECONDS);
+    this.progressFill.width = `${Math.round(fraction * 140)}px`;
+    if (this.holdSeconds >= SECOND_HOLD_SECONDS) {
+      this.pressing = false;
+      this.resetHold();
+      this.waitForRelease = true;
+      interaction.holdAct?.();
+    }
+  }
+
   /** CA1-B: fills the bar while E is held on the same thing; when full, it is done. */
   private hold(interaction: Interaction, held: boolean, seconds: number): void {
     const total = interaction.holdSeconds ?? 0;
@@ -143,11 +194,21 @@ export class InteractionSystem {
     this.progressFrame.isVisible = false;
   }
 
+  /**
+   * The nearest thing with something for E to do; a mere notice ("Fogueira (4:53)", "Precisa
+   * da faca") only shows when nothing nearby has an action (sleeping next to a fire, NBB-146).
+   */
   private nearest(): Interaction | undefined {
     let nearest: Interaction | undefined;
+    const better = (a: Interaction, b: Interaction) =>
+      a.act !== undefined && b.act === undefined
+        ? true
+        : a.act === undefined && b.act !== undefined
+          ? false
+          : a.distance < b.distance;
     for (const provider of this.providers) {
       const interaction = provider();
-      if (interaction && (!nearest || interaction.distance < nearest.distance)) {
+      if (interaction && (!nearest || better(interaction, nearest))) {
         nearest = interaction;
       }
     }

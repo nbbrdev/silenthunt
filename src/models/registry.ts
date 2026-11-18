@@ -5,6 +5,7 @@ import { meat } from "./items/meat";
 import { axe } from "./items/axe";
 import { cartridge, fat, fiber, leather, wood } from "./items/resources";
 import { stump } from "./nature/stump";
+import { bed } from "./structures/bed";
 import { doorPiece, foundationPiece, roofPiece, wallPiece } from "./structures/buildPieces";
 import { campfire } from "./structures/campfire";
 import { creature } from "./creature/creature";
@@ -56,4 +57,5 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   wallPiece,
   doorPiece,
   roofPiece,
+  bed,
 ];

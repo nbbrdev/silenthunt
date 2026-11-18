@@ -14,7 +14,9 @@ export type ItemId =
   | "fat"
   | "leather"
   | "rawMeat"
-  | "cookedMeat";
+  | "cookedMeat"
+  | "campfire"
+  | "bed";
 
 /** The item names shown to the player (O4-A: pt-BR). */
 export const ITEM_LABELS: Record<ItemId, string> = {
@@ -33,6 +35,8 @@ export const ITEM_LABELS: Record<ItemId, string> = {
   leather: "Couro",
   rawMeat: "Carne crua",
   cookedMeat: "Carne cozida",
+  campfire: "Fogueira",
+  bed: "Cama",
 };
 
 /** Every item, in a fixed order (icons, development tools). */

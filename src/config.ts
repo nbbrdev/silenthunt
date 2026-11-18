@@ -404,6 +404,9 @@ export const CONFIG = {
       leather: 20,
       rawMeat: 10,
       cookedMeat: 10,
+      /** FG1-A: bulky, one per slot. */
+      campfire: 1,
+      bed: 1,
     },
     /** PG1-A (RF-56): the player starts with nothing (the provisional kit, IN5-A, is gone). */
     starterKit: [] as { item: ItemId; count: number; slot: number }[],
@@ -469,6 +472,25 @@ export const CONFIG = {
           ["stone", 1],
         ],
       },
+      // CF3-A (NBB-146): the campfire and the bed.
+      {
+        item: "campfire",
+        count: 1,
+        seconds: 3,
+        cost: [
+          ["branch", 4],
+          ["stone", 4],
+        ],
+      },
+      {
+        item: "bed",
+        count: 1,
+        seconds: 3,
+        cost: [
+          ["fiber", 4],
+          ["leather", 2],
+        ],
+      },
     ] as Recipe[],
   },
   /** NBB-144: the axe (RF-59, MC1-A, MC2, MC3-A). Meters and seconds. */
@@ -522,8 +544,14 @@ export const CONFIG = {
   },
   /** NBB-142: the campfire (CZ1-A) and cooking on it (CZ2-A). */
   campfire: {
-    /** CZ1-A (provisional): G places it this far ahead (meters). */
+    /** FG1-A: the campfire and the bed go down this far ahead of the player (meters). */
     placeDistance: 1.8,
+    /** RF-55 / PG4-A: it burns 5 min; a branch adds 2 min, up to 10. */
+    burnSeconds: 300,
+    branchSeconds: 120,
+    maxSeconds: 600,
+    /** FG3-A: the flames shrink over the last 30 s. */
+    dyingSeconds: 30,
     /** Its light: orange like the torch's, wider and stronger. */
     lightRange: 14,
     lightIntensity: 1.6,
@@ -535,6 +563,15 @@ export const CONFIG = {
     slots: 4,
     /** E reaches the spit this close (meters). */
     reach: 2,
+  },
+  /** NBB-146: the bed (RF-60, RF-62, CM1-A, CM2, DO1). */
+  bed: {
+    /** E reaches it this close (meters). */
+    reach: 2,
+    /** RF-62: no sleeping with the creature closer than this (meters). */
+    safeDistance: 30,
+    /** DO1: the screen fades out and back in, this long each way (seconds). */
+    fadeSeconds: 1.5,
   },
   /** MA5: how much the hands sway (meters): breathing standing still, and with each step. */
   handSway: { still: 0.003, walk: 0.008, run: 0.02, crouch: 0.005 },

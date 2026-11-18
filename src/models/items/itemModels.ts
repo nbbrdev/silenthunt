@@ -14,10 +14,12 @@ import {
   createWoodMesh,
 } from "./resources";
 import { createTorchModel } from "./torch";
+import { createBedrollMesh } from "../structures/bed";
+import { createCampfireModel } from "../structures/campfire";
 import { createShotgunModel } from "./shotgun";
 
 /** The world's branch and rock are scaled to a size that fits in a hand (meters, longest side). */
-const HAND_SIZE: Partial<Record<ItemId, number>> = { branch: 0.5, stone: 0.11 };
+const HAND_SIZE: Partial<Record<ItemId, number>> = { branch: 0.5, stone: 0.11, campfire: 0.4 };
 
 /**
  * The model of any item (NBB-143): for the hand (IN6-B) and the inventory icons (IN7-A). It
@@ -71,6 +73,17 @@ function buildModel(scene: Scene, item: ItemId): TransformNode {
       return createFatMesh(scene);
     case "leather":
       return createLeatherMesh(scene);
+    case "campfire": {
+      // A small, unlit campfire: stones and logs (no flames).
+      const fire = createCampfireModel(scene, 1);
+      fire.fire.dispose();
+      for (const core of fire.cores) {
+        core.dispose();
+      }
+      return fire.root;
+    }
+    case "bed":
+      return createBedrollMesh(scene);
     case "rawMeat":
     case "cookedMeat": {
       const meat = createMeatModel(scene, item);

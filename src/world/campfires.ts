@@ -1,14 +1,13 @@
 import { Color3, PointLight, Vector3, type Scene } from "@babylonjs/core";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import { CONFIG } from "../config";
-import type { Input } from "../core/input";
 import { createMeatModel, type MeatModel } from "../models/items/meat";
 import { createCampfireModel, type CampfireModel } from "../models/structures/campfire";
-import type { Player } from "../player/player";
+import type { Equipment } from "../player/equipment";
 import type { Inventory } from "../player/inventory";
+import type { Player } from "../player/player";
 import type { Interaction, InteractionSystem } from "../systems/interactions";
 import type { VisibilitySystem } from "../systems/visibility";
-import type { Terrain } from "./terrain";
 
 interface SpitSlot {
   meat: MeatModel;
@@ -16,96 +15,81 @@ interface SpitSlot {
   seconds: number;
 }
 
-/** What the campfire touches in the rest of the game. */
+interface Fire {
+  id: number;
+  model: CampfireModel;
+  light: PointLight;
+  slots: SpitSlot[];
+  /** RF-55: burning time left (0: a cold fire). */
+  fuel: number;
+}
+
+/** What the campfires touch in the rest of the game. */
 export interface CampfireWorld {
-  terrain: Terrain;
   creature: CreatureBrainBehavior;
   visibility: VisibilitySystem;
   inventory: Inventory;
+  equipment: Equipment;
   interactions: InteractionSystem;
 }
 
 /**
- * The campfire (NBB-142, CZ1-A). Provisional until crafting (NBB-146): G places one a little
- * ahead, free, one at a time (placing another moves it) and it never goes out until the
- * progression round (PG) decides. It lights the area, the creature keeps 8 m away (RF-24) and
- * the player next to it is seen from far away (RF-13). Raw meat goes on its spit with E, up to
- * 4 pieces; each one darkens and is ready in 10 s (CZ2-A, RF-35).
+ * The campfires (NBB-142, NBB-146; RF-24, RF-35, RF-55, FG1-A to FG4). Each one is made by
+ * crafting and put down from the quick bar (PlacingSystem), and there can be many. A fire burns
+ * 5 min; E with a branch in hand adds 2 min, up to 10; the flames shrink over the last 30 s and
+ * it goes cold (stones and ash), and a branch lights it again. Holding E puts it out. While lit it
+ * lights the area, the creature keeps 8 m away and the player next to it is seen from far away
+ * (RF-13). Raw meat goes on its spit with E, up to 4 pieces, ready in 10 s (CZ2-A).
  */
 export class CampfireManager {
   private readonly scene: Scene;
   private readonly player: Player;
   private readonly world: CampfireWorld;
-  private model: CampfireModel | undefined;
-  private light: PointLight | undefined;
-  private slots: SpitSlot[] = [];
+  private readonly fires: Fire[] = [];
   private time = 0;
+  private nextId = 1;
 
-  constructor(scene: Scene, input: Input, player: Player, world: CampfireWorld) {
+  constructor(scene: Scene, player: Player, world: CampfireWorld) {
     this.scene = scene;
     this.player = player;
     this.world = world;
-    world.visibility.nearLitFire = () => this.isNear(CONFIG.campfire.litRadius);
-    world.interactions.add(() => this.spitInteraction());
+    world.visibility.nearLitFire = () =>
+      this.fires.some(
+        (fire) => fire.fuel > 0 && this.distanceTo(fire) <= CONFIG.campfire.litRadius,
+      );
+    world.interactions.add(() => this.interaction());
     scene.onBeforeRenderObservable.add(() => {
-      if (player.controlsEnabled && input.wasPressed("KeyG")) {
-        this.placeAhead();
-      }
       this.update(Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1));
     });
   }
 
-  /** Where the fire is, if there is one (development). */
-  get position(): Vector3 | undefined {
-    return this.model?.root.position;
+  /** Each fire: where, burning time left and its spit (development). */
+  get list(): { at: number[]; fuel: number; spit: string[] }[] {
+    return this.fires.map((fire) => ({
+      at: fire.model.root.position.asArray().map((value) => Math.round(value * 10) / 10),
+      fuel: Math.round(fire.fuel),
+      spit: fire.slots.map((slot) =>
+        slot.state === "cooking" ? `cooking ${slot.seconds.toFixed(1)}s` : slot.state,
+      ),
+    }));
   }
 
-  /** The state of each spit slot (development). */
-  get spit(): string[] {
-    return this.slots.map((slot) =>
-      slot.state === "cooking" ? `cooking ${slot.seconds.toFixed(1)}s` : slot.state,
-    );
+  /** True if a fire stands this close to (x, z) (a new one cannot go on top of it). */
+  isNearAny(x: number, z: number, radius: number): boolean {
+    return this.fires.some((fire) => {
+      const at = fire.model.root.position;
+      return Math.hypot(at.x - x, at.z - z) < radius;
+    });
   }
 
-  /** CZ1-A: G puts the fire on the ground a little ahead of the player. */
-  placeAhead(): void {
-    const forward = this.player.camera.getDirection(Vector3.Forward());
-    const flat = new Vector3(forward.x, 0, forward.z).normalize();
-    const spot = this.player.feet.add(flat.scale(CONFIG.campfire.placeDistance));
-    this.placeAt(spot.x, spot.z, Math.atan2(flat.x, flat.z));
-  }
-
-  placeAt(x: number, z: number, heading = 0): void {
-    if (!this.model) {
-      this.build();
-    }
-    const model = this.model;
-    if (!model) {
-      return;
-    }
-    // Moving the fire hands back what was on the spit, as it was.
-    for (const slot of this.slots) {
-      if (slot.state === "cooking") {
-        this.world.inventory.add("rawMeat", 1);
-      } else if (slot.state === "cooked") {
-        this.world.inventory.add("cookedMeat", 1);
-      }
-      this.empty(slot);
-    }
-    model.root.position.set(x, this.world.terrain.heightAt(x, z), z);
+  /** FG1-A: a new fire, lit, with 5 min of fuel; `y` is the ground or floor under it. */
+  placeAt(x: number, y: number, z: number, heading = 0): void {
+    const model = createCampfireModel(this.scene, CONFIG.world.defaultSeed + this.nextId);
+    model.root.position.set(x, y, z);
     // The spit runs across the player's view, so the meat is seen side by side.
     model.root.rotation.y = heading;
-    model.root.setEnabled(true);
-    const fires = this.world.creature.fires;
-    fires.length = 0;
-    fires.push(model.root.position.clone());
-  }
-
-  private build(): void {
-    const model = createCampfireModel(this.scene, CONFIG.world.defaultSeed);
-    this.model = model;
     const light = new PointLight(
-      "campfireLight",
+      `campfireLight${this.nextId}`,
       model.flameCenter.add(new Vector3(0, 0.2, 0)),
       this.scene,
     );
@@ -114,18 +98,131 @@ export class CampfireManager {
     light.diffuse = new Color3(lightColor.r, lightColor.g, lightColor.b);
     light.specular = Color3.Black();
     light.range = CONFIG.campfire.lightRange;
-    this.light = light;
-    this.slots = model.spitSlots.map((spot, index) => {
-      const meat = createMeatModel(this.scene, `spitMeat${index}`);
+    const slots = model.spitSlots.map((spot, index) => {
+      const meat = createMeatModel(this.scene, `spitMeat${this.nextId}-${index}`);
       meat.flesh.parent = model.root;
       // Hanging from the bar by its bone.
       meat.flesh.position = spot.add(new Vector3(0, -0.08, 0));
       meat.flesh.rotation.z = Math.PI / 2;
       meat.flesh.rotation.y = (index % 2) * 0.5 - 0.25;
+      meat.flesh.setEnabled(false);
       const slot: SpitSlot = { meat, state: "empty", seconds: 0 };
-      this.empty(slot);
       return slot;
     });
+    this.fires.push({ id: this.nextId++, model, light, slots, fuel: CONFIG.campfire.burnSeconds });
+    this.refreshCreatureFires();
+  }
+
+  private distanceTo(fire: Fire): number {
+    const at = fire.model.root.position;
+    const feet = this.player.feet;
+    return Math.hypot(feet.x - at.x, feet.z - at.z);
+  }
+
+  /** RF-24: only lit fires keep the creature away. */
+  private refreshCreatureFires(): void {
+    const list = this.world.creature.fires;
+    list.length = 0;
+    for (const fire of this.fires) {
+      if (fire.fuel > 0) {
+        list.push(fire.model.root.position.clone());
+      }
+    }
+  }
+
+  /**
+   * E near a fire (FG4): with a branch in hand, more fuel (or lighting it again); otherwise the
+   * spit (CZ2-A). Holding E puts a lit fire out (FG3-A).
+   */
+  private interaction(): Interaction | undefined {
+    let nearest: Fire | undefined;
+    for (const fire of this.fires) {
+      if (this.distanceTo(fire) <= CONFIG.campfire.reach) {
+        if (!nearest || this.distanceTo(fire) < this.distanceTo(nearest)) {
+          nearest = fire;
+        }
+      }
+    }
+    if (!nearest) {
+      return undefined;
+    }
+    const fire = nearest;
+    const distance = this.distanceTo(fire);
+    const { inventory, equipment } = this.world;
+    const lit = fire.fuel > 0;
+    const putOut = lit
+      ? { holdAct: () => this.putOut(fire), holdLabel: "apagar", id: `fire${fire.id}` }
+      : {};
+
+    if (equipment.current === "branch") {
+      if (!lit) {
+        return { label: "Acender (2:00)", distance, act: () => this.addFuel(fire) };
+      }
+      if (fire.fuel > CONFIG.campfire.maxSeconds - 1) {
+        return { label: `A fogueira está cheia (${clock(fire.fuel)})`, distance, ...putOut };
+      }
+      return {
+        label: `Pôr lenha (${clock(fire.fuel)})`,
+        distance,
+        act: () => this.addFuel(fire),
+        ...putOut,
+      };
+    }
+    if (!lit) {
+      return { label: "Fogueira apagada: acenda com um galho na mão", distance };
+    }
+    const cooked = fire.slots.find((slot) => slot.state === "cooked");
+    if (cooked) {
+      if (inventory.spaceFor("cookedMeat") <= 0) {
+        return { label: "Inventário cheio", distance, ...putOut };
+      }
+      return {
+        label: "Pegar carne cozida",
+        distance,
+        act: () => {
+          this.empty(cooked);
+          inventory.add("cookedMeat", 1);
+        },
+        ...putOut,
+      };
+    }
+    const free = fire.slots.find((slot) => slot.state === "empty");
+    if (inventory.count("rawMeat") > 0 && free) {
+      return {
+        label: "Cozinhar carne",
+        distance,
+        act: () => {
+          if (!inventory.remove("rawMeat", 1)) {
+            return;
+          }
+          free.state = "cooking";
+          free.seconds = 0;
+          free.meat.setCooked(0);
+          free.meat.flesh.setEnabled(true);
+        },
+        ...putOut,
+      };
+    }
+    const label =
+      inventory.count("rawMeat") > 0 ? "O espeto está cheio" : `Fogueira (${clock(fire.fuel)})`;
+    return { label, distance, ...putOut };
+  }
+
+  /** RF-55: a branch adds 2 min (up to 10), or lights a cold fire again. */
+  private addFuel(fire: Fire): void {
+    if (!this.world.inventory.remove("branch", 1)) {
+      return;
+    }
+    const { branchSeconds, maxSeconds } = CONFIG.campfire;
+    fire.fuel = Math.min(maxSeconds, fire.fuel + branchSeconds);
+    this.refreshCreatureFires();
+  }
+
+  /** FG3-A: put out on purpose; what was left burning is lost. */
+  private putOut(fire: Fire): void {
+    fire.fuel = 0;
+    this.world.interactions.say("Fogueira apagada");
+    this.refreshCreatureFires();
   }
 
   private empty(slot: SpitSlot): void {
@@ -134,85 +231,56 @@ export class CampfireManager {
     slot.meat.flesh.setEnabled(false);
   }
 
-  private isNear(radius: number): boolean {
-    const fire = this.model?.root.position;
-    if (!fire) {
-      return false;
-    }
-    const feet = this.player.feet;
-    return Math.hypot(feet.x - fire.x, feet.z - fire.z) <= radius;
-  }
-
-  /** CZ2-A: E takes a cooked piece if there is one, or puts a raw one on the spit. */
-  private spitInteraction(): Interaction | undefined {
-    const fire = this.model?.root.position;
-    if (!fire || !this.isNear(CONFIG.campfire.reach)) {
-      return undefined;
-    }
-    const feet = this.player.feet;
-    const distance = Math.hypot(feet.x - fire.x, feet.z - fire.z);
-    const cooked = this.slots.find((slot) => slot.state === "cooked");
-    if (cooked) {
-      if (this.world.inventory.spaceFor("cookedMeat") <= 0) {
-        return { label: "Inventário cheio", distance };
-      }
-      return {
-        label: "Pegar carne cozida",
-        distance,
-        act: () => {
-          this.empty(cooked);
-          this.world.inventory.add("cookedMeat", 1);
-        },
-      };
-    }
-    if (this.world.inventory.count("rawMeat") <= 0) {
-      return undefined;
-    }
-    const free = this.slots.find((slot) => slot.state === "empty");
-    if (!free) {
-      return { label: "O espeto está cheio", distance };
-    }
-    return {
-      label: "Cozinhar carne",
-      distance,
-      act: () => {
-        if (!this.world.inventory.remove("rawMeat", 1)) {
-          return;
-        }
-        free.state = "cooking";
-        free.seconds = 0;
-        free.meat.setCooked(0);
-        free.meat.flesh.setEnabled(true);
-      },
-    };
-  }
-
   private update(seconds: number): void {
-    const model = this.model;
-    const light = this.light;
-    if (!model || !light) {
-      return;
-    }
-    // The flames breathe, like the torch's (TO3), only slower.
     this.time += seconds;
     const t = this.time;
-    const wave = Math.sin(t * 9) * 0.5 + Math.sin(t * 17.3) * 0.3 + Math.sin(t * 5.1) * 0.2;
-    const { lightIntensity, flicker, cookSeconds } = CONFIG.campfire;
-    light.intensity = lightIntensity * (1 + wave * flicker);
-    model.cores.forEach((core, index) => {
-      const size = 1 + Math.sin(t * (7 + index * 2.3) + index) * 0.12;
-      core.scaling.set(size, 1.8 * size, size);
-    });
-
-    for (const slot of this.slots) {
-      if (slot.state !== "cooking") {
-        continue;
+    const { lightIntensity, flicker, cookSeconds, dyingSeconds } = CONFIG.campfire;
+    let changed = false;
+    for (const fire of this.fires) {
+      const wasLit = fire.fuel > 0;
+      fire.fuel = Math.max(0, fire.fuel - seconds);
+      const lit = fire.fuel > 0;
+      if (wasLit !== lit) {
+        changed = true;
       }
-      slot.seconds += seconds;
-      slot.meat.setCooked(slot.seconds / cookSeconds);
-      if (slot.seconds >= cookSeconds) {
-        slot.state = "cooked";
+      // FG3-A: the flames shrink over the last 30 s; a cold fire shows only stones and ash.
+      const strength = Math.min(1, fire.fuel / dyingSeconds);
+      const wave = Math.sin(t * 9) * 0.5 + Math.sin(t * 17.3) * 0.3 + Math.sin(t * 5.1) * 0.2;
+      fire.light.setEnabled(lit);
+      fire.light.intensity = lightIntensity * strength * (1 + wave * flicker);
+      fire.model.cores.forEach((core, index) => {
+        core.setEnabled(lit);
+        const size =
+          (0.35 + 0.65 * strength) * (1 + Math.sin(t * (7 + index * 2.3) + index) * 0.12);
+        core.scaling.set(size, 1.8 * size, size);
+      });
+      if (lit && !fire.model.fire.isStarted()) {
+        fire.model.fire.start();
+      } else if (!lit && fire.model.fire.isStarted()) {
+        fire.model.fire.stop();
+      }
+      fire.model.fire.emitRate = 260 * (0.2 + 0.8 * strength);
+
+      // CZ2-A: meat only cooks on a lit fire.
+      for (const slot of fire.slots) {
+        if (slot.state !== "cooking" || !lit) {
+          continue;
+        }
+        slot.seconds += seconds;
+        slot.meat.setCooked(slot.seconds / cookSeconds);
+        if (slot.seconds >= cookSeconds) {
+          slot.state = "cooked";
+        }
       }
     }
+    if (changed) {
+      this.refreshCreatureFires();
+    }
   }
+}
+
+/** Minutes and seconds ("3:20"). */
+function clock(seconds: number): string {
+  const whole = Math.ceil(seconds);
+  return `${Math.floor(whole / 60)}:${String(whole % 60).padStart(2, "0")}`;
 }
