@@ -476,6 +476,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MU3 | O grupo de música baixa de 0,5 para 0,3 (SM7), por baixo do ambiente. |
 | MU4 | As instruções para pôr as faixas ficam no docs/04; o README fica para a NBB-152. |
 | MU5-A | `@types/node` como dependência de desenvolvimento e um `tsconfig.node.json` só para o `vite.config.ts`; o `tsconfig` principal não inclui mais o `vite.config.ts`, e o script `typecheck` checa os dois. |
+| MU6 | Detalhes propostos por Claude e aprovados ("1 a 5 - Ok"): `@types/node` na linha 24, a do Node do projeto; faixas em streaming, uma de cada vez e descarregadas ao fim; as transições contam o tempo do jogo; faixa que não abre só avisa no console e espera o intervalo normal; `silentHunt.music()` e `silentHunt.musicNext()`. |
 
 ## Pendentes (proposto)
 
