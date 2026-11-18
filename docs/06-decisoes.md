@@ -471,6 +471,11 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | CH3 | Apagar não tem som próprio: o crepitar some em ~1 s. A tocha acesa crepita como a fogueira, bem baixo e mais agudo, saindo da mão. |
 | AC1 | Sons das ações escolhidos por Claude, todos CC0: pegar é um passo de folhas baixo e agudo; comer "Eating a Toastie" (squashy555); limpar carcaça "vlees_snijden" (dutchlady), enquanto segura E; colocar peça, fogueira ou cama e pôr lenha "Wood Fall 2" (Manim8); desmontar "Planks Clattering" (Fission9); porta "Wooden_Door_Squeak_04" (BlondPanda); baú "Wooden Chest Open" (The_Frisbee_of_Peace). |
 | AC2 | Detalhes propostos por Claude e aprovados ("1 a 6 - Ok"): loops sem emenda (fogueira 60 s, carcaça 4,4 s); crepitar da fogueira a 0,6, de 40% a 100% com a força da chama, ouvido até 25 m, cada fogueira num ponto diferente do loop; volumes acender 0,7, tocha 0,15, pegar 0,35, comer 0,6, carcaça 0,6, colocar 0,7, desmontar 0,7, porta 0,6, baú 0,7 (tocha e pegar 30% mais agudos); pegar também ao pôr carne no espeto e recolher a cama; a porta usa o mesmo rangido para abrir e fechar; a interação ganhou campos de som (`sound`, `holdActSound`, `holdingSound`); `silentHunt.campfires()` mostra o volume do crepitar. |
+| MU1-A | Um plugin no `vite.config.ts` serve `assets-private/music/` em `/music/` com a lista das faixas em `/music/index.json` e, no build, copia as faixas se a pasta existir. Qualquer nome de arquivo (`.mp3`, `.ogg`, `.m4a`, `.wav`). |
+| MU2 | A primeira faixa 1–3 min depois de abrir o jogo; ordem aleatória sem repetir até tocar todas; entra em 3 s e sai em 5 s; no entardecer (luz abaixo de 50%) a faixa sai em 10 s e nenhuma começa à noite. |
+| MU3 | O grupo de música baixa de 0,5 para 0,3 (SM7), por baixo do ambiente. |
+| MU4 | As instruções para pôr as faixas ficam no docs/04; o README fica para a NBB-152. |
+| MU5-A | `@types/node` como dependência de desenvolvimento e um `tsconfig.node.json` só para o `vite.config.ts`; o `tsconfig` principal não inclui mais o `vite.config.ts`, e o script `typecheck` checa os dois. |
 
 ## Pendentes (proposto)
 

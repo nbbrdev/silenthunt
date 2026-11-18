@@ -78,7 +78,9 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 
 ### Música
 
-**(G10)** A música do Epidemic Sound **não vai para o Git** (O5-A): fica na pasta `assets-private/music/`, que está no `.gitignore`. O jogo funciona sem ela (só fica sem música). **Quando toca (SM5-A):** rara e baixa, só de dia, uma faixa a cada 5–10 min com silêncio entre elas; à noite, nada, para o jogador ouvir a floresta e a criatura. Para os avaliadores: o usuário envia a pasta à parte (ex.: um link de download) e explica no README onde colocar. Antes disso, o usuário confere se a licença do Epidemic Sound permite uso em jogo.
+**(G10)** A música do Epidemic Sound **não vai para o Git** (O5-A): fica na pasta `assets-private/music/`, que está no `.gitignore`. O jogo funciona sem ela (só fica sem música). **Quando toca (SM5-A):** rara e baixa, só de dia, uma faixa a cada 5–10 min com silêncio entre elas; à noite, nada, para o jogador ouvir a floresta e a criatura.
+
+**Como pôr as faixas (MU1-A, MU4):** coloque os arquivos de música (`.mp3`, `.ogg`, `.m4a` ou `.wav`, com qualquer nome) na pasta `assets-private/music/`, na raiz do projeto, e rode o jogo (`npm run dev`) ou o build (`npm run build`). Um plugin do Vite serve a pasta em `/music/` e, no build, copia as faixas para dentro do jogo; sem a pasta, o jogo fica sem música. A ordem é aleatória, sem repetir até tocar todas (MU2). Para os avaliadores: o usuário envia a pasta à parte (ex.: um link de download) e explica no README onde colocar. Antes disso, o usuário confere se a licença do Epidemic Sound permite uso em jogo.
 
 > Se os efeitos sonoros do Epidemic Sound também não puderem ser redistribuídos, eles vão para a mesma pasta privada.
 
