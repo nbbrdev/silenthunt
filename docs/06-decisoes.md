@@ -454,6 +454,10 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | PA1-A a PA5-A | Grupo 1 (passos), todos CC0: terra "Footsteps_6_Dirt_shoe" (monte32), musgo "Footsteps Moss" (Vrymaa), folhas "01-20 Footsteps, sneakers on dry leaves" (SpliceSound), gravetos "Forest_footsteps_6x" (Letterborne), galho estalando "Branches snapping" (northern87). |
 | PA6-A | Os mesmos passos para agachado, andando e correndo, com volume e tom variando. |
 | PA7 | Detalhes propostos por Claude e aprovados ("1 a 8 - Ok"): 6 passos por chão e 4 estalos, mono, pico normalizado; volumes agachado 0,22 (tom 10% mais grave), andando 0,45, correndo 0,75; por chão terra 1, musgo 0,75, folhas e gravetos 0,9; tom ±8%; estalo 0,9; pouso com passo de terra a 0,85 e tom 25% mais grave; passos do jogador sem 3D; grupos efeitos 1, ambiente 0,7, música 0,5 (criatura e espingarda no de efeitos). |
+| AM1-C a AM5-C | Grupo 2 (ambiente), todos CC0: vento "Wind and Ambient in Pine Forest" (setcookie), pássaros "A Quiet Forest Edge" (newlocknew), grilos "Crickets at night in a forest" (LukaCafuka), coruja "Owl Hoot" (Breviceps), corvos "Crows" (ken788). |
+| AM6 | Sons soltos a cada 20–60 s, 3D a 30–60 m numa direção aleatória: corvo de dia, coruja à noite, galho estalando nos dois (com os estalos dos passos, mais baixos e graves). Não fazem ruído para a criatura nem para os animais. |
+| AM7 | O vento toca sempre; pássaros e grilos trocam com a luz do dia no entardecer e no amanhecer. |
+| AM8 | Detalhes propostos por Claude e aprovados ("1 a 9 - Ok"): loops de 60 s em estéreo, sem emenda, do trecho mais estável de cada gravação; três grasnados de 1,6 s e a coruja inteira; volumes vento 0,5, pássaros 0,45, grilos 0,5, coruja 0,9, corvo 0,8, galho distante 0,7 (tom 20% mais grave); galho em 25% dos sons soltos de dia e 40% à noite; corvo e coruja 4 m acima, galho perto do chão, tom ±5%, ouvidos até 80 m; "de dia" é luz acima de 50%; `silentHunt.ambience()` e `silentHunt.ambienceOneShot()`. |
 
 ## Pendentes (proposto)
 
