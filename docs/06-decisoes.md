@@ -412,6 +412,17 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | DO2 | Sem testes das regras de dormir (X1-C). |
 | FG5 | Detalhes propostos por Claude e aprovados ("1 a 11 - Ok", "modelos ok"): fogueira e cama levam 3 s no crafting, uma por espaço; na mão, fogueira pequena sem chama e cama enrolada; prévia vermelha encostada em tronco, pedra grande, parede ou perto de outra fogueira ou cama; cama com a cabeceira longe do jogador; textos ("Clique para colocar", "Algo no caminho", "Pôr lenha (3:20)", "A fogueira está cheia", "Acender (2:00)", "Fogueira apagada: acenda com um galho na mão", "Fogueira (4:53)", "segure E: apagar", "Você vai renascer nesta cama", "[E] Dormir · segure E: recolher"); carne só cozinha com o fogo aceso; chama morrendo até \~20–35%; dorme só na noite, renasce na cama; uma ação passa na frente de um aviso no E; o toque age ao soltar e a barra de segurar aparece após 0,15 s; ferramentas de desenvolvimento. |
 
+## NBB-147: Save no IndexedDB (2026-11-18)
+
+| Código | Decisão |
+|---|---|
+| SV1-A | O save guarda o que dura: jogador (posição, vida, fome, fôlego), inventário, tocha (tempo restante), hora do dia; o que foi pego, cortado ou quebrado; construções (portas abertas ou fechadas); fogueiras (combustível e espeto); camas; baús abertos, espingarda pega e cartuchos no cano; animais mortos e carcaças limpas. Fica fora o passageiro: flechas cravadas, posição dos animais vivos e da criatura (ela volta longe), corpo de animal ainda não limpo. |
+| SV2-A | Até o menu (NBB-150), ao abrir o jogo ele continua sozinho o mundo salvo; começar de novo só por `silentHunt.newWorld()` (desenvolvimento). |
+| SV3 | Salva a cada 60 s, ao acordar e, até a pausa existir, quando a aba fica escondida ou a página fecha. Não salva com a tela de morte aberta; salva logo depois de renascer. |
+| SV4-A | Um "Salvando..." discreto no canto inferior direito por 1,5 s. |
+| SV5 | O save guarda a versão do formato (1). Se o formato mudar sem conversão, começa um mundo novo e avisa "O mundo salvo era de uma versão antiga". |
+| SV6 | Sem testes do save (X1-C). |
+
 ## Pendentes (proposto)
 
 Nenhuma.

@@ -146,5 +146,5 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 ## Morte e save
 
 - **RF-60** Ao morrer (M12-A), uma **mochila** com todo o inventário fica no local. O jogador renasce na última cama usada (ou no ponto inicial). Se morrer de novo antes de pegar a mochila, a mochila antiga continua lá (podem existir várias).
-- **RF-61** O jogo salva automaticamente a cada **60 s**, ao dormir e ao pausar (G6, T3-A). Um único mundo salvo por vez; "Novo mundo" pede confirmação antes de apagar o atual.
+- **RF-61** O jogo salva automaticamente a cada **60 s**, ao dormir e ao pausar (G6, T3-A). Um único mundo salvo por vez; "Novo mundo" pede confirmação antes de apagar o atual. Até a pausa existir, também salva quando a aba fica escondida; nunca com a tela de morte aberta (SV3). Um "Salvando..." discreto aparece por 1,5 s (SV4-A).
 - **RF-62** Dormir na cama, de noite e sem a criatura a menos de 30 m, pula para o amanhecer. A fome cai como se o tempo passasse; a vida não volta (DO1). A cama vira o ponto de renascer ao ser colocada; segurar E a recolhe (CM1-A, CM2).

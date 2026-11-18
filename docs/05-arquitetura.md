@@ -113,7 +113,7 @@ tests/                    // testes do Vitest, espelhando src/
 
 ## Save (T3-A)
 
-Um registro no IndexedDB com: versão do formato, semente, hora do dia, jogador (posição, vida, fome, fôlego, inventário, cama), mudanças por chunk, construções, mochilas e estado da espingarda e dos baús. A **versão do formato** permite mudar a estrutura no futuro sem quebrar mundos salvos.
+Um registro no IndexedDB com: versão do formato, semente, hora do dia, jogador (posição, vida, fome, fôlego, inventário, tocha, cama), mudanças por chunk (o que foi pego, cortado ou quebrado), animais mortos, construções, fogueiras, camas, mochilas e estado da espingarda e dos baús (SV1-A). A **versão do formato** permite mudar a estrutura no futuro sem quebrar mundos salvos; um save de formato desconhecido dá lugar a um mundo novo, com aviso (SV5).
 
 ## ADRs (registros de decisão de arquitetura)
 
