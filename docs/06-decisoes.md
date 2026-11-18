@@ -493,6 +493,18 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MN9 | Autor nos créditos: **nbbrdev** ("Silent Hunt foi feito por nbbrdev.", no `CREDITS.md`). |
 | MN10 | Detalhes propostos por Claude e aprovados ("1 a 11 - Ok"): depois de "Novo mundo" a página recarrega numa tela com o botão "Clique para começar"; sem save, "Novo mundo" começa direto; a pausa só abre com o jogador no controle (não morto, dormindo nem no inventário) e também pausa o som; F e Tab não funcionam pausado; um tempo de quadro único (`frameSeconds`, 0 na pausa) em todos os sistemas; créditos como "Som — Autor (Licença)", com as seções "Fonte" e "Tecnologia" no `CREDITS.md`; tamanhos 76/44/30/20, sombra a 45%, sliders laranja com o valor ao lado, opções salvas ao voltar; a fonte em `public/fonts/` (TTF e OFL); a fonte do HUD em cada controle de topo; `silentHunt.menu()` e `silentHunt.play()`; o tamanho dos textos do HUD pode subir depois (a Crimson Pro é mais baixa que a Arial). |
 
+## NBB-151: Equilíbrio e bugs (2026-11-18)
+
+| Código | Decisão |
+|---|---|
+| EQ1-B | Claude prepara um roteiro de teste (cenários curtos com o que se espera sentir); o usuário joga seguindo o roteiro e anota as diferenças. Jogo livre também vale. |
+| EQ2-A | Painel de teste só em desenvolvimento, ligado pela F2: hora do jogo, vida, fome e fôlego em números, estado e distância da criatura, FPS. Não entra no build. |
+| EQ3-A | Vale a X1-C: sem testes novos; cada correção é conferida no headless e pelo usuário no jogo. |
+| EQ4-A | O usuário anota o FPS de dia, à noite com tocha e perto de uma fogueira com construções; abaixo de 60, a otimização entra nesta issue. |
+| EQ5 | Pontos suspeitos no roteiro: captura do mouse ao voltar do menu, tamanho dos textos do HUD, chiado em pássaros, coruja e latido, dificuldade de ponta a ponta (primeira noite, comida e gordura, criatura contra fogueira e cama), noite de 6 min contra tocha de 4 min. |
+| EQ6 | Depois de cada sessão, uma tabela "valor atual → proposto, e por quê"; aprovação do usuário; um commit por lote; valores finais nos docs (RF do docs/03). |
+| EQ7-A | A issue termina quando o usuário disser que está bom, depois de quantas sessões forem precisas (PZ1). |
+
 ## Pendentes (proposto)
 
 Nenhuma.

@@ -433,6 +433,24 @@ async function start(): Promise<void> {
       const devInput = input;
       const { enableNoiseRings } = await import("./core/devNoiseRings");
       enableNoiseRings(scene, noise, devInput);
+      // EQ2-A: F2 shows the test panel (time, health, hunger, stamina, creature, FPS).
+      const { enableDevPanel } = await import("./core/devPanel");
+      enableDevPanel(engine, devInput, {
+        clock: () => ({
+          day: Math.floor(world.clock.elapsed / world.clock.cycleSeconds) + 1,
+          phase: world.clock.phase,
+          seconds: world.clock.time,
+        }),
+        health: () => health.value,
+        hunger: () => hunger.value,
+        stamina: () => player.stamina,
+        creature: () => {
+          const { state, distance } = creatureBrain.debugState();
+          // The state by its pt-BR name ("rondar", "espreitar"...), as in IA8.
+          const name = Object.entries(STATE_NAMES).find(([, value]) => value === state)?.[0];
+          return { state: name ?? state, distance };
+        },
+      });
       const recentNoise: string[] = [];
       noise.onNoise.add((event) => {
         recentNoise.push(`${event.source} ${event.radius.toFixed(1)} m`);
