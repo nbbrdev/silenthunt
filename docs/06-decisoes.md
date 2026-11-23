@@ -506,6 +506,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | EQ7-A | A issue termina quando o usuário disser que está bom, depois de quantas sessões forem precisas (PZ1). |
 | AJ1-A | Sessão 1 (2026-11-23), pedras escassas (só ~4–5 pegáveis por chunk): **20 pedras soltas a mais por chunk**, de 0,2 a 0,45 m, todas pegáveis, com o mesmo modelo de pedra. Vêm no fim da lista do chunk, para os saves antigos continuarem certos. Muda a MW2. |
 | AJ2-A | Sessão 1, jogador lento: **andar 2,4, correr 5,5, agachado 1,3 m/s** (eram 1,6, 4,5 e 0,9). O ritmo dos passos e o ruído não mudam. Muda a J1. |
+| AJ3 | Detalhes propostos por Claude e aprovados ("1 a 3 - Ok"): as pedras soltas no fim da lista de cada chunk (saves antigos certos); tamanho sorteado por igual entre 0,2 e 0,45 m, vistas a partir de 70 m como as pedras grandes; a criatura não muda (espreita a até 3 m/s, mais que o andar de 2,4). |
 
 ## Pendentes (proposto)
 
