@@ -1,4 +1,12 @@
-import { Vector3, type InstancedMesh, type Mesh, type Scene } from "@babylonjs/core";
+import {
+  Color3,
+  MeshBuilder,
+  StandardMaterial,
+  Vector3,
+  type InstancedMesh,
+  type Mesh,
+  type Scene,
+} from "@babylonjs/core";
 import type { PreyBrainBehavior } from "../ai/preyBrain";
 import { CONFIG } from "../config";
 import { frameSeconds, isPaused } from "../core/gameTime";
@@ -11,6 +19,9 @@ import type { Terrain } from "../world/terrain";
 import type { InteractionSystem } from "./interactions";
 import type { NoiseSystem } from "./noise";
 import type { SoundEffects } from "./soundEffects";
+
+/** At most this many dots in the aiming preview (40 m of path). */
+const MAX_DOTS = 80;
 
 interface FlyingStone {
   mesh: InstancedMesh;
@@ -48,6 +59,11 @@ export class StoneThrowSystem {
   private readonly lying: LyingStone[] = [];
   private cooldown = 0;
   private count = 0;
+  /** TR1-A: G is held, the path is shown. */
+  private aiming = false;
+  private readonly dotSource: Mesh;
+  private readonly dots: InstancedMesh[] = [];
+  private readonly ring: Mesh;
   /** PD7-C: the landing is heard where it happens. */
   sounds: SoundEffects | undefined;
   /** Development only: where the last stone stopped and what it hit. */
@@ -103,12 +119,131 @@ export class StoneThrowSystem {
       };
     });
 
+    // TR3-A, TR4-A: the aiming preview, dots along the path and a ring where it stops. They
+    // glow on their own and the fog does not hide them.
+    const preview = CONFIG.stoneThrow.preview;
+    const material = new StandardMaterial("stoneAimMaterial", scene);
+    material.disableLighting = true;
+    material.emissiveColor = new Color3(preview.color.r, preview.color.g, preview.color.b);
+    material.alpha = preview.alpha;
+    material.fogEnabled = false;
+    this.dotSource = MeshBuilder.CreateSphere(
+      "stoneAimDot",
+      { diameter: preview.dotSize, segments: 4 },
+      scene,
+    );
+    this.dotSource.material = material;
+    this.dotSource.isPickable = false;
+    this.dotSource.setEnabled(false);
+    this.ring = MeshBuilder.CreateTorus(
+      "stoneAimRing",
+      { diameter: preview.ringRadius * 2, thickness: 0.03, tessellation: 24 },
+      scene,
+    );
+    this.ring.material = material;
+    this.ring.isPickable = false;
+    this.ring.setEnabled(false);
+
     scene.onBeforeRenderObservable.add(() => {
-      if (parts.input.wasPressed("KeyG") && this.player.controlsEnabled && !isPaused()) {
-        this.throwStone();
+      const input = parts.input;
+      const canAct = this.player.controlsEnabled && !isPaused();
+      if (input.wasPressed("KeyG") && canAct) {
+        this.startAiming();
+      }
+      if (this.aiming) {
+        if (!canAct || input.wasPressed("Mouse2")) {
+          // TR2-A: the right button cancels; the stone stays in the inventory.
+          this.stopAiming();
+        } else if (!input.isDown("KeyG")) {
+          // TR1-A: letting go of G throws (a quick tap throws at once).
+          this.stopAiming();
+          this.throwStone();
+        } else {
+          this.showPreview();
+        }
       }
       this.update(frameSeconds(scene));
     });
+  }
+
+  /** TR1-A, TR6: holding G aims, if there is a stone to throw. */
+  private startAiming(): void {
+    if (this.inventory.count("stone") <= 0) {
+      this.say("Sem pedras para arremessar");
+      return;
+    }
+    this.aiming = true;
+  }
+
+  private stopAiming(): void {
+    this.aiming = false;
+    for (const dot of this.dots) {
+      dot.setEnabled(false);
+    }
+    this.ring.setEnabled(false);
+  }
+
+  /** Where a stone leaves from and how fast, toward the center of the view (PD8). */
+  private launch(): { position: Vector3; velocity: Vector3 } {
+    const camera = this.player.camera;
+    const direction = camera.getDirection(Vector3.Forward());
+    return {
+      position: camera.globalPosition.add(direction.scale(0.4)),
+      velocity: direction.scale(CONFIG.stoneThrow.speed),
+    };
+  }
+
+  /**
+   * TR3-A, TR6: the path the stone would follow now, with the same steps as a real one, up to
+   * the first ground, trunk or rock (animals move, so they are left out).
+   */
+  private showPreview(): void {
+    const settings = CONFIG.stoneThrow;
+    const spacing = settings.preview.dotSpacing;
+    const gravity = CONFIG.physics.gravity;
+    const step = 1 / 60;
+    const { position, velocity } = this.launch();
+    let from = position;
+    let travelled = 0;
+    let nextDot = settings.preview.firstDotDistance;
+    let used = 0;
+    let landing: Vector3 | undefined;
+    for (let time = 0; time < settings.maxFlightSeconds && used < MAX_DOTS; time += step) {
+      velocity.y += gravity * step;
+      const to = from.add(velocity.scale(step));
+      landing = this.hitScenery(from, to);
+      const end = landing ?? to;
+      const length = Vector3.Distance(from, end);
+      while (length > 0 && travelled + length >= nextDot && used < MAX_DOTS) {
+        const dot = this.dot(used++);
+        dot.position.copyFrom(Vector3.Lerp(from, end, (nextDot - travelled) / length));
+        nextDot += spacing;
+      }
+      travelled += length;
+      if (landing) {
+        break;
+      }
+      from = to;
+    }
+    for (let i = used; i < this.dots.length; i++) {
+      this.dots[i]?.setEnabled(false);
+    }
+    this.ring.setEnabled(landing !== undefined);
+    if (landing) {
+      this.ring.position.set(landing.x, landing.y + 0.03, landing.z);
+    }
+  }
+
+  /** The preview dot number `index` (made on first use), shown. */
+  private dot(index: number): InstancedMesh {
+    let dot = this.dots[index];
+    if (!dot) {
+      dot = this.dotSource.createInstance(`stoneAimDot${index}`);
+      dot.isPickable = false;
+      this.dots.push(dot);
+    }
+    dot.setEnabled(true);
+    return dot;
   }
 
   /** Development: how many thrown stones are flying and lying on the ground. */
@@ -127,13 +262,11 @@ export class StoneThrowSystem {
     }
     const settings = CONFIG.stoneThrow;
     this.cooldown = settings.cooldownSeconds;
-    const camera = this.player.camera;
-    const direction = camera.getDirection(Vector3.Forward());
+    const { position, velocity } = this.launch();
     const mesh = this.source.createInstance(`thrownStone${this.count++}`);
     mesh.setEnabled(true);
-    const position = camera.globalPosition.add(direction.scale(0.4));
     mesh.position.copyFrom(position);
-    this.flying.push({ mesh, position, velocity: direction.scale(settings.speed), age: 0 });
+    this.flying.push({ mesh, position, velocity, age: 0 });
     this.world.noise.emit(this.player.feet, settings.throwNoise, "throw");
   }
 
@@ -182,7 +315,19 @@ export class StoneThrowSystem {
         return true;
       }
     }
-    // Trunks, rocks and the ground, every half meter along the step (it can move far in a frame).
+    const landing = this.hitScenery(from, to);
+    if (landing) {
+      this.land(stone, landing, "chão, tronco ou rocha");
+      return true;
+    }
+    return false;
+  }
+
+  /**
+   * Trunks, rocks and the ground, every half meter along the step (it can move far in a frame):
+   * where a stone going from `from` to `to` would end up on the ground, if it stops.
+   */
+  private hitScenery(from: Vector3, to: Vector3): Vector3 | undefined {
     const steps = Math.max(1, Math.ceil(Vector3.Distance(from, to) / 0.5));
     let previous = from;
     for (let i = 1; i <= steps; i++) {
@@ -192,17 +337,15 @@ export class StoneThrowSystem {
         const inside = Math.hypot(point.x - obstacle.x, point.z - obstacle.z) <= obstacle.radius;
         if (inside && point.y < ground + obstacle.height) {
           // PD8: no bounce; it drops at the foot of what it hit, on the side it came from.
-          this.land(stone, this.onGround(previous.x, previous.z), "tronco ou rocha");
-          return true;
+          return this.onGround(previous.x, previous.z);
         }
       }
       if (point.y <= ground) {
-        this.land(stone, this.onGround(point.x, point.z), "chão");
-        return true;
+        return this.onGround(point.x, point.z);
       }
       previous = point;
     }
-    return false;
+    return undefined;
   }
 
   /** PD2-B, PD8: it stops there, is heard, and stays on the ground (at most `maxOnGround`). */

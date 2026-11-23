@@ -590,6 +590,13 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | PD7-C | Som da queda: um impacto recortado de "Foley_Rocks_Stones_Impacts_Mono" (Nox_Sound, CC0). |
 | PD8 | Detalhes propostos por Claude e aprovados ("Ok"): G arremessa uma pedra; sem pedras, o aviso "Sem pedras para arremessar"; sai da câmera a 14 m/s na direção do olhar, com a gravidade das flechas (AR3-A), ~20 m olhando um pouco para cima; 0,8 s entre arremessos; sem animação de braço nem som de arremesso, e o gesto faz 3 m de ruído; modelo da pedra solta com ~0,15 m; para no primeiro toque (chão, tronco ou rocha), sem quicar, e os 20 m de ruído saem dali; mata um coelho em que passar pelo corpo, e no cervo só o barulho conta; no chão vira uma pedra que se pega com E ("Pegar pedra"); as pedras arremessadas não entram no save e ficam no máximo 30 no chão (some a mais antiga); de dia a criatura não investiga (só barulhos de 50 m ou mais); tecla G na tabela de controles e no README; RF-65 novo no docs/03; valores no `config.ts`; a NBB-158 vem depois da NBB-154. |
 | PD9 | Revisão do usuário (2026-11-23): detalhes decididos por Claude aprovados ("1 a 8 - Ok"): pegar a pedra de volta usa o alcance dos outros itens do chão (1,6 m); ela gira no ar; atravessa o cervo e a criatura; ao matar um coelho, cai ao lado dele e o barulho acontece; some depois de 5 s voando; sai 0,4 m à frente dos olhos; 0,15 m medidos no modelo; `silentHunt.stones()`. A velocidade **fica em 14 m/s** (~11 m mirando a ~15°, ~20 m a 45°; o PD8 estimava errado). O "Como jogar" do README foi atualizado com o golpe fatal, a tocha que segura, as moitas e a pedra. |
+| TR0-A | Pedido do usuário: **prévia do caminho da pedra** para mirar. Reabre a NBB-158 (melhoria da mesma feature). |
+| TR1-A | **Segurar G mostra o arco; soltar arremessa.** Um toque rápido arremessa na hora. Muda a PD1-B. |
+| TR2-A | Com o G seguro, o **botão direito cancela**; a pedra fica no inventário. |
+| TR3-A | O arco é uma **fileira de pontinhos** ao longo do caminho, com um **anel** no chão onde a pedra vai parar. |
+| TR4-A | O arco **brilha por conta própria** e a neblina não o esconde (dá para mirar à noite). |
+| TR5-A | **Força fixa** (14 m/s): a distância vem do ângulo da mira. |
+| TR6 | Detalhes propostos por Claude e aprovados ("Ok"): o arco usa o mesmo cálculo da pedra e para no primeiro chão, tronco ou rocha (sem animais); pontos a cada 0,5 m, de 5 cm, branco pálido a 50%; anel de 0,3 m de raio; o intervalo de 0,8 s continua; segurar G sem pedras mostra o aviso e não desenha o arco; mirar não faz barulho; RF-65 e controles ("Arremessar uma pedra (segurar para mirar)") no docs/03, no README e no Linear. |
 
 ## Pendentes (proposto)
 

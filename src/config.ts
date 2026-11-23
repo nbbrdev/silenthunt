@@ -257,6 +257,19 @@ export const CONFIG = {
     size: 0.15,
     maxOnGround: 30,
     maxFlightSeconds: 5,
+    /**
+     * TR1-A to TR6: holding G shows the path as dots (every `dotSpacing`, `dotSize` wide) and a
+     * ring (`ringRadius`) where the stone will stop; they glow and ignore the fog (TR4-A).
+     */
+    preview: {
+      dotSpacing: 0.5,
+      dotSize: 0.05,
+      /** No dots this close to the eyes: up close they cover the middle of the view. */
+      firstDotDistance: 2,
+      ringRadius: 0.3,
+      color: { r: 0.95, g: 0.95, b: 0.9 },
+      alpha: 0.5,
+    },
   },
   /** RF-13 (G11, TO5): how far away the player can be seen. */
   visibility: {
