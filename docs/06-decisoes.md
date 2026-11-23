@@ -542,6 +542,17 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MT3-D | A faixa: "Orchestral Suspense Loop 1" (awrmacd, CC0), num trecho de 80 s em loop sem emenda e com volume normalizado (`public/sounds/music/chase.mp3`). |
 | MT4 | Detalhes propostos por Claude e aprovados ("1 a 8 - Ok"): a música segue o ataque inteiro (perseguição, golpe e hesitação); volume 1 dentro do grupo de música; se o ataque volta durante a saída, ela sobe de novo sem recomeçar a faixa; com mais de uma faixa na pasta privada, vale a primeira em ordem alfabética; os créditos mostram "Música: Epidemic Sound" com a faixa privada; corte de 80 s com emenda cruzada de 2 s, volume médio de -20 dB e 128 kbps; texto no README sobre a pasta `chase/`; `silentHunt.chase()` mostra a música. |
 
+## NBB-155: Golpe fatal (2026-11-23)
+
+| Código | Decisão |
+|---|---|
+| GF1-A | O golpe da criatura **mata sempre**, com qualquer vida. Muda o RF-23. |
+| GF2-B | **A tocha segura, mas não espanta:** encarada com a tocha acesa a menos de 10 m, a criatura para e rodeia na borda da luz, rosnando; quando o jogador desvia o olhar, ela volta a correr para ele. O ataque só acaba pela desistência em 25 s, pela fogueira ou pelo abrigo. Na espreita, a tocha encarada a faz recuar para a neblina (como a IA4-B) em vez de fugir por 60–90 s. Muda o RF-24. |
+| GF3-B | O golpe continua **parado** (dá para desviar se mexendo); um golpe que erra faz ela **voltar a perseguir** em vez de recuar. |
+| GF4-C | **"Pego":** a câmera vira de uma vez para a cara da criatura, a tela fica preta na hora com o rosnado e um **som novo de golpe ou mordida** (candidatos escolhidos pelo usuário, SM2-B), e depois aparece a tela de morte. |
+| GF5-B | **Morrer à noite leva ao amanhecer:** o relógio pula para o amanhecer, como ao dormir, e a fome cai como se o tempo passasse. Muda a VD5. |
+| GF6 | Aprovados ("Ok"): o golpe tira 100 (`creature.damage`), sem regra nova na vida; a barra de vida e as bordas de vida baixa continuam (a fome ainda tira vida); a VD7-B (não sarar à noite) continua; docs no RF-23, RF-24 e no 06. |
+
 ## Pendentes (proposto)
 
 Nenhuma.
