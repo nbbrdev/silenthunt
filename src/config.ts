@@ -48,7 +48,8 @@ export const CONFIG = {
     stamina: {
       /** RF-42 (G6). */
       max: 100,
-      runCostPerSecond: 15,
+      /** PS2: ~10 s of running (it was 15, ~7 s). */
+      runCostPerSecond: 10,
       recoveryPerSecond: 20,
     },
     /** RF-40 (G6, NBB-136). */
@@ -239,7 +240,9 @@ export const CONFIG = {
     /** RF-21: how far from the player it wanders. */
     roamDistance: { day: [60, 120], night: [30, 60] },
     /** IA2 (meters per second). Investigating uses the stalking top speed. */
-    speed: { roam: 1.2, stalkMax: 3, attack: 7, retreat: 7, backOff: 1.5 },
+    speed: { roam: 1.2, stalkMax: 3, attack: 6, retreat: 7, backOff: 1.5 },
+    /** PS1-A (NBB-153): the attack is a chase, ~10% faster than the player's run (5.5), that gives up after this long. */
+    chaseGiveUpSeconds: 25,
     /**
      * Speed at which each animation's feet match the ground at scale 1 (the animation speeds up
      * with the body; a bigger creature takes longer strides, so these grow with `scale`).
@@ -682,6 +685,31 @@ export const CONFIG = {
     /** Only by day: below this daylight none starts, and the one playing fades out. */
     minDaylight: 0.5,
     duskFadeSeconds: 10,
+  },
+  /**
+   * NBB-153 (PS3, PS4-A, PS6-A, PS7-C): the chase as the player feels it. The heartbeat beats faster
+   * as the creature closes in; the screen edges darken with each beat; the view shakes at its
+   * close footsteps; the player pants when out of breath.
+   */
+  chase: {
+    heartbeatFile: "player/heartbeat.mp3",
+    pantingFile: "player/panting.mp3",
+    /** The heartbeat: seconds between beats, from the creature far (30 m) to close (2 m). */
+    beatInterval: [0.85, 0.38] as const,
+    beatVolume: [0.45, 1] as const,
+    farDistance: 30,
+    /** After the chase ends, the heartbeat calms down over this long. */
+    calmSeconds: 3,
+    /** Dark screen edges: strength from far to close, and how fast each beat's pulse fades. */
+    edgeAlpha: [0.25, 0.75] as const,
+    pulseSeconds: 0.3,
+    /** The view shakes at each of its steps closer than this (meters). */
+    shakeDistance: 10,
+    shakeSeconds: 0.15,
+    shakeRadians: 0.012,
+    /** Panting starts below this much stamina, louder as it runs out. */
+    pantBelowStamina: 40,
+    pantVolume: 0.6,
   },
   /** NBB-149 (AN1-B to AN3): the prey's 3D sounds (CC0, see CREDITS.md). Volumes from 0 to 1. */
   preySounds: {

@@ -82,13 +82,14 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   | **Rondar** | Vaga longe do jogador (de dia, a 60–120 m; de noite, a 30–60 m). |
   | **Espreitar** | Segue o jogador fora da visão dele (no limite da neblina), parando quando é olhada. Passos baixos e olhos visíveis. |
   | **Investigar** | Vai até o último ruído ou luz que percebeu. |
-  | **Atacar** | Corre até o jogador e golpeia. |
+  | **Atacar** | ~~Corre até o jogador e golpeia.~~ **Persegue** o jogador a ~6 m/s, pouco mais rápido que a corrida dele, e golpeia a 2 m. Desiste se não o pegar em 25 s ou se ele chegar a uma fogueira acesa (PS1-A, 2026-11-23). |
   | **Recuar** | Depois do golpe, foge para a neblina e volta a rondar após 60–90 s. |
 
 - **RF-22** De dia ela **nunca ataca**: só ronda, espreita de longe e investiga ruídos muito altos (espingarda). De noite ela ataca depois de **20–40 s** espreitando.
 - **RF-23** O golpe tira **40 de vida** (de 100).
 - **RF-24** **Fogo afasta:** ela não chega a menos de **8 m** de uma fogueira acesa. A tocha acesa faz ela hesitar e recuar quando o jogador a encara a menos de 10 m, mas também a atrai de longe (RF-13).
 - **RF-25** **Presença:** os olhos brilham (visíveis até o limite da neblina, mesmo no escuro) e os passos tocam com som 3D (A4-A), baixos e espaçados, audíveis até **25 m**.
+- **RF-63** **Perseguição** (NBB-153, PS3, PS4-A): enquanto ela persegue, o coração do jogador bate cada vez mais rápido conforme ela se aproxima, e as bordas da tela escurecem a cada batida; a cada passo dela a menos de 10 m, a câmera treme. Com o fôlego baixo (abaixo de 40), o jogador ofega. Só à noite (PS5).
 
 ## Caça
 
@@ -107,7 +108,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 
 - **RF-40** **Vida** 0–100. Volta 1 por segundo quando a fome está acima de 50, **só de dia** (à noite o corpo não sara, VD7-B) e só 5 s depois do último dano (VD3-B).
 - **RF-41** **Fome** 100 → 0 em **2 ciclos de dia e noite** (32 min). Com fome 0, perde 1 de vida a cada 2 s. Ao renascer, a fome volta a 50 (FO4-B).
-- **RF-42** **Fôlego** 0–100. Correr gasta 15 por segundo; recupera 20 por segundo parado ou andando. Sem fôlego, não corre.
+- **RF-42** **Fôlego** 0–100. Correr gasta ~~15~~ **10** por segundo (PS2, 2026-11-23); recupera 20 por segundo parado ou andando. Sem fôlego, não corre.
 
 ## Coleta, crafting e construção
 

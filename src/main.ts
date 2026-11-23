@@ -19,6 +19,7 @@ import { InteractionSystem } from "./systems/interactions";
 import { AmbienceSystem } from "./systems/ambience";
 import { MusicPlayer } from "./systems/music";
 import { PreySounds } from "./systems/preySounds";
+import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
 import { Equipment } from "./player/equipment";
@@ -142,6 +143,11 @@ async function start(): Promise<void> {
     audio
       .then((audio) => presence.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons da criatura não carregados:", error));
+    // NBB-153: the chase as the player feels it (heartbeat, dark edges, shaking, panting).
+    const chaseEffects = new ChaseEffects(scene, hud, player, creatureBrain, presence);
+    audio
+      .then((audio) => chaseEffects.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons da perseguição não carregados:", error));
     audio
       .then((audio) => footsteps.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons dos passos não carregados:", error));
@@ -598,6 +604,12 @@ async function start(): Promise<void> {
           /** NBB-149: the music (tracks found, what plays, seconds to the next); the next now. */
           music: () => music.debugState(),
           musicNext: () => music.debugNext(),
+          /** NBB-153: whether the creature is chasing and how strong the chase feels (0 to 1). */
+          chase: () => ({
+            chasing: creatureBrain.isChasing,
+            distance: Math.round(creatureBrain.playerDistance * 10) / 10,
+            intensity: chaseEffects.debugIntensity,
+          }),
           /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */
           preySounds: () => ({ ...preySounds.played }),
           /** NBB-149: how many times each tool or weapon sound has played. */

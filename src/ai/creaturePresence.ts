@@ -1,5 +1,6 @@
 import {
   CreateSoundAsync,
+  Observable,
   Vector3,
   type AbstractMesh,
   type Camera,
@@ -38,6 +39,8 @@ export class CreaturePresence {
   private stepClock = 0;
   private breathLevel = 0;
   private breathing = false;
+  /** PS4-A: fired at each of its footsteps (the view shakes when it is close, in a chase). */
+  readonly onStep = new Observable<void>();
 
   constructor(
     scene: Scene,
@@ -139,6 +142,7 @@ export class CreaturePresence {
     step.playbackRate = 1 + randomRange(this.random, -jitter, jitter);
     step.volume = settings.stepVolume[animation];
     step.play();
+    this.onStep.notifyObservers();
   }
 
   /** SO3: slow breathing while it stalks close by, fading in and out. */

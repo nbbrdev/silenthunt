@@ -51,7 +51,7 @@ export function createDamageEffects(
 }
 
 /** A full-screen image: `color` at the edges, fading to clear toward the center. */
-function edgeImage(name: string, color: string): Image {
+export function edgeImage(name: string, color: string): Image {
   const size = 256;
   const canvas = document.createElement("canvas");
   canvas.width = size;

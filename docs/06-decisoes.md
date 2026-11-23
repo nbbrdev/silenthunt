@@ -533,6 +533,8 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | PS3 | Sons da perseguição: o coração do jogador acelerando com a criatura perto, o ofegar com o fôlego baixo e os passos dela mais altos e rápidos. Os candidatos dos sons novos são escolhidos pelo usuário (SM2-B). |
 | PS4-A | Efeitos: bordas escuras pulsando no ritmo do coração e um leve tremor da câmera a cada passo dela a menos de 10 m. |
 | PS5 | A perseguição só acontece à noite; de dia a criatura continua fugindo (AP1-A). |
+| PS6-A | Coração: "heartbeat-80bpm-limited" (loudernoises, CC0), uma batida recortada que toca com o intervalo ditado pela distância. |
+| PS7-C | Ofegar: "Human Breathing Exhausted Panicked" (Sheyvan, CC0), em loop sem emenda. |
 
 ## Pendentes (proposto)
 

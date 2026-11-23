@@ -195,6 +195,11 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     }
   }
 
+  /** NBB-153: true while it chases the player, before the strike (PS1-A). */
+  get isChasing(): boolean {
+    return this.currentState === "attack" && this.strikeTime < 0 && this.hesitateTime <= 0;
+  }
+
   /** Snapshot for the development console (IA8). */
   debugState(): {
     state: CreatureState;
@@ -325,7 +330,8 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         this.stateLimit = settings.investigateLookSeconds;
         break;
       case "attack":
-        this.stateLimit = Infinity;
+        // PS1-A: the chase gives up if it has not caught the player by then.
+        this.stateLimit = settings.chaseGiveUpSeconds;
         break;
       case "retreat":
         this.stateLimit = randomInRange(this.random, settings.retreatSeconds);
@@ -506,6 +512,14 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         return;
       }
       const { x, z } = this.senses.player.position;
+      // PS1-A: the player reached a lit campfire, or the chase lasted too long: it gives up.
+      const atFire = this.fires.some(
+        (fire) => Math.hypot(fire.x - x, fire.z - z) < settings.fireKeepAway,
+      );
+      if (atFire || this.stateTime >= this.stateLimit) {
+        this.enter("retreat");
+        return;
+      }
       // CN5-A: a wall or a closed door between them: no strike. Kept out long, it gives up.
       // Only counts once it is at the walls, not while still running toward them.
       const walled = this.distanceToPlayer() <= settings.strikeDistance + 1.5 && this.isWalledOff();
