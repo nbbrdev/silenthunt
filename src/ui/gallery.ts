@@ -66,7 +66,9 @@ export function createGalleryScene(engine: Engine): Scene {
     scene,
   );
   camera.attachControl(true);
-  camera.lowerRadiusLimit = 0.5;
+  camera.lowerRadiusLimit = 0.3;
+  // Small items are seen from under a meter: the default near plane (1 m) would cut them off.
+  camera.minZ = 0.05;
   // Never orbit below the horizon: the ground is only visible from above.
   camera.upperBetaLimit = Math.PI / 2 - 0.05;
   camera.wheelPrecision = 30;
@@ -279,10 +281,30 @@ export function createGalleryScene(engine: Engine): Scene {
             ?.getEffect()
             ?.vertexSourceCode.includes("windSway") ?? false,
       }),
-      /** Points the camera from a given angle (e.g. view(0, 1.55) = side view at ground level). */
-      view: (alpha: number, beta: number) => {
+      /**
+       * Points the camera from a given angle (e.g. view(0, 1.55) = side view at ground level),
+       * optionally from `radius` meters (small items look tiny from the default 2 m).
+       */
+      view: (alpha: number, beta: number, radius?: number) => {
         camera.alpha = alpha;
         camera.beta = beta;
+        if (radius !== undefined) {
+          camera.radius = radius;
+        }
+      },
+      /** Switches the light ("day", "night" or "fog"), as its button does. */
+      light: (mode: LightMode) => {
+        state.lightMode = mode;
+        applyLightMode();
+      },
+      /** Shows the model with this id (as its button does). */
+      show: (id: string) => {
+        const generator = MODEL_REGISTRY.find((entry) => entry.id === id);
+        if (generator) {
+          state.generator = generator;
+          showModel();
+        }
+        return trianglesText.text;
       },
       /** Lowest and highest point of the model with the current animation pose applied. */
       posedBounds: (...nodeNames: string[]) => {

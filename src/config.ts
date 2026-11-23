@@ -997,6 +997,11 @@ export const CONFIG = {
     canvas: { r: 0.74, g: 0.68, b: 0.52 },
     cartridgeShell: { r: 0.55, g: 0.12, b: 0.1 },
     brass: { r: 0.72, g: 0.58, b: 0.3 },
+    /** NBB-156 (OB12): the radio's olive case, the battery's black casing, the tubes' glass. */
+    radioCase: { r: 0.29, g: 0.31, b: 0.22 },
+    batteryCase: { r: 0.12, g: 0.12, b: 0.12 },
+    batteryLabel: { r: 0.62, g: 0.18, b: 0.12 },
+    tubeGlass: { r: 0.62, g: 0.66, b: 0.62 },
     /** Forest floor texture colors (the ground has no vertex colors). */
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },
