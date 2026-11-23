@@ -59,7 +59,7 @@ Em desenvolvimento há ferramentas extras: a galeria de modelos em `/?galeria`, 
 
 - **Você começa sem nada.** Junte galhos, pedras e fibra e faça a faca, o machado, o arco e a fogueira no inventário (Tab).
 - **Faça silêncio.** Correr, pisar em galhos secos e atirar fazem barulho; andar agachado e no musgo, quase nenhum. A neblina esconde você tanto quanto esconde o resto.
-- **A noite é da criatura.** De dia ela só observa de longe. À noite, ela espreita e ataca. Fogueiras acesas a mantêm longe, e encará-la com a tocha acesa a faz recuar.
+- **A noite é da criatura.** De dia ela só observa de longe. À noite, ela espreita e ataca, e um golpe dela mata. Fogueiras acesas a mantêm longe; encará-la com a tocha acesa a segura na borda da luz, mas não a espanta. Agachado numa moita, com a tocha apagada, ninguém vê você, e uma pedra arremessada (G) a atrai para longe.
 - **Coma.** Cace coelhos e cervos, limpe a carcaça e cozinhe a carne na fogueira. A gordura vira tochas.
 - **Morrer custa caro.** Seus itens ficam numa mochila onde você caiu, e você renasce na última cama que colocou ou usou. Construa um abrigo antes que a noite chegue.
 
