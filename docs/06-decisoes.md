@@ -560,6 +560,21 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | VL3-A | **Coração de 0,45–1 para 0,9–1,8** e **ofegar de 0,6 para 1** (~5 dB mais destacados). Muda a PS8. |
 | VL4 | Aprovados ("Ok"): valores no `config.ts` (`audio.masterVolume`, `audio.groups.music`, `music.volume`, `chase.beatVolume`, `chase.pantVolume`); os controles das opções multiplicam esses valores; commit à parte com a NBB-155. |
 
+## NBB-154: Esconder-se nas moitas (2026-11-23)
+
+| Código | Decisão |
+|---|---|
+| MI1-A | **Escondido** = agachado dentro de uma moita, com a tocha apagada. |
+| MI2-A | Moitas maiores: de 0,6–1,2 m para **1,1–1,6 m** de altura (mesmos triângulos), para cobrir os olhos agachados (1,0 m). Revisão na galeria. |
+| MI3-A | Na perseguição, ela só perde o jogador se **não o viu entrar**: na hora em que ele se esconde, ela precisa estar mais longe que a distância em que o veria de pé naquele momento (8 m no escuro). Mais perto, a moita não adianta. |
+| MI4-A | Ao perder o jogador, ela **procura por perto** (pontos em volta de onde o perdeu, nunca direto na moita) por uns 20–30 s e depois recua. Passando a 2 m da moita, ou ouvindo um barulho dele, ela o acha. |
+| MI5-B | A moita esconde por **até 60 s seguidos**; depois ela "fareja" e vai direto até lá. O jogador precisa trocar de moita ou sair. |
+| MI6-A | Escondido: **bordas da tela escurecidas e esverdeadas**, como folhas; somem ao sair. |
+| MI7-A | A moita esconde também das **presas** (elas só ouvem): dá para emboscar. |
+| MI8-B | **Farfalhar de folhas** ao entrar e sair da moita, com rodada de candidatos (SM2-B). |
+| MI9-A | Som do farfalhar: "The Rustle of a Bush" (Montacue, CC0). |
+| MI10 | Detalhes propostos por Claude e aprovados ("Ok"): dentro da moita = a menos de 0,7 m do centro; escondido, a distância em que é visto vira 0 (criatura e presas), exceto a criatura a 2 m ou menos, que o acha; o farfalhar toca ao entrar e sair de qualquer moita (volume 0,5) e faz 4 m de ruído; bordas de folhas verde-escuras a ~55%, entrando e saindo em 0,3 s; "viu entrar" compara com a distância em que veria o jogador de pé e sem tocha naquele momento, na espreita e no ataque; estado novo **"Procurar"** (20–30 s a 3 m/s, animação de espreitar, por pontos a 4–10 m de onde o perdeu; depois recua por 60–90 s); na procura, um barulho a leva até ele, e sair, ficar de pé ou acender a tocha dentro da visão dela faz ela atacar na hora; escondido, o rondar não vira espreita pelo tempo; o limite de 60 s conta só à noite, na mesma moita, e zera ao sair; passando dele, ela ataca de onde estiver; se ela viu entrar, o ataque segue e o golpe acerta na moita; moitas de 1,1–1,6 m com as mesmas folhas, aprovadas por capturas da galeria antes do resto; colher fibra continua sumindo com a moita; RF-64 novo no docs/03 e "Procurar" no RF-21; `silentHunt.hidden()`. |
+
 ## Pendentes (proposto)
 
 Nenhuma.
