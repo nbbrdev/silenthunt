@@ -509,6 +509,17 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | AJ3 | Detalhes propostos por Claude e aprovados ("1 a 3 - Ok"): as pedras soltas no fim da lista de cada chunk (saves antigos certos); tamanho sorteado por igual entre 0,2 e 0,45 m, vistas a partir de 70 m como as pedras grandes; a criatura não muda (espreita a até 3 m/s, mais que o andar de 2,4). |
 | EQ8 | Fechamento (2026-11-23): o usuário aprovou o estado atual do jogo ("o estado atual do jogo está ok"); as ideias que surgiram são features novas (ver Pendentes). **FPS não medido** (EQ4-A ficou em aberto). |
 
+## NBB-152: Entrega (2026-11-23)
+
+| Código | Decisão |
+|---|---|
+| EN1-A | O README manda rodar a versão final (`npm install`, `npm run build`, `npm run preview`), sem as ferramentas de desenvolvimento e com a música da pasta privada; `npm run dev` numa seção "Para desenvolver". |
+| EN2 | README: título e frase, capturas, como rodar, controles (do docs/03, com R para recarregar e o botão direito para desmontar), como jogar (4–5 dicas), música opcional, créditos, tecnologia e documentação. Sai o aviso "Em desenvolvimento". |
+| EN3-A | Claude tira 4 capturas no navegador de teste (menu, floresta de dia, noite com tocha e criatura, abrigo com fogueira) e as salva em `docs/images/`. |
+| EN4-A | Licença do código: **MIT**. Sons, fonte e música seguem as próprias licenças (`CREDITS.md`). |
+| EN5-A | README só em pt-BR. |
+| EN6 | Sem conferência de clone limpo por Claude: o usuário roda o projeto na própria máquina. |
+
 ## Pendentes (proposto)
 
 - **Perseguição da criatura (proposto, 2026-11-23).** Ideia do usuário na sessão de testes: no lugar do disparo a 7 m/s, a besta persegue o jogador um pouco mais rápido que a corrida dele, com sons (coração, ofegar, passos pesados) e efeitos (bordas pulsando, tremor) para dar aflição. Fica para **depois do refinamento do que já foi feito e planejado** (decisão do usuário). Fora do escopo do docs/02 até lá; as opções já levantadas (PS0 a PS5: issue nova NBB-153, desistência após 25 s, fôlego de ~10 s, sons, efeitos, só à noite) serão retomadas numa rodada própria.
