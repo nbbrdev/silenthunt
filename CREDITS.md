@@ -45,6 +45,7 @@ Sons do [Freesound](https://freesound.org). A licença **CC0** (domínio públic
 | `public/sounds/actions/chest.mp3`                              | [Wooden Chest Open.wav](https://freesound.org/people/The_Frisbee_of_Peace/sounds/573654/)                  | The_Frisbee_of_Peace | CC0     | Mono e volume normalizado                                                               |
 | `public/sounds/player/heartbeat.mp3`                           | [heartbeat-80bpm-limited.wav](https://freesound.org/people/loudernoises/sounds/332819/)                    | loudernoises         | CC0     | Uma batida recortada (0,6 s), em mono                                                   |
 | `public/sounds/player/panting.mp3`                             | [Human Breathing Exhausted Panicked](https://freesound.org/people/Sheyvan/sounds/831389/)                  | Sheyvan              | CC0     | Trecho de 14 s em loop sem emenda, em mono e com volume normalizado                     |
+| `public/sounds/music/chase.mp3`                                | [Orchestral Suspense Loop 1](https://freesound.org/people/awrmacd/sounds/387223/)                          | awrmacd              | CC0     | Trecho de 80 s em loop sem emenda, com volume normalizado                               |
 
 ## Fonte
 

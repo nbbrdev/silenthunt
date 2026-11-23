@@ -82,6 +82,8 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 
 **Como pôr as faixas (MU1-A, MU4):** coloque os arquivos de música (`.mp3`, `.ogg`, `.m4a` ou `.wav`, com qualquer nome) na pasta `assets-private/music/`, na raiz do projeto, e rode o jogo (`npm run dev`) ou o build (`npm run build`). Um plugin do Vite serve a pasta em `/music/` e, no build, copia as faixas para dentro do jogo; sem a pasta, o jogo fica sem música. A ordem é aleatória, sem repetir até tocar todas (MU2). Para os avaliadores: o usuário envia a pasta à parte (ex.: um link de download) e explica no README onde colocar. Antes disso, o usuário confere se a licença do Epidemic Sound permite uso em jogo.
 
+**Música da perseguição (NBB-153; MT1-C, MT2, MT3-D):** a exceção à SM5-A. Quando a criatura ataca à noite, entra junto com o rosnado uma música tensa ("Orchestral Suspense Loop 1", de awrmacd, CC0), em 0,5 s, e toca em loop enquanto o ataque dura (perseguição, golpe ou hesitação). Quando o ataque termina (fuga, golpe ou desistência), ela some em 3 s. Sai pelo grupo de música, então o controle "Música" das opções também vale para ela. A faixa vem com o jogo (`public/sounds/music/chase.mp3`, 80 s em loop sem emenda). Se houver uma faixa em `assets-private/music/chase/` (ex.: do Epidemic Sound), ela toma o lugar; com mais de uma, vale a primeira em ordem alfabética. O plugin do Vite a lista em `/music/chase.json`.
+
 > Se os efeitos sonoros do Epidemic Sound também não puderem ser redistribuídos, eles vão para a mesma pasta privada.
 
 ## Fonte de letra (O7-A)

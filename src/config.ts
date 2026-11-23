@@ -710,6 +710,14 @@ export const CONFIG = {
     /** Panting starts below this much stamina, louder as it runs out. */
     pantBelowStamina: 40,
     pantVolume: 0.6,
+    /**
+     * MT1-C, MT2, MT3-D: the chase music ("Orchestral Suspense Loop 1", CC0), unless the private
+     * folder has one. It plays in the music group (its slider in the options counts).
+     */
+    musicFile: "music/chase.mp3",
+    musicVolume: 1,
+    musicFadeInSeconds: 0.5,
+    musicFadeOutSeconds: 3,
   },
   /** NBB-149 (AN1-B to AN3): the prey's 3D sounds (CC0, see CREDITS.md). Volumes from 0 to 1. */
   preySounds: {

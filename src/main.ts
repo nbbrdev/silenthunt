@@ -426,7 +426,7 @@ async function start(): Promise<void> {
       audio,
       options,
       hasSave,
-      hasMusic: () => music.hasTracks,
+      hasMusic: () => music.hasTracks || chaseEffects.usesPrivateMusic,
       canPause: () => player.controlsEnabled && !health.isDead,
       save: () => saveGame.save(),
       newWorld: () => saveGame.newWorld(),
@@ -609,6 +609,7 @@ async function start(): Promise<void> {
             chasing: creatureBrain.isChasing,
             distance: Math.round(creatureBrain.playerDistance * 10) / 10,
             intensity: chaseEffects.debugIntensity,
+            music: chaseEffects.debugMusic,
           }),
           /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */
           preySounds: () => ({ ...preySounds.played }),

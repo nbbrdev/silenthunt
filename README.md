@@ -23,7 +23,9 @@ Depois abra no navegador o endereço que aparecer no terminal (normalmente http:
 
 ### Música (opcional)
 
-A música não vem no repositório. Para ouvi-la, coloque os arquivos (`.mp3`, `.ogg`, `.m4a` ou `.wav`, com qualquer nome) na pasta `assets-private/music/`, na raiz do projeto, e rode o `npm run build` de novo. Sem a pasta, o jogo funciona normalmente, só sem música.
+A música do dia não vem no repositório. Para ouvi-la, coloque os arquivos (`.mp3`, `.ogg`, `.m4a` ou `.wav`, com qualquer nome) na pasta `assets-private/music/`, na raiz do projeto, e rode o `npm run build` de novo. Sem a pasta, o jogo funciona normalmente, só sem música de dia.
+
+A música da perseguição já vem com o jogo (CC0). Para trocá-la, coloque uma faixa na pasta `assets-private/music/chase/`; se houver mais de uma, vale a primeira em ordem alfabética.
 
 ### Para desenvolver
 

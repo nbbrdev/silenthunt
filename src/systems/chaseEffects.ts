@@ -1,4 +1,4 @@
-import { CreateSoundAsync, type Scene, type StaticSound } from "@babylonjs/core";
+import { CreateSoundAsync, SoundState, type Scene, type StaticSound } from "@babylonjs/core";
 import type { AdvancedDynamicTexture } from "@babylonjs/gui";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
 import type { CreaturePresence } from "../ai/creaturePresence";
@@ -20,6 +20,10 @@ export class ChaseEffects {
   private readonly edges;
   private heartbeat: StaticSound | undefined;
   private panting: StaticSound | undefined;
+  /** MT1-C, MT2: the chase music and how loud it is now (0 to 1). */
+  private music: StaticSound | undefined;
+  private musicLevel = 0;
+  private privateMusic = false;
   /** 0 (calm) to 1 (the creature right behind). */
   private intensity = 0;
   private untilBeat = 0;
@@ -62,11 +66,52 @@ export class ChaseEffects {
     panting.play();
     this.heartbeat = heartbeat;
     this.panting = panting;
+    this.music = await this.loadMusic(audio);
+  }
+
+  /** True if the chase plays a track from the private folder (the credits name it, MN5-A). */
+  get usesPrivateMusic(): boolean {
+    return this.privateMusic;
+  }
+
+  /**
+   * MT1-C: a track from `assets-private/music/chase/` if there is one (listed at
+   * `/music/chase.json`), otherwise the one that comes with the game (CC0).
+   */
+  private async loadMusic(audio: GameAudio): Promise<StaticSound> {
+    const settings = CONFIG.chase;
+    let url = soundUrl(settings.musicFile);
+    try {
+      const response = await fetch(`${import.meta.env.BASE_URL}music/chase.json`);
+      const list: unknown = response.ok ? await response.json() : [];
+      const name = Array.isArray(list) ? list.find((item) => typeof item === "string") : undefined;
+      if (typeof name === "string") {
+        url = `${import.meta.env.BASE_URL}music/chase/${encodeURIComponent(name)}`;
+        this.privateMusic = true;
+      }
+    } catch {
+      // No list: the game's own track.
+    }
+    return CreateSoundAsync(
+      "chaseMusic",
+      url,
+      { loop: true, volume: 0, outBus: audio.music },
+      audio.engine,
+    );
   }
 
   /** Development: how strong the chase feels now (0 to 1). */
   get debugIntensity(): number {
     return Math.round(this.intensity * 100) / 100;
+  }
+
+  /** Development: the chase music's level (0 to 1), whether it plays and where it comes from. */
+  get debugMusic(): { level: number; playing: boolean; private: boolean } {
+    return {
+      level: Math.round(this.musicLevel * 100) / 100,
+      playing: this.music?.state === SoundState.Started,
+      private: this.privateMusic,
+    };
   }
 
   private update(seconds: number): void {
@@ -105,6 +150,29 @@ export class ChaseEffects {
     this.pantLevel += Math.max(-seconds, Math.min(seconds, pantTarget - this.pantLevel));
     if (this.panting) {
       this.panting.volume = settings.pantVolume * this.pantLevel;
+    }
+    this.updateMusic(seconds);
+  }
+
+  /**
+   * MT2: the music comes in with the growl (0.5 s) and plays while it attacks (chase, strike or
+   * hesitation); when the attack ends it fades out over 3 s and stops, to start over next time.
+   */
+  private updateMusic(seconds: number): void {
+    const music = this.music;
+    if (!music) {
+      return;
+    }
+    const settings = CONFIG.chase;
+    const attacking = this.creature.state === "attack";
+    if (attacking && this.musicLevel <= 0) {
+      music.play();
+    }
+    const step = seconds / (attacking ? settings.musicFadeInSeconds : settings.musicFadeOutSeconds);
+    this.musicLevel = Math.max(0, Math.min(1, this.musicLevel + (attacking ? step : -step)));
+    music.volume = settings.musicVolume * this.musicLevel;
+    if (!attacking && this.musicLevel <= 0) {
+      music.stop();
     }
   }
 
