@@ -597,6 +597,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | TR4-A | O arco **brilha por conta própria** e a neblina não o esconde (dá para mirar à noite). |
 | TR5-A | **Força fixa** (14 m/s): a distância vem do ângulo da mira. |
 | TR6 | Detalhes propostos por Claude e aprovados ("Ok"): o arco usa o mesmo cálculo da pedra e para no primeiro chão, tronco ou rocha (sem animais); pontos a cada 0,5 m, de 5 cm, branco pálido a 50%; anel de 0,3 m de raio; o intervalo de 0,8 s continua; segurar G sem pedras mostra o aviso e não desenha o arco; mirar não faz barulho; RF-65 e controles ("Arremessar uma pedra (segurar para mirar)") no docs/03, no README e no Linear. |
+| TR7 | Revisão do usuário (2026-11-23): detalhes decididos por Claude aprovados ("1 a 7 - Ok"): pontinhos a partir de 2 m dos olhos; esferas de poucos lados e aro de 3 cm; no máximo 80 pontinhos (40 m); pausar ou morrer com o G seguro cancela; soltar no intervalo de 0,8 s não arremessa; prévia em passos de 1/60 s (pode diferir um pouco em quadros lentos); com o arco na mão, o botão direito cancela e faz o zoom. |
 
 ## Pendentes (proposto)
 
