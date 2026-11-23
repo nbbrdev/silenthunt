@@ -575,6 +575,18 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MI9-A | Som do farfalhar: "The Rustle of a Bush" (Montacue, CC0). |
 | MI10 | Detalhes propostos por Claude e aprovados ("Ok"): dentro da moita = a menos de 0,7 m do centro; escondido, a distância em que é visto vira 0 (criatura e presas), exceto a criatura a 2 m ou menos, que o acha; o farfalhar toca ao entrar e sair de qualquer moita (volume 0,5) e faz 4 m de ruído; bordas de folhas verde-escuras a ~55%, entrando e saindo em 0,3 s; "viu entrar" compara com a distância em que veria o jogador de pé e sem tocha naquele momento, na espreita e no ataque; estado novo **"Procurar"** (20–30 s a 3 m/s, animação de espreitar, por pontos a 4–10 m de onde o perdeu; depois recua por 60–90 s); na procura, um barulho a leva até ele, e sair, ficar de pé ou acender a tocha dentro da visão dela faz ela atacar na hora; escondido, o rondar não vira espreita pelo tempo; o limite de 60 s conta só à noite, na mesma moita, e zera ao sair; passando dele, ela ataca de onde estiver; se ela viu entrar, o ataque segue e o golpe acerta na moita; moitas de 1,1–1,6 m com as mesmas folhas, aprovadas por capturas da galeria antes do resto; colher fibra continua sumindo com a moita; RF-64 novo no docs/03 e "Procurar" no RF-21; `silentHunt.hidden()`. |
 
+## NBB-158: Arremessar pedra (2026-11-23)
+
+| Código | Decisão |
+|---|---|
+| PD0-A | Ideia do usuário na rodada das moitas: **arremessar pedra** para fazer barulho longe. Entra no escopo como a issue 36 do M6 (NBB-158), feita depois das moitas. |
+| PD1-B | A **tecla G** arremessa uma pedra do inventário, sem trocar o que está na mão (dá para usar escondido na moita). |
+| PD2-B | A queda da pedra faz **20 m de ruído**, no lugar onde ela cai. |
+| PD3-A | A criatura só vai até o barulho quando **não sabe onde o jogador está** (rondando, investigando ou procurando); na espreita e na perseguição, ignora. |
+| PD4-A | A pedra **fica no chão** e pode ser pega de novo, como uma pedra solta. |
+| PD5-B | As presas fogem do barulho, e um **acerto direto mata um coelho**. |
+| PD6-A | **Som novo** da pedra caindo, com rodada de candidatos (SM2-B). |
+
 ## Pendentes (proposto)
 
 Nenhuma.

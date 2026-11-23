@@ -72,6 +72,7 @@ Features novas pedidas pelo usuário em 2026-11-23 (FN0-A, FN1), promovidas ao e
 33. **Criatura mata com um golpe** (muda o RF-23). [Frontend]
 34. **Objetivo do jogo.** [Frontend]
 35. **Mapa com marcações e waypoints.** [UX]
+36. **Arremessar pedra** para fazer barulho longe e atrair ou despistar a criatura (PD0-A, 2026-11-23). [Frontend]
 
 ## Ordem de corte
 

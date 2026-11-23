@@ -21,7 +21,7 @@ Porta de entrada. Esta pasta é a **fonte da verdade** do conteúdo do jogo; cad
 | M3 · Caçar | Presas, armas, fome e fogueira | ✅ Concluído em 2026-11-17 |
 | M4 · Sobreviver | Coleta, crafting, construção, save | ✅ Concluído em 2026-11-18 |
 | M5 · Polimento | Som, menus, equilíbrio, entrega | ✅ Concluído em 2026-11-23 |
-| M6 · Pós-entrega | Perseguição, moitas, golpe fatal, objetivo, mapa | Em andamento |
+| M6 · Pós-entrega | Perseguição, moitas, golpe fatal, objetivo, mapa, arremessar pedra | Em andamento |
 
 ## Convenções
 
