@@ -610,6 +610,10 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | OB5-A | **Tela de vitória** (dias sobrevividos e mortes) com "Continuar jogando" e "Menu principal"; o mundo continua salvo. |
 | OB6-A | O jogador sabe do objetivo por uma **frase curta** ao começar um mundo novo, um **bilhete na primeira cabana** (a da espingarda) e o **progresso** ("Rádio: 1 de 3 peças") no inventário e na pausa. |
 | OB7-A | As peças do rádio **nunca saem do jogador** (não vão para a mochila). |
+| OB8-A | **Ritual:** diários de um caçador nas cabanas contam como banir a criatura: queimar **3 crânios de cervo** numa fogueira acesa, à noite, com ela a menos de 20 m. O crânio é um item novo que fica na carcaça limpa do cervo (a corça não tem galhada, CO3). |
+| OB9-A | O ritual vale **a qualquer noite**, independente do rádio: o jogo tem **dois finais** (resgate e ritual). |
+| OB10-A | Depois do ritual, a criatura **some daquele mundo para sempre**: tela de vitória do ritual, e "Continuar jogando" segue sem ela. |
+| OB11-B | Na última noite, além do vermelho e do ataque sem espreitar: **a tocha não a segura**, ela **não desiste** nos 25 s e **procura mais tempo** quando perde o jogador numa moita. Só a fogueira e o abrigo fechado protegem. |
 
 ## Pendentes (proposto)
 
