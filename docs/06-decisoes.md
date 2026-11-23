@@ -586,6 +586,8 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | PD4-A | A pedra **fica no chão** e pode ser pega de novo, como uma pedra solta. |
 | PD5-B | As presas fogem do barulho, e um **acerto direto mata um coelho**. |
 | PD6-A | **Som novo** da pedra caindo, com rodada de candidatos (SM2-B). |
+| PD7-C | Som da queda: um impacto recortado de "Foley_Rocks_Stones_Impacts_Mono" (Nox_Sound, CC0). |
+| PD8 | Detalhes propostos por Claude e aprovados ("Ok"): G arremessa uma pedra; sem pedras, o aviso "Sem pedras para arremessar"; sai da câmera a 14 m/s na direção do olhar, com a gravidade das flechas (AR3-A), ~20 m olhando um pouco para cima; 0,8 s entre arremessos; sem animação de braço nem som de arremesso, e o gesto faz 3 m de ruído; modelo da pedra solta com ~0,15 m; para no primeiro toque (chão, tronco ou rocha), sem quicar, e os 20 m de ruído saem dali; mata um coelho em que passar pelo corpo, e no cervo só o barulho conta; no chão vira uma pedra que se pega com E ("Pegar pedra"); as pedras arremessadas não entram no save e ficam no máximo 30 no chão (some a mais antiga); de dia a criatura não investiga (só barulhos de 50 m ou mais); tecla G na tabela de controles e no README; RF-65 novo no docs/03; valores no `config.ts`; a NBB-158 vem depois da NBB-154. |
 
 ## Pendentes (proposto)
 

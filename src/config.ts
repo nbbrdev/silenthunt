@@ -224,6 +224,24 @@ export const CONFIG = {
     /** Flame and fire colors. */
     flameColor: { r: 1, g: 0.55, b: 0.18 },
   },
+  /**
+   * NBB-154 (RF-64; MI1-A to MI10): hiding in a bush. Within `bushRadius` of a bush's center,
+   * crouched and with the torch out, the player is hidden: nobody sees them, except the creature
+   * within `findDistance`. Going in or out rustles (and makes noise). At night, after
+   * `sniffSeconds` hidden in the same bush, the creature sniffs them out.
+   */
+  hiding: {
+    bushRadius: 0.7,
+    findDistance: 2,
+    sniffSeconds: 60,
+    rustleFile: "player/rustle.mp3",
+    rustleVolume: 0.5,
+    rustleNoise: 4,
+    /** MI6-A: dark green leafy screen edges while hidden. */
+    edgeColor: "rgba(16, 30, 12, 1)",
+    edgeAlpha: 0.55,
+    edgeFadeSeconds: 0.3,
+  },
   /** RF-13 (G11, TO5): how far away the player can be seen. */
   visibility: {
     dark: 8,
@@ -284,6 +302,15 @@ export const CONFIG = {
     investigateLookSeconds: 5,
     /** IA6: farther than this from the player, it reappears out of sight at roaming distance. */
     relocateDistance: 150,
+    /**
+     * MI4-A, MI10 (NBB-154): having lost the hidden player, it searches for `seconds` at `speed`
+     * (stalking gait), through spots `pointDistance` away from where it lost them, then retreats.
+     */
+    search: {
+      seconds: [20, 30] as [number, number],
+      speed: 3,
+      pointDistance: [4, 10] as [number, number],
+    },
     /** RF-24: never closer than this to a lit campfire (NBB-146). */
     fireKeepAway: 8,
     /** RF-24, GF2-B: a lit torch looked at closer than this holds it off (it does not flee). */
@@ -968,7 +995,8 @@ export const CONFIG = {
     /** Gnarled bare tree with root flares; sometimes a second trunk from the base. */
     deadTree: { height: [5, 9], depth: 3, roots: [4, 6], secondTrunkChance: 0.35 },
     /** Dome of leaf cards around a few twigs. */
-    bush: { height: [0.6, 1.2], leafCards: [35, 55] },
+    /** MI2-A (NBB-154): tall enough to hide a crouching player's eyes (1.0 m); it was 0.6–1.2. */
+    bush: { height: [1.1, 1.6], leafCards: [35, 55] },
     rock: { size: [0.3, 1.5] },
     /** Knobbly stick with 0–2 short forks. */
     groundBranch: { length: [0.5, 1], forks: [0, 2] },

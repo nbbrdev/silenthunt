@@ -22,7 +22,7 @@ import type { Terrain } from "../world/terrain";
 import { avoidObstacles, normalized, pushOutOfObstacles, type FlatVector } from "./steering";
 
 /** RF-21: the creature's states. */
-export type CreatureState = "roam" | "stalk" | "investigate" | "attack" | "retreat";
+export type CreatureState = "roam" | "stalk" | "investigate" | "attack" | "retreat" | "search";
 
 /** State names as typed in the development console (pt-BR, IA8). */
 export const STATE_NAMES: Record<string, CreatureState> = {
@@ -31,6 +31,7 @@ export const STATE_NAMES: Record<string, CreatureState> = {
   investigar: "investigate",
   atacar: "attack",
   recuar: "retreat",
+  procurar: "search",
 };
 
 /** The animations it moves with; their natural speeds are in the config (IA2). */
@@ -114,6 +115,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
    * (set by the player's buildings). Its strike does not go through.
    */
   wallBetween: (ax: number, az: number, bx: number, bz: number) => boolean = () => false;
+  /** NBB-154 (MI1-A): true while the player hides in a bush (set by the HidingSystem). */
+  isPlayerHidden: () => boolean = () => false;
+  /** MI4-A: where it lost the hidden player; it searches around this spot. */
+  private searchCenter: FlatVector = { x: 0, z: 0 };
   private hitLanded = false;
   private lookedAt = false;
   /** AP1-A: how fast the player is coming toward it (meters per second, smoothed). */
@@ -185,11 +190,40 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   /** Development only (IA8): forces a state, e.g. to watch the attack without waiting. */
   forceState(state: CreatureState): void {
+    const { x, z } = this.senses.player.position;
     if (state === "investigate") {
-      const { x, z } = this.senses.player.position;
       this.target = { x, z };
     }
+    if (state === "search") {
+      this.searchCenter = { x, z };
+    }
     this.enter(state);
+  }
+
+  /**
+   * MI3-A, MI10 (NBB-154): the player just hid in a bush. While stalking or chasing, unless it
+   * was close enough to see them go in (as far as it would see them standing, without a torch),
+   * it loses them and searches around where they were.
+   */
+  playerHid(): void {
+    const stalking = this.currentState === "stalk";
+    const chasing = this.currentState === "attack" && this.strikeTime < 0;
+    if (!stalking && !chasing) {
+      return;
+    }
+    if (this.distanceToPlayer() <= this.senses.visibility.standingDistance()) {
+      return;
+    }
+    const { x, z } = this.senses.player.position;
+    this.searchCenter = { x, z };
+    this.enter("search");
+  }
+
+  /** MI5-B: hidden too long in the same bush at night: it sniffs them out and comes for them. */
+  sniffOut(): void {
+    if (this.currentState !== "attack") {
+      this.enter("attack");
+    }
   }
 
   /**
@@ -290,6 +324,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     const toPlayerX = player.x - body.x;
     const toPlayerZ = player.z - body.z;
     const distance = Math.hypot(toPlayerX, toPlayerZ);
+    // MI4-A: hidden in a bush, it only finds the player by passing right next to them.
+    if (this.isPlayerHidden()) {
+      return distance <= CONFIG.hiding.findDistance;
+    }
     if (distance > this.senses.visibility.visibleDistance()) {
       return false;
     }
@@ -304,7 +342,11 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   /** IA5: a noise that reaches it makes it investigate (by day, only very loud ones). */
   private hear(event: NoiseEvent): void {
     const body = this.attachedNode?.position;
-    if (!body || (this.currentState !== "roam" && this.currentState !== "investigate")) {
+    const listening =
+      this.currentState === "roam" ||
+      this.currentState === "investigate" ||
+      this.currentState === "search";
+    if (!body || !listening) {
       return;
     }
     if (!this.isNight && event.radius < CONFIG.creature.dayNoiseMinRadius) {
@@ -314,6 +356,12 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       return;
     }
     this.target = { x: event.position.x, z: event.position.z };
+    if (this.currentState === "search") {
+      // MI10: searching, a noise draws it straight there, and it goes on searching around it.
+      this.searchCenter = { ...this.target };
+      this.targetAge = 0;
+      return;
+    }
     this.enter("investigate");
   }
 
@@ -354,6 +402,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         this.stateLimit = randomInRange(this.random, settings.retreatSeconds);
         this.pickRoamTarget();
         break;
+      case "search":
+        this.stateLimit = randomInRange(this.random, settings.search.seconds);
+        this.pickSearchTarget();
+        break;
     }
   }
 
@@ -386,6 +438,9 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       case "retreat":
         this.updateRetreat(seconds);
         break;
+      case "search":
+        this.updateSearch(seconds);
+        break;
     }
   }
 
@@ -410,6 +465,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       this.closingSpeed += (closing - this.closingSpeed) * Math.min(1, seconds * 5);
     }
     this.lastPlayerPosition = { x: player.x, z: player.z };
+    // MI10: a player hidden in a bush is not noticed, unless it passes right next to them.
+    if (this.isPlayerHidden() && distance > CONFIG.hiding.findDistance) {
+      return false;
+    }
 
     const calm =
       this.currentState === "roam" ||
@@ -441,11 +500,45 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     if (this.isNight && this.stateLimit - this.stateTime > settings.nightRoamSeconds[1]) {
       this.stateLimit = this.stateTime + randomInRange(this.random, settings.nightRoamSeconds);
     }
-    if (this.canSeePlayer() || this.stateTime >= this.stateLimit) {
+    // MI10: while the player hides, time alone does not lead it to them (only MI5-B does).
+    const timeToStalk = this.stateTime >= this.stateLimit && !this.isPlayerHidden();
+    if (this.canSeePlayer() || timeToStalk) {
       this.enter("stalk");
       return;
     }
     this.wander(seconds);
+  }
+
+  /**
+   * MI4-A, MI10: it lost the hidden player and searches spots around where they were. Seeing
+   * them again (they came out, stood up, lit the torch, or it passed right next to them) makes
+   * it attack at once; after a while it gives up and retreats.
+   */
+  private updateSearch(seconds: number): void {
+    if (this.canSeePlayer()) {
+      this.enter(this.isNight ? "attack" : "stalk");
+      return;
+    }
+    if (this.stateTime >= this.stateLimit) {
+      this.enter("retreat");
+      return;
+    }
+    this.targetAge += seconds;
+    if (this.distanceTo(this.target) <= ARRIVED_DISTANCE || this.targetAge > 10) {
+      this.pickSearchTarget();
+    }
+    this.walk(this.target, CONFIG.creature.search.speed, "Espreitar", seconds);
+  }
+
+  /** A spot `search.pointDistance` away from where it lost the player. */
+  private pickSearchTarget(): void {
+    const angle = this.random() * Math.PI * 2;
+    const distance = randomInRange(this.random, CONFIG.creature.search.pointDistance);
+    this.target = {
+      x: this.searchCenter.x + Math.sin(angle) * distance,
+      z: this.searchCenter.z + Math.cos(angle) * distance,
+    };
+    this.targetAge = 0;
   }
 
   private updateInvestigate(seconds: number): void {

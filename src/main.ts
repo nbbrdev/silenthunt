@@ -20,6 +20,7 @@ import { AmbienceSystem } from "./systems/ambience";
 import { MusicPlayer } from "./systems/music";
 import { PreySounds } from "./systems/preySounds";
 import { CaughtSequence } from "./systems/caughtSequence";
+import { HidingSystem } from "./systems/hiding";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
@@ -164,6 +165,21 @@ async function start(): Promise<void> {
     audio
       .then((audio) => footsteps.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons dos passos não carregados:", error));
+    // NBB-154: hiding in a bush, from the creature (it may lose the player) and from the prey.
+    const hiding = new HidingSystem(scene, hud, {
+      player,
+      torch,
+      chunks: world.chunks,
+      clock: world.clock,
+      noise,
+    });
+    visibility.hidden = () => hiding.isHidden;
+    creatureBrain.isPlayerHidden = () => hiding.isHidden;
+    hiding.onHid.add(() => creatureBrain.playerHid());
+    hiding.onSniffed.add(() => creatureBrain.sniffOut());
+    audio
+      .then((audio) => hiding.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Som da moita não carregado:", error));
     // NBB-149: the forest's sound (SM4-A) and the music, by day (SM5-A).
     const ambience = new AmbienceSystem(scene, world.clock, player.camera);
     audio
@@ -655,6 +671,8 @@ async function start(): Promise<void> {
             intensity: chaseEffects.debugIntensity,
             music: chaseEffects.debugMusic,
           }),
+          /** NBB-154: whether the player is hidden in a bush, for how long, and which bush. */
+          hidden: () => hiding.debugState(),
           /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */
           preySounds: () => ({ ...preySounds.played }),
           /** NBB-149: how many times each tool or weapon sound has played. */

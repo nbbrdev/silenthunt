@@ -11,6 +11,8 @@ import type { PlayerTorch } from "../player/torch";
 export class VisibilitySystem {
   /** True while the player stands next to a lit campfire (set by the CampfireManager). */
   nearLitFire: () => boolean = () => false;
+  /** NBB-154 (MI1-A): true while the player hides in a bush (set by the HidingSystem). */
+  hidden: () => boolean = () => false;
 
   private readonly clock: DayClock;
   private readonly player: Player;
@@ -24,6 +26,10 @@ export class VisibilitySystem {
 
   /** Distance in meters at which the player is visible. */
   visibleDistance(): number {
+    // MI10: hidden in a bush, nobody sees the player (the creature finds them only up close).
+    if (this.hidden()) {
+      return 0;
+    }
     const { dark, day, lit, crouchFactor } = CONFIG.visibility;
     // Darkness to daylight follows the day clock (dawn and dusk are in between).
     const isLit = this.torch.isLit || this.nearLitFire();
@@ -32,5 +38,14 @@ export class VisibilitySystem {
       distance *= crouchFactor;
     }
     return distance;
+  }
+
+  /**
+   * MI3-A, MI10: how far the player would be seen standing and without the torch right now (8 m
+   * in the dark, up to 20 m by day). Closer than this, the creature saw them go into the bush.
+   */
+  standingDistance(): number {
+    const { dark, day } = CONFIG.visibility;
+    return dark + (day - dark) * this.clock.daylight;
   }
 }
