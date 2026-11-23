@@ -684,6 +684,11 @@ export const CONFIG = {
     /** The first track 1–3 min after the game opens; then 5–10 min of silence between them. */
     firstDelay: [60, 180] as const,
     gap: [300, 600] as const,
+    /**
+     * VL2-A: the day music's own volume, under the music group (0.8 × 0.375 = the 0.3 it had),
+     * so the group can be loud enough for the chase music.
+     */
+    volume: 0.375,
     fadeInSeconds: 3,
     fadeOutSeconds: 5,
     /** Only by day: below this daylight none starts, and the one playing fades out. */
@@ -700,7 +705,8 @@ export const CONFIG = {
     pantingFile: "player/panting.mp3",
     /** The heartbeat: seconds between beats, from the creature far (30 m) to close (2 m). */
     beatInterval: [0.85, 0.38] as const,
-    beatVolume: [0.45, 1] as const,
+    /** VL3-A: louder than the rest (it was 0.45 to 1). */
+    beatVolume: [0.9, 1.8] as const,
     farDistance: 30,
     /** After the chase ends, the heartbeat calms down over this long. */
     calmSeconds: 3,
@@ -713,7 +719,8 @@ export const CONFIG = {
     shakeRadians: 0.012,
     /** Panting starts below this much stamina, louder as it runs out. */
     pantBelowStamina: 40,
-    pantVolume: 0.6,
+    /** VL3-A: it was 0.6. */
+    pantVolume: 1,
     /**
      * MT1-C, MT2, MT3-D: the chase music ("Orchestral Suspense Loop 1", CC0), unless the private
      * folder has one. It plays in the music group (its slider in the options counts).
@@ -817,9 +824,13 @@ export const CONFIG = {
   },
   /** SO4: sound. The player's volume control comes with the options menu (NBB-150). */
   audio: {
-    masterVolume: 0.8,
-    /** SM7: each group's volume, under the master volume. */
-    groups: { effects: 1, ambience: 0.7, music: 0.3 },
+    /** VL1-A (NBB-155): everything a little lower (it was 0.8). */
+    masterVolume: 0.6,
+    /**
+     * SM7: each group's volume, under the master volume. VL2-A: music at 0.8 (it was 0.3) so the
+     * chase music is heard; the day music has its own volume (`music.volume`).
+     */
+    groups: { effects: 1, ambience: 0.7, music: 0.8 },
   },
   /** HUD (NO1-A: Babylon GUI). */
   /** NBB-150 (MN6): the menus, on the left over the forest. */

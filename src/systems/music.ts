@@ -121,7 +121,7 @@ export class MusicPlayer {
       this.current = track;
       sound.onEndedObservable.addOnce(() => this.finish(track));
       sound.play();
-      sound.setVolume(1, { duration: CONFIG.music.fadeInSeconds });
+      sound.setVolume(CONFIG.music.volume, { duration: CONFIG.music.fadeInSeconds });
     } catch (error: unknown) {
       console.warn("Música não tocada:", name, error);
       this.wait = randomBetween(CONFIG.music.gap);
