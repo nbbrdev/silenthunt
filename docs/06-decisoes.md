@@ -522,6 +522,18 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | EN7 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): copyright "2026 nbbrdev"; capturas em JPG numa grade 2 × 2 (`menu`, `day`, `night`, `shelter`), sem o contador de FPS e com o abrigo na clareira do início, à noite; "Como jogar" com 5 dicas, porta do preview (4173) como "normalmente", seção "Para desenvolver" com as ferramentas; tabela de controles do código e do docs/03, com R e o botão direito para desmontar; requisito "Node.js 24"; sai o aviso "Em desenvolvimento". |
 | EN8 | Releases (2026-11-23): a pedido do usuário, **como exceção à regra** "o agente nunca cria tags nem releases" (a regra continua valendo), Claude criou as tags anotadas e as releases do GitHub de todos os marcos: `v0.1.0` (M0, `d5a8561`), `v0.2.0` (M1, `a57e71f`), `v0.3.0` (M2, `6c62ae6`), `v0.4.0` (M3, `8315ec6`), `v0.5.0` (M4, `f989be9`) e `v1.0.0` (M5, `09c1133`, a principal). Notas em pt-BR com o que cada marco entregou; sem arquivos anexados. |
 
+## M6: Features novas (2026-11-23)
+
+| Código | Decisão |
+|---|---|
+| FN0-A | Um marco novo, **M6 · Pós-entrega** (meta `v1.1.0`), com uma issue por feature: NBB-153 (perseguição), NBB-154 (moitas), NBB-155 (golpe fatal), NBB-156 (objetivo), NBB-157 (mapa). |
+| FN1 | Ideias do usuário, cada uma com rodada própria: **se esconder na moita**; **criatura que mata com um golpe**, para dar mais medo (com a tocha o jogador fica seguro por muito tempo); **um objetivo**, para o jogador não ficar só andando e sobrevivendo; **um mapa** com pontos importantes e waypoints marcados pelo jogador. |
+| PS1-A | Perseguição: no lugar do disparo a 7 m/s, a criatura persegue a ~6 m/s (uns 10% mais rápido que a corrida de 5,5) e dá o golpe a 2 m. O jogador escapa chegando a uma fogueira acesa, encarando-a com a tocha acesa ou entrando num abrigo fechado; sem pegar o jogador em 25 s, ela desiste e recua. |
+| PS2 | Fôlego: correr gasta 10 por segundo (eram 15), ~10 s de corrida. |
+| PS3 | Sons da perseguição: o coração do jogador acelerando com a criatura perto, o ofegar com o fôlego baixo e os passos dela mais altos e rápidos. Os candidatos dos sons novos são escolhidos pelo usuário (SM2-B). |
+| PS4-A | Efeitos: bordas escuras pulsando no ritmo do coração e um leve tremor da câmera a cada passo dela a menos de 10 m. |
+| PS5 | A perseguição só acontece à noite; de dia a criatura continua fugindo (AP1-A). |
+
 ## Pendentes (proposto)
 
-- **Perseguição da criatura (proposto, 2026-11-23).** Ideia do usuário na sessão de testes: no lugar do disparo a 7 m/s, a besta persegue o jogador um pouco mais rápido que a corrida dele, com sons (coração, ofegar, passos pesados) e efeitos (bordas pulsando, tremor) para dar aflição. Fica para **depois do refinamento do que já foi feito e planejado** (decisão do usuário). Fora do escopo do docs/02 até lá; as opções já levantadas (PS0 a PS5: issue nova NBB-153, desistência após 25 s, fôlego de ~10 s, sons, efeitos, só à noite) serão retomadas numa rodada própria.
+Nenhuma.

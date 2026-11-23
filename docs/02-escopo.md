@@ -16,6 +16,7 @@ Versões aprovadas no G8. Como o jogo não é publicado (T7), a tag só marca o 
 | M3 · Caçar | 15–17/11 | Coelho e cervo, faca, arco, espingarda, fome, cozinhar | `v0.4.0` |
 | M4 · Sobreviver | 17–19/11 | Coleta, crafting, construção em grade, cama, save, mochila | `v0.5.0` |
 | M5 · Polimento | 19–20/11 | Som, música, menus, equilíbrio, bugs, instruções | `v1.0.0` |
+| M6 · Pós-entrega | sem prazo (PZ1) | Features novas do usuário depois da entrega (FN0-A, 2026-11-23) | `v1.1.0` |
 
 ## Issues por marco
 
@@ -62,6 +63,15 @@ Cada linha vira **uma issue**, entregue por commits direto na `main` (R2, 2026-1
 28. **Menus:** principal (novo mundo, continuar), pausa, opções (sensibilidade, volume), fonte. [UX]
 29. **Equilíbrio e bugs:** sessão de testes e ajustes de valores. [Frontend]
 30. **Entrega:** README final, como rodar, controles, capturas. [Docs]
+
+### M6 · Pós-entrega
+Features novas pedidas pelo usuário em 2026-11-23 (FN0-A, FN1), promovidas ao escopo com este marco.
+
+31. **Perseguição da criatura (PS1-A a PS5).** [Frontend]
+32. **Esconder-se nas moitas.** [Frontend]
+33. **Criatura mata com um golpe** (muda o RF-23). [Frontend]
+34. **Objetivo do jogo.** [Frontend]
+35. **Mapa com marcações e waypoints.** [UX]
 
 ## Ordem de corte
 
