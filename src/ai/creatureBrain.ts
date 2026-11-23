@@ -67,6 +67,8 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   attachedNode: Nullable<TransformNode> = null;
   /** RF-23: fired when the strike lands, with the damage. Health is NBB-136's job. */
   readonly onPlayerHit = new Observable<number>();
+  /** GF2-B: fired now and then while the torch holds it off (its growl). */
+  readonly onHeldGrowl = new Observable<void>();
   /** Lit campfires (NBB-146 fills this): it never gets closer than `fireKeepAway` (RF-24). */
   readonly fires: Vector3[] = [];
   /** Fired on every state change (its sounds react to it, NBB-135). */
@@ -95,8 +97,13 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   /** IA4-B: how long the player has been staring at it, and the backing off that follows. */
   private stareTime = 0;
   private backOffTime = 0;
-  /** RF-24: hesitating in front of a lit torch before fleeing. */
-  private hesitateTime = 0;
+  /**
+   * GF2-B: held off by a lit torch during the attack; which way it circles (1 or -1) and when
+   * it growls next.
+   */
+  private held = false;
+  private circleSide = 1;
+  private untilHeldGrowl = 0;
   /** Attack: seconds since the strike began (negative while still running at the player). */
   private strikeTime = -1;
   /** CN5-A: how long a wall has kept it from the player during this attack. */
@@ -195,9 +202,17 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     }
   }
 
-  /** NBB-153: true while it chases the player, before the strike (PS1-A). */
+  /**
+   * NBB-153: true while it chases the player, before the strike (PS1-A); held off by the torch
+   * counts too (GF8: the heart keeps beating).
+   */
   get isChasing(): boolean {
-    return this.currentState === "attack" && this.strikeTime < 0 && this.hesitateTime <= 0;
+    return this.currentState === "attack" && this.strikeTime < 0;
+  }
+
+  /** GF2-B: held off by the player's torch right now. */
+  get isHeld(): boolean {
+    return this.currentState === "attack" && this.held;
   }
 
   /** Snapshot for the development console (IA8). */
@@ -207,6 +222,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     limit: number;
     distance: number;
     lookedAt: boolean;
+    held: boolean;
     position: number[];
   } {
     const round = (value: number) => Math.round(value * 10) / 10;
@@ -217,6 +233,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       limit: round(this.stateLimit),
       distance: round(this.distanceToPlayer()),
       lookedAt: this.lookedAt,
+      held: this.isHeld,
       position: [position.x, position.y, position.z].map(round),
     };
   }
@@ -308,7 +325,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.stateTime = 0;
     this.stareTime = 0;
     this.backOffTime = 0;
-    this.hesitateTime = 0;
+    this.held = false;
     this.strikeTime = -1;
     this.walledSeconds = 0;
     this.hitLanded = false;
@@ -454,9 +471,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       this.enter(this.isNight ? "attack" : "roam");
       return;
     }
-    if (this.shouldFleeTorch()) {
-      this.enter("retreat");
-      return;
+    // GF2-B: the torch, stared at from close by, sends it back into the fog (as IA4-B does).
+    if (this.backOffTime <= 0 && this.torchHoldsIt()) {
+      this.stareTime = 0;
+      this.backOffTime = settings.backOffSeconds;
     }
     const player = this.senses.player.position;
     const body = this.position();
@@ -497,22 +515,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   private updateAttack(seconds: number): void {
     const settings = CONFIG.creature;
-    if (this.hesitateTime > 0) {
-      this.hesitateTime -= seconds;
-      this.stand("Espreitar", true);
-      if (this.hesitateTime <= 0) {
-        this.enter("retreat");
-      }
-      return;
-    }
     if (this.strikeTime < 0) {
-      if (this.shouldFleeTorch()) {
-        // RF-24: hesitates in front of the torch, then flees.
-        this.hesitateTime = settings.hesitateSeconds;
-        return;
-      }
       const { x, z } = this.senses.player.position;
-      // PS1-A: the player reached a lit campfire, or the chase lasted too long: it gives up.
+      // PS1-A: the player reached a lit campfire, or the chase lasted too long: it gives up. The
+      // clock keeps running while the torch holds it off (GF8).
       const atFire = this.fires.some(
         (fire) => Math.hypot(fire.x - x, fire.z - z) < settings.fireKeepAway,
       );
@@ -520,6 +526,12 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         this.enter("retreat");
         return;
       }
+      // GF2-B: the torch, stared at from close by, holds it off; looked away, it charges at once.
+      if (this.torchHoldsIt()) {
+        this.holdOff(seconds);
+        return;
+      }
+      this.held = false;
       // CN5-A: a wall or a closed door between them: no strike. Kept out long, it gives up.
       // Only counts once it is at the walls, not while still running toward them.
       const walled = this.distanceToPlayer() <= settings.strikeDistance + 1.5 && this.isWalledOff();
@@ -545,8 +557,43 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       }
     }
     if (this.strikeTime >= STRIKE_SECONDS) {
-      this.enter("retreat");
+      // GF3-B: a strike that missed sends it back to the chase (the give-up clock goes on).
+      this.strikeTime = -1;
+      this.hitLanded = false;
     }
+  }
+
+  /**
+   * GF2-B, GF8: held off by the torch. It keeps about `torchHold.distance` from the player
+   * (backing off faster the closer the player comes), circles sideways and growls now and then.
+   */
+  private holdOff(seconds: number): void {
+    const hold = CONFIG.creature.torchHold;
+    if (!this.held) {
+      this.held = true;
+      this.circleSide = this.random() < 0.5 ? -1 : 1;
+      this.untilHeldGrowl = randomInRange(this.random, hold.growlEvery);
+    }
+    this.untilHeldGrowl -= seconds;
+    if (this.untilHeldGrowl <= 0) {
+      this.untilHeldGrowl = randomInRange(this.random, hold.growlEvery);
+      this.onHeldGrowl.notifyObservers();
+    }
+    const player = this.senses.player.position;
+    const body = this.position();
+    const away = normalized(body.x - player.x, body.z - player.z, { x: 0, z: 1 });
+    const side = { x: -away.z * this.circleSide, z: away.x * this.circleSide };
+    const tooClose = hold.distance - this.distanceToPlayer();
+    const outward = Math.max(-2, Math.min(2, tooClose));
+    const destination = {
+      x: body.x + side.x * 2 + away.x * outward,
+      z: body.z + side.z * 2 + away.z * outward,
+    };
+    const speed = Math.min(
+      CONFIG.creature.speed.attack,
+      hold.circleSpeed + Math.max(0, tooClose) * 2,
+    );
+    this.walk(destination, speed, "Espreitar", seconds, false);
   }
 
   private updateRetreat(seconds: number): void {
@@ -567,12 +614,12 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.wander(seconds);
   }
 
-  /** RF-24: a lit torch, looked straight at from close by. */
-  private shouldFleeTorch(): boolean {
+  /** RF-24, GF2-B: a lit torch, looked straight at from close by. */
+  private torchHoldsIt(): boolean {
     return (
       this.senses.torch.isLit &&
       this.lookedAt &&
-      this.distanceToPlayer() < CONFIG.creature.torchHesitateDistance
+      this.distanceToPlayer() < CONFIG.creature.torchHoldDistance
     );
   }
 

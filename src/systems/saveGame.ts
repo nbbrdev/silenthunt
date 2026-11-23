@@ -188,10 +188,10 @@ export class SaveGame {
 
   /**
    * MO5-A: saves the moment the player dies, with the backpack already on the ground and the
-   * player as if respawned (at `respawn`, full health, the respawn hunger, a new life), so closing
-   * the tab on the death screen does not undo the death.
+   * player as if respawned (at `respawn`, full health, `hunger`, a new life), so closing the tab
+   * on the death screen does not undo the death. A night death has already skipped to dawn (GF5-B).
    */
-  async saveAfterDeath(respawn: Vector3): Promise<void> {
+  async saveAfterDeath(respawn: Vector3, hunger: number): Promise<void> {
     this.sinceSave = 0;
     if (!this.ready || this.discarding) {
       return;
@@ -202,7 +202,7 @@ export class SaveGame {
       ...data.player,
       feet: [respawn.x, respawn.y, respawn.z],
       health: player.health.max,
-      hunger: player.hunger.respawnValue,
+      hunger,
       stamina: player.stamina.max,
       lifeStart: this.parts.clock.elapsed,
     };

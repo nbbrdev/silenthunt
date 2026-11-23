@@ -19,6 +19,7 @@ import { InteractionSystem } from "./systems/interactions";
 import { AmbienceSystem } from "./systems/ambience";
 import { MusicPlayer } from "./systems/music";
 import { PreySounds } from "./systems/preySounds";
+import { CaughtSequence } from "./systems/caughtSequence";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
@@ -148,6 +149,18 @@ async function start(): Promise<void> {
     audio
       .then((audio) => chaseEffects.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons da perseguição não carregados:", error));
+    // NBB-155 (GF4-C): "pego", the fatal strike. The view turns to the face, between its eyes.
+    const creatureEyes = [0, 1].map((index) => scene.getMeshByName(`creatureEye${index}`));
+    const caught = new CaughtSequence(scene, player, () => {
+      const [left, right] = creatureEyes;
+      if (left && right) {
+        return left.getAbsolutePosition().add(right.getAbsolutePosition()).scale(0.5);
+      }
+      return creatureModel.root.position.add(new Vector3(0, 2.5, 0));
+    });
+    audio
+      .then((audio) => caught.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons do golpe não carregados:", error));
     audio
       .then((audio) => footsteps.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons dos passos não carregados:", error));
@@ -344,18 +357,28 @@ async function start(): Promise<void> {
     equipment.onChanged.add(onHeld);
     onHeld(equipment.current);
 
-    // NBB-136: the strike hurts; dying shows the death screen and respawning starts a new life.
-    creatureBrain.onPlayerHit.add((damage) => health.damage(damage));
+    // NBB-136: the strike hurts (GF1-A: it kills); dying shows the death screen and respawning
+    // starts a new life.
+    let hitByCreature = false;
+    creatureBrain.onPlayerHit.add((damage) => {
+      hitByCreature = true;
+      health.damage(damage);
+      hitByCreature = false;
+    });
     const gameInput = input;
-    const life = { start: world.clock.elapsed };
+    const life = {
+      start: world.clock.elapsed,
+      respawnHunger: CONFIG.player.hunger.respawnValue as number,
+    };
     const deathScreen = new DeathScreen(hud, scene, () => {
-      // VD5: back at the start, full health, the creature far away; the clock and torch go on.
+      // VD5: back at the start, full health, the creature far away; the torch goes on.
       // RF-60 / CM1-A: at the bed, if there is one.
       player.respawn(beds.respawnPoint ?? feet);
       health.revive();
-      // FO4-B: hungry, but not starving.
-      hunger.set(CONFIG.player.hunger.respawnValue);
+      // FO4-B: hungry, but not starving (less after a night skipped, GF5-B).
+      hunger.set(life.respawnHunger);
       creatureBrain.sendAway();
+      chaseEffects.resume();
       player.controlsEnabled = true;
       gameInput.pointerLockEnabled = true;
       life.start = world.clock.elapsed;
@@ -381,12 +404,33 @@ async function start(): Promise<void> {
       inventory.restore(new Array<null>(inventory.size).fill(null), inventory.selected);
       const at = player.feet;
       backpacks.drop(at.x, at.y, at.z, player.view.yaw, carried);
+      const days = Math.floor((world.clock.elapsed - life.start) / world.clock.cycleSeconds);
+      // GF5-B: dying at night means waking at dawn. The clock skips ahead now (dawn begins as
+      // dark as the night) and hunger drops for the time skipped, as when sleeping (DO1).
+      const hungerSettings = CONFIG.player.hunger;
+      life.respawnHunger = hungerSettings.respawnValue;
+      if (world.clock.phase === "night") {
+        const skipped = world.clock.skipToDawn();
+        life.respawnHunger = Math.max(
+          0,
+          life.respawnHunger - (hungerSettings.max / hungerSettings.emptySeconds) * skipped,
+        );
+      }
       // MO5-A: saved now, as if already respawned.
-      void saveGame.saveAfterDeath(beds.respawnPoint ?? feet);
+      void saveGame.saveAfterDeath(beds.respawnPoint ?? feet, life.respawnHunger);
       player.controlsEnabled = false;
       gameInput.pointerLockEnabled = false;
+      if (hitByCreature) {
+        // GF4-C: "pego": the view turns to its face, then black at once.
+        chaseEffects.silence();
+        caught.start(() => {
+          creatureBrain.sendAway();
+          deathScreen.show(days, true);
+        });
+        return;
+      }
       creatureBrain.sendAway();
-      deathScreen.show(Math.floor((world.clock.elapsed - life.start) / world.clock.cycleSeconds));
+      deathScreen.show(days);
     });
 
     // NBB-147: the save in IndexedDB (SV1-A to SV5). Opening the game continues the saved world.

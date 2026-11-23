@@ -67,6 +67,8 @@ export class CreaturePresence {
         this.growl?.play();
       }
     });
+    // GF2-B: held off by the torch, it growls now and then.
+    brain.onHeldGrowl.add(() => this.growl?.play());
   }
 
   /** Loads the sounds (SO1-A files in `public/sounds/creature/`) and ties them to the body. */

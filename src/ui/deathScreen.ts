@@ -19,6 +19,8 @@ export class DeathScreen {
   private readonly content: StackPanel;
   private readonly daysText: TextBlock;
   private fading = false;
+  /** GF4-C: already black, waiting this long before the message shows. */
+  private holdSeconds = 0;
 
   constructor(ui: AdvancedDynamicTexture, scene: Scene, onRespawn: () => void) {
     this.cover = new Rectangle("deathScreen");
@@ -65,17 +67,22 @@ export class DeathScreen {
       }
       const seconds = frameSeconds(scene);
       this.cover.alpha = Math.min(1, this.cover.alpha + seconds / CONFIG.hud.deathFadeSeconds);
-      if (this.cover.alpha >= 1) {
+      this.holdSeconds -= seconds;
+      if (this.cover.alpha >= 1 && this.holdSeconds <= 0) {
         this.fading = false;
         this.content.isVisible = true;
       }
     });
   }
 
-  /** Fades to black and then shows the message (`days` = whole days survived). */
-  show(days: number): void {
+  /**
+   * Fades to black and then shows the message (`days` = whole days survived). `caught` (GF4-C):
+   * black at once, and the message after `caught.blackSeconds`.
+   */
+  show(days: number, caught = false): void {
     this.daysText.text = `Sobreviveu ${days} ${days === 1 ? "dia" : "dias"}`;
-    this.cover.alpha = 0;
+    this.cover.alpha = caught ? 1 : 0;
+    this.holdSeconds = caught ? CONFIG.caught.blackSeconds : 0;
     this.cover.isVisible = true;
     this.content.isVisible = false;
     this.fading = true;

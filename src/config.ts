@@ -266,8 +266,8 @@ export const CONFIG = {
     attackAfterSeconds: [20, 40],
     /** RF-21: after the strike, flees and only roams again after this long. */
     retreatSeconds: [60, 90],
-    /** RF-23: health taken by the strike. */
-    damage: 40,
+    /** RF-23, GF1-A (NBB-155): health taken by the strike: all of it (it was 40). */
+    damage: 100,
     /** Starts the strike at this distance; the hit lands if the player is still this close. */
     strikeDistance: 2,
     hitDistance: 2.5,
@@ -286,9 +286,13 @@ export const CONFIG = {
     relocateDistance: 150,
     /** RF-24: never closer than this to a lit campfire (NBB-146). */
     fireKeepAway: 8,
-    /** RF-24: a lit torch looked at closer than this makes it hesitate, then flee. */
-    torchHesitateDistance: 10,
-    hesitateSeconds: 1.2,
+    /** RF-24, GF2-B: a lit torch looked at closer than this holds it off (it does not flee). */
+    torchHoldDistance: 10,
+    /**
+     * GF2-B, GF8 (NBB-155): held off by the torch, it keeps about `distance` from the player,
+     * circles sideways at `circleSpeed` and growls every `growlEvery` seconds.
+     */
+    torchHold: { distance: 7, circleSpeed: 1.5, growlEvery: [4, 7] as [number, number] },
     /** IA1: obstacle avoidance (body radius, how far ahead it looks for trunks, turn rate). */
     bodyRadius: 0.5,
     avoidDistance: 2.5,
@@ -323,7 +327,7 @@ export const CONFIG = {
       breathVolume: 0.6,
       /** Seconds for the breathing to fade in or out. */
       breathFade: 1.5,
-      /** SO3: short low growl when the attack begins. */
+      /** SO3: short low growl when the attack begins (and while the torch holds it off, GF2-B). */
       growlVolume: 1,
     },
   },
@@ -718,6 +722,19 @@ export const CONFIG = {
     musicVolume: 1,
     musicFadeInSeconds: 0.5,
     musicFadeOutSeconds: 3,
+  },
+  /**
+   * GF4-C, GF7-A, GF8 (NBB-155): "pego". The view turns to the creature's face in `turnSeconds`,
+   * the growl and the strike ("monster bite", CC0) play, the screen goes black at once and "Você
+   * morreu" shows after `blackSeconds`.
+   */
+  caught: {
+    turnSeconds: 0.15,
+    blackSeconds: 1.5,
+    strikeFile: "creature/strike.mp3",
+    strikeVolume: 1,
+    growlFile: "creature/growl.mp3",
+    growlVolume: 1,
   },
   /** NBB-149 (AN1-B to AN3): the prey's 3D sounds (CC0, see CREDITS.md). Volumes from 0 to 1. */
   preySounds: {

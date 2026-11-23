@@ -4,7 +4,7 @@ import type { DayClock } from "../core/dayClock";
 
 /**
  * The player's health (RF-40, NBB-136): 0 to 100. Healing only happens by day (VD7-B: at night
- * the body does not heal, which is what makes the creature deadly), with hunger above 50, and
+ * the body does not heal; kept after the strike became fatal, GF6), with hunger above 50, and
  * starts a few seconds after the last hit (VD3-B).
  */
 export class PlayerHealth {

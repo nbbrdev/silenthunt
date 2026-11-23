@@ -71,7 +71,7 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 
 - **Som espacial 3D** do Babylon: o volume e o lado (esquerdo/direito) mudam com a posição da fonte. Os passos da criatura dependem disso.
 - **Fontes (O6-C):** Epidemic Sound e Freesound (só **CC0** e **CC-BY**). Todo som CC-BY entra no `CREDITS.md` e na tela de créditos.
-- **Lista inicial:** passos do jogador por tipo de chão (terra, musgo, folhas, galho estalando), passos da criatura, respiração e rosnado baixo, vento, pássaros de dia, grilos e corujas à noite, fogo crepitando, faca, arco, espingarda, machado na madeira, coelho e cervo fugindo.
+- **Lista inicial:** passos do jogador por tipo de chão (terra, musgo, folhas, galho estalando), passos da criatura, respiração e rosnado baixo, a mordida do golpe fatal (GF7-A), vento, pássaros de dia, grilos e corujas à noite, fogo crepitando, faca, arco, espingarda, machado na madeira, coelho e cervo fugindo.
 - **Lista final (SM1-A):** a inicial mais pouso, fogueira (acender, apagar), tocha, machado na pedra e árvore caindo, bufo de alarme do cervo, grito dos animais ao morrer, pegar coisas, limpar carcaça, comer, peças de construção, porta e baú. Sem sons de interface. CC0 de preferência, CC-BY só quando claramente melhor (SM3-A).
 - **Ambiente (SM4-A):** camadas em loop (vento; pássaros de dia; grilos à noite) que trocam no entardecer e no amanhecer, e sons soltos 3D de vez em quando (coruja, pássaro distante, galho estalando longe).
 - **Volumes (SM7):** mestre, efeitos, ambiente e música no `config.ts`.

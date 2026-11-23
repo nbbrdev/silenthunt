@@ -30,6 +30,8 @@ export class ChaseEffects {
   /** Each beat's pulse on the edges, fading from 1. */
   private pulse = 0;
   private pantLevel = 0;
+  /** GF8: the player was caught: everything stays silent until the respawn. */
+  private silenced = false;
 
   constructor(
     scene: Scene,
@@ -114,8 +116,32 @@ export class ChaseEffects {
     };
   }
 
+  /**
+   * GF8 (NBB-155): caught, the heart, the panting and the chase music stop at once (not over
+   * 3 s, the exception to MT2) and the edges clear, until `resume()`.
+   */
+  silence(): void {
+    this.silenced = true;
+    this.intensity = 0;
+    this.pulse = 0;
+    this.pantLevel = 0;
+    this.musicLevel = 0;
+    this.edges.alpha = 0;
+    this.edges.isVisible = false;
+    this.heartbeat?.stop();
+    if (this.panting) {
+      this.panting.volume = 0;
+    }
+    this.music?.stop();
+  }
+
+  /** Back to normal when the player respawns. */
+  resume(): void {
+    this.silenced = false;
+  }
+
   private update(seconds: number): void {
-    if (seconds <= 0) {
+    if (seconds <= 0 || this.silenced) {
       return;
     }
     const settings = CONFIG.chase;
