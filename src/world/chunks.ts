@@ -517,13 +517,13 @@ export class ChunkManager {
     const originZ = cz * chunkSize;
 
     const cabins = cabinsNear(originX + chunkSize / 2, originZ + chunkSize / 2, this.terrain.seed);
-    const place = (kind: VegetationKind, x: number, z: number, sink = 0) => {
+    const place = (kind: VegetationKind, x: number, z: number, sink = 0): Placement | undefined => {
       // ES1: a small clearing around each cabin; only grass tufts grow close, outside its walls.
       const clear = kind === "groundTuft" ? 3 : CONFIG.cabins.clearRadius;
       if (cabins.some((site) => Math.hypot(x - site.x, z - site.z) < clear)) {
-        return;
+        return undefined;
       }
-      placements.push({
+      const placement: Placement = {
         kind,
         variant: randomInt(random, [0, this.library.variantCount(kind) - 1]),
         x,
@@ -531,7 +531,9 @@ export class ChunkManager {
         z,
         rotation: random() * Math.PI * 2,
         scale: 1 + randomRange(random, -scaleJitter, scaleJitter),
-      });
+      };
+      placements.push(placement);
+      return placement;
     };
     const randomPoint = () => ({
       x: originX + random() * chunkSize,
@@ -575,6 +577,20 @@ export class ChunkManager {
     for (let i = 0; i < perChunk.tufts; i++) {
       const { x, z } = randomPoint();
       place("groundTuft", x, z, 0.02);
+    }
+    // AJ1-A: loose small stones to pick up, besides the rocks. They come last, so the places of
+    // everything above stay the same and saved worlds still match (NBB-147 keeps them by place).
+    const [smallest, largest] = CONFIG.world.looseStoneSize;
+    for (let i = 0; i < perChunk.looseStones; i++) {
+      const { x, z } = randomPoint();
+      if (nearSpawn(x, z)) {
+        continue;
+      }
+      const stone = place("rock", x, z);
+      if (stone) {
+        const size = randomRange(random, smallest, largest);
+        stone.scale = size / this.library.size("rock", stone.variant);
+      }
     }
     return placements;
   }

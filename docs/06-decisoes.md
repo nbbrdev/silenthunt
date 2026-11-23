@@ -116,7 +116,7 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 
 | Código | Decisão |
 |---|---|
-| J1 | Velocidades: andar 1,6 m/s, correr 4,5 m/s, agachado 0,9 m/s. |
+| J1 | Velocidades: ~~andar 1,6 m/s, correr 4,5 m/s, agachado 0,9 m/s~~ **andar 2,4, correr 5,5, agachado 1,3 m/s** (AJ2-A, 2026-11-23). |
 | J2 | Olhos a 1,7 m (1,0 m agachado); pulo de 0,6 m. |
 | J3 | Sensibilidade do mouse fixa no `src/config.ts` até o menu de opções (NBB-150). |
 | J4 | Até o mundo existir, o jogador anda no chão de 50 m da cena de prova. |
@@ -144,7 +144,7 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 | Código | Decisão |
 |---|---|
 | MW1 | Relevo: colinas suaves de até ±6 m, espaçadas ~100 m; malha do chão a cada 2 m. |
-| MW2 | Por chunk: ~80 árvores (45% pinheiro, 35% carvalho, 20% morta), ~40 arbustos, ~15 pedras, ~30 galhos, ~150 tufos; clareiras (0,1×) e mata fechada (1,5×). |
+| MW2 | Por chunk: ~80 árvores (45% pinheiro, 35% carvalho, 20% morta), ~40 arbustos, ~15 pedras, ~30 galhos, ~150 tufos; clareiras (0,1×) e mata fechada (1,5×). **Mais 20 pedras soltas pequenas por chunk (AJ1-A, 2026-11-23).** |
 | MW3-A | 8 variações de cada modelo, geradas ao abrir o jogo e repetidas pelo mundo (*thin instances*) com rotação e tamanho ±15%. |
 | MW4 | Nada é desenhado além de 90 m. |
 | MW5 | Troncos e pedras grandes bloqueiam; arbustos, capim e galhos no chão não. |
@@ -504,6 +504,8 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | EQ5 | Pontos suspeitos no roteiro: captura do mouse ao voltar do menu, tamanho dos textos do HUD, chiado em pássaros, coruja e latido, dificuldade de ponta a ponta (primeira noite, comida e gordura, criatura contra fogueira e cama), noite de 6 min contra tocha de 4 min. |
 | EQ6 | Depois de cada sessão, uma tabela "valor atual → proposto, e por quê"; aprovação do usuário; um commit por lote; valores finais nos docs (RF do docs/03). |
 | EQ7-A | A issue termina quando o usuário disser que está bom, depois de quantas sessões forem precisas (PZ1). |
+| AJ1-A | Sessão 1 (2026-11-23), pedras escassas (só ~4–5 pegáveis por chunk): **20 pedras soltas a mais por chunk**, de 0,2 a 0,45 m, todas pegáveis, com o mesmo modelo de pedra. Vêm no fim da lista do chunk, para os saves antigos continuarem certos. Muda a MW2. |
+| AJ2-A | Sessão 1, jogador lento: **andar 2,4, correr 5,5, agachado 1,3 m/s** (eram 1,6, 4,5 e 0,9). O ritmo dos passos e o ruído não mudam. Muda a J1. |
 
 ## Pendentes (proposto)
 

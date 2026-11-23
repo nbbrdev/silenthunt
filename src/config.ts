@@ -16,10 +16,10 @@ export const CONFIG = {
     maxPlayerStepSeconds: 1 / 30,
   },
   player: {
-    /** Speeds in m/s (J1). */
-    walkSpeed: 1.6,
-    runSpeed: 4.5,
-    crouchSpeed: 0.9,
+    /** Speeds in m/s (J1; AJ2-A raised them from 1.6, 4.5 and 0.9). */
+    walkSpeed: 2.4,
+    runSpeed: 5.5,
+    crouchSpeed: 1.3,
     /** Eye height above the feet, in meters (J2). */
     eyeHeight: 1.7,
     crouchEyeHeight: 1.0,
@@ -107,7 +107,9 @@ export const CONFIG = {
     /** Each repeated copy gets a random size within ± this fraction. */
     scaleJitter: 0.15,
     /** MW2: average amounts per chunk (64 × 64 m). */
-    perChunk: { trees: 80, bushes: 40, rocks: 15, branches: 30, tufts: 150 },
+    perChunk: { trees: 80, bushes: 40, rocks: 15, branches: 30, tufts: 150, looseStones: 20 },
+    /** AJ1-A: size of the loose small stones (meters); all can be picked up (below MW5's 0.6). */
+    looseStoneSize: [0.2, 0.45] as const,
     /** MW2: share of each tree species. */
     treeMix: { pine: 0.45, oak: 0.35, deadTree: 0.2 },
     /** MW2: regions. Clearings keep this share of trees; dense woods multiply them. */
