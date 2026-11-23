@@ -507,4 +507,4 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 
 ## Pendentes (proposto)
 
-Nenhuma.
+- **Perseguição da criatura (proposto, 2026-11-23).** Ideia do usuário na sessão de testes: no lugar do disparo a 7 m/s, a besta persegue o jogador um pouco mais rápido que a corrida dele, com sons (coração, ofegar, passos pesados) e efeitos (bordas pulsando, tremor) para dar aflição. Fica para **depois do refinamento do que já foi feito e planejado** (decisão do usuário). Fora do escopo do docs/02 até lá; as opções já levantadas (PS0 a PS5: issue nova NBB-153, desistência após 25 s, fôlego de ~10 s, sons, efeitos, só à noite) serão retomadas numa rodada própria.
