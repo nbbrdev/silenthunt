@@ -519,6 +519,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | EN4-A | Licença do código: **MIT**. Sons, fonte e música seguem as próprias licenças (`CREDITS.md`). |
 | EN5-A | README só em pt-BR. |
 | EN6 | Sem conferência de clone limpo por Claude: o usuário roda o projeto na própria máquina. |
+| EN7 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): copyright "2026 nbbrdev"; capturas em JPG numa grade 2 × 2 (`menu`, `day`, `night`, `shelter`), sem o contador de FPS e com o abrigo na clareira do início, à noite; "Como jogar" com 5 dicas, porta do preview (4173) como "normalmente", seção "Para desenvolver" com as ferramentas; tabela de controles do código e do docs/03, com R e o botão direito para desmontar; requisito "Node.js 24"; sai o aviso "Em desenvolvimento". |
 
 ## Pendentes (proposto)
 
