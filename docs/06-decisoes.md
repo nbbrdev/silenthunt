@@ -540,6 +540,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MT1-C | Música tensa na perseguição, **exceção à SM5-A** (que deixa a noite sem música): uma faixa CC0 vem com o jogo e uma faixa em `assets-private/music/chase/` (ex.: do Epidemic Sound) toma o lugar dela. |
 | MT2 | Quando toca: entra junto com o rosnado, quando a perseguição começa, em 0,5 s; fica em loop enquanto ela ataca; quando o ataque termina (fuga, golpe ou desistência), some em 3 s. Sai pelo grupo de música, então o controle "Música" das opções vale para ela. |
 | MT3-D | A faixa: "Orchestral Suspense Loop 1" (awrmacd, CC0), num trecho de 80 s em loop sem emenda e com volume normalizado (`public/sounds/music/chase.mp3`). |
+| MT4 | Detalhes propostos por Claude e aprovados ("1 a 8 - Ok"): a música segue o ataque inteiro (perseguição, golpe e hesitação); volume 1 dentro do grupo de música; se o ataque volta durante a saída, ela sobe de novo sem recomeçar a faixa; com mais de uma faixa na pasta privada, vale a primeira em ordem alfabética; os créditos mostram "Música: Epidemic Sound" com a faixa privada; corte de 80 s com emenda cruzada de 2 s, volume médio de -20 dB e 128 kbps; texto no README sobre a pasta `chase/`; `silentHunt.chase()` mostra a música. |
 
 ## Pendentes (proposto)
 
