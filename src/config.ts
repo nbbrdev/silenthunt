@@ -16,9 +16,9 @@ export const CONFIG = {
     maxPlayerStepSeconds: 1 / 30,
   },
   player: {
-    /** Speeds in m/s (J1; AJ2-A raised them from 1.6, 4.5 and 0.9). */
+    /** Speeds in m/s (J1; AJ2-A raised them from 1.6, 4.5 and 0.9; PS9-A, run 5.5 → 5.8). */
     walkSpeed: 2.4,
-    runSpeed: 5.5,
+    runSpeed: 5.8,
     crouchSpeed: 1.3,
     /** Eye height above the feet, in meters (J2). */
     eyeHeight: 1.7,
@@ -48,8 +48,8 @@ export const CONFIG = {
     stamina: {
       /** RF-42 (G6). */
       max: 100,
-      /** PS2: ~10 s of running (it was 15, ~7 s). */
-      runCostPerSecond: 10,
+      /** PS2, PS9-A: ~17 s of running (it was 15, ~7 s; then 10, ~10 s). */
+      runCostPerSecond: 6,
       recoveryPerSecond: 20,
     },
     /** RF-40 (G6, NBB-136). */
@@ -241,7 +241,7 @@ export const CONFIG = {
     roamDistance: { day: [60, 120], night: [30, 60] },
     /** IA2 (meters per second). Investigating uses the stalking top speed. */
     speed: { roam: 1.2, stalkMax: 3, attack: 6, retreat: 7, backOff: 1.5 },
-    /** PS1-A (NBB-153): the attack is a chase, ~10% faster than the player's run (5.5), that gives up after this long. */
+    /** PS1-A, PS9-A (NBB-153): the attack is a chase, a little faster than the player's run (5.8), that gives up after this long. */
     chaseGiveUpSeconds: 25,
     /**
      * Speed at which each animation's feet match the ground at scale 1 (the animation speeds up

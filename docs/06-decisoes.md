@@ -116,7 +116,7 @@ Propostos por Claude e aprovados pelo usuário ("G1 a G14 - Ok"; G15 com a cor e
 
 | Código | Decisão |
 |---|---|
-| J1 | Velocidades: ~~andar 1,6 m/s, correr 4,5 m/s, agachado 0,9 m/s~~ **andar 2,4, correr 5,5, agachado 1,3 m/s** (AJ2-A, 2026-11-23). |
+| J1 | Velocidades: ~~andar 1,6 m/s, correr 4,5 m/s, agachado 0,9 m/s~~ **andar 2,4, correr ~~5,5~~ 5,8, agachado 1,3 m/s** (AJ2-A e PS9-A, 2026-11-23). |
 | J2 | Olhos a 1,7 m (1,0 m agachado); pulo de 0,6 m. |
 | J3 | Sensibilidade do mouse fixa no `src/config.ts` até o menu de opções (NBB-150). |
 | J4 | Até o mundo existir, o jogador anda no chão de 50 m da cena de prova. |
@@ -535,6 +535,8 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | PS5 | A perseguição só acontece à noite; de dia a criatura continua fugindo (AP1-A). |
 | PS6-A | Coração: "heartbeat-80bpm-limited" (loudernoises, CC0), uma batida recortada que toca com o intervalo ditado pela distância. |
 | PS7-C | Ofegar: "Human Breathing Exhausted Panicked" (Sheyvan, CC0), em loop sem emenda. |
+| PS8 | Detalhes propostos por Claude e aprovados ("1 a 8 - Ok"): coração só na perseguição, batidas de 0,85 s (30 m) a 0,38 s (2 m), volume 0,45 a 1, acalma em 3 s, intensidade mínima de 15%; bordas pretas de 25% a 75% com pulso a cada batida; tremor de 0,15 s a cada passo dela a menos de 10 m; ofegar abaixo de 40 de fôlego, até 0,6, dentro ou fora da perseguição; passos de galope já existentes; fuga pela fogueira a menos de 8 m; batida de 0,6 s e ofegar em loop de 14 s; `silentHunt.chase()`. |
+| PS9-A | Sessão do usuário: a perseguição durava pouco (~11 s), sobretudo pelo fôlego. **Correr a 5,8 m/s** (uns 3% mais devagar que a besta, 6) e **correr gasta 6 de fôlego por segundo** (~17 s). A perseguição passa a durar ~20 s; quem corre bem chega perto da desistência em 25 s. Muda a J1, a AJ2-A e a PS2. |
 
 ## Pendentes (proposto)
 
