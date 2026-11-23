@@ -599,6 +599,18 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | TR6 | Detalhes propostos por Claude e aprovados ("Ok"): o arco usa o mesmo cálculo da pedra e para no primeiro chão, tronco ou rocha (sem animais); pontos a cada 0,5 m, de 5 cm, branco pálido a 50%; anel de 0,3 m de raio; o intervalo de 0,8 s continua; segurar G sem pedras mostra o aviso e não desenha o arco; mirar não faz barulho; RF-65 e controles ("Arremessar uma pedra (segurar para mirar)") no docs/03, no README e no Linear. |
 | TR7 | Revisão do usuário (2026-11-23): detalhes decididos por Claude aprovados ("1 a 7 - Ok"): pontinhos a partir de 2 m dos olhos; esferas de poucos lados e aro de 3 cm; no máximo 80 pontinhos (40 m); pausar ou morrer com o G seguro cancela; soltar no intervalo de 0,8 s não arremessa; prévia em passos de 1/60 s (pode diferir um pouco em quadros lentos); com o arco na mão, o botão direito cancela e faz o zoom. |
 
+## NBB-156: Objetivo do jogo (2026-11-23)
+
+| Código | Decisão |
+|---|---|
+| OB1 | O objetivo é uma mistura: a **fuga pelo rádio** (achar as peças em cabanas, montar, pedir resgate e sobreviver até ele chegar) e, **opcional**, **banir a criatura** com um ritual. Detalhes do ritual na rodada seguinte. |
+| OB2-A | **3 peças do rádio**, cada uma numa cabana mais longe: ~150 m, ~300 m e ~500 m do início. |
+| OB3-A | Cada peça vem com um **bilhete** que diz a direção e a distância da próxima, e o HUD ganha uma **bússola** discreta no topo (N, L, S, O). |
+| OB4-A | Com o rádio montado, o jogador chama o resgate, que chega no **amanhecer seguinte**. Nessa **última noite** a criatura ataca sem espreitar antes; sobreviver a ela é a vitória. O clima fica **avermelhado** e os olhos da criatura ficam **vermelhos**; ela fica mais voraz (detalhes na rodada seguinte). |
+| OB5-A | **Tela de vitória** (dias sobrevividos e mortes) com "Continuar jogando" e "Menu principal"; o mundo continua salvo. |
+| OB6-A | O jogador sabe do objetivo por uma **frase curta** ao começar um mundo novo, um **bilhete na primeira cabana** (a da espingarda) e o **progresso** ("Rádio: 1 de 3 peças") no inventário e na pausa. |
+| OB7-A | As peças do rádio **nunca saem do jogador** (não vão para a mochila). |
+
 ## Pendentes (proposto)
 
 Nenhuma.
