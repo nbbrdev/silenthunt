@@ -242,6 +242,22 @@ export const CONFIG = {
     edgeAlpha: 0.55,
     edgeFadeSeconds: 0.3,
   },
+  /**
+   * NBB-158 (RF-65; PD1-B to PD8): G throws a stone from the inventory. It leaves the eyes at
+   * `speed` along the view and falls with gravity (like arrows, AR3-A); where it lands it makes
+   * `landingNoise`. The throw itself makes `throwNoise`. Thrown stones stay on the ground (at most
+   * `maxOnGround`, not saved) and can be picked up again.
+   */
+  stoneThrow: {
+    speed: 14,
+    cooldownSeconds: 0.8,
+    throwNoise: 3,
+    landingNoise: 20,
+    /** Size of the thrown stone (meters). */
+    size: 0.15,
+    maxOnGround: 30,
+    maxFlightSeconds: 5,
+  },
   /** RF-13 (G11, TO5): how far away the player can be seen. */
   visibility: {
     dark: 8,
@@ -662,6 +678,8 @@ export const CONFIG = {
       stoneHit: ["tools/stone-hit.mp3"],
       treeFall: ["tools/tree-fall.mp3"],
       arrowHit: ["tools/arrow-hit.mp3"],
+      /** PD7-C (NBB-158): a thrown stone landing. */
+      stoneLand: ["tools/stone-land.mp3"],
       /** CH2-A: lighting the torch or a fire. */
       ignite: ["fire/ignite.mp3"],
       /** CH3: the torch in hand crackles like the campfire, softer and higher. */
@@ -684,6 +702,7 @@ export const CONFIG = {
       stoneHit: 0.8,
       treeFall: 1,
       arrowHit: 0.8,
+      stoneLand: 0.8,
       ignite: 0.7,
       torchCrackle: 0.15,
       pickup: 0.35,
@@ -697,7 +716,7 @@ export const CONFIG = {
     /** Pitch of some effects (1 = as recorded). */
     rates: { pickup: 1.3, torchCrackle: 1.3 },
     /** Heard from where they happen (3D); the others come from the player's hands. */
-    spatial: ["knifeHit", "treeFall", "arrowHit"],
+    spatial: ["knifeHit", "treeFall", "arrowHit", "stoneLand"],
     /** These loop until stopped (while cleaning a carcass, while the torch burns). */
     loops: ["carcass", "torchCrackle"],
     hearingDistance: 50,

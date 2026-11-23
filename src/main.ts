@@ -21,6 +21,7 @@ import { MusicPlayer } from "./systems/music";
 import { PreySounds } from "./systems/preySounds";
 import { CaughtSequence } from "./systems/caughtSequence";
 import { HidingSystem } from "./systems/hiding";
+import { StoneThrowSystem } from "./systems/stones";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
@@ -275,8 +276,22 @@ async function start(): Promise<void> {
       interactions,
       inventory,
     );
+    // NBB-158: G throws a stone, to make noise far away (RF-65).
+    const stones = new StoneThrowSystem(
+      scene,
+      {
+        input,
+        player,
+        inventory,
+        interactions,
+        world: { terrain: world.terrain, chunks: world.chunks, noise, prey: () => prey.animals() },
+        say: (text) => interactions.say(text),
+      },
+      CONFIG.world.defaultSeed,
+    );
     // NBB-149: the sounds of the bow, the knife, the arrows and the axe (FE1–FE7).
     const effects = new SoundEffects(scene);
+    stones.sounds = effects;
     bow.sounds = effects;
     knife.sounds = effects;
     arrows.sounds = effects;
@@ -637,6 +652,8 @@ async function start(): Promise<void> {
               })),
           arrows: () => bow.arrowCount,
           lastArrow: () => arrows.lastLanding,
+          /** NBB-158: the thrown stones (flying, on the ground) and where the last one stopped. */
+          stones: () => ({ ...stones.debugCounts, last: stones.lastLanding }),
           /** NBB-142: hunger (a value sets it), what the player carries, and the campfire. */
           hunger: (value?: number) => {
             if (value !== undefined) {

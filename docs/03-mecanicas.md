@@ -17,6 +17,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 | Mirar (arco, espingarda) | Botão direito (segurar) |
 | Interagir (pegar, comer, dormir, acender) | E |
 | Acender ou apagar a tocha | F |
+| Arremessar uma pedra (PD1-B) | G |
 | Barra rápida | 1 a 6 e roda do mouse |
 | Inventário e crafting | Tab |
 | Modo de construção | B |
@@ -92,6 +93,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-25** **Presença:** os olhos brilham (visíveis até o limite da neblina, mesmo no escuro) e os passos tocam com som 3D (A4-A), baixos e espaçados, audíveis até **25 m**.
 - **RF-63** **Perseguição** (NBB-153, PS3, PS4-A): enquanto ela persegue, o coração do jogador bate cada vez mais rápido conforme ela se aproxima, e as bordas da tela escurecem a cada batida; a cada passo dela a menos de 10 m, a câmera treme. Com o fôlego baixo (abaixo de 40), o jogador ofega. Só à noite (PS5).
 - **RF-64** **Esconder-se nas moitas** (NBB-154, MI1-A a MI10): agachado dentro de uma moita (a menos de 0,7 m do centro) e com a tocha apagada, o jogador fica **escondido**: as bordas da tela ficam escuras e esverdeadas, e nem a criatura nem as presas o veem, a qualquer distância. A criatura só o acha passando a 2 m dele. Entrar ou sair de uma moita farfalha e faz 4 m de ruído. Na espreita ou na perseguição, ela **perde o jogador** se estava mais longe que a distância em que o veria de pé e sem tocha (8 m no escuro); mais perto, ela o viu entrar e o ataque segue. Perdido o jogador, ela **procura** por perto (RF-21) e depois recua. Escondido, o tempo não a leva a espreitar. À noite, depois de **60 s** escondido na mesma moita, ela o fareja e ataca de onde estiver; sair da moita zera esse tempo. As moitas têm 1,1–1,6 m de altura.
+- **RF-65** **Arremessar pedra** (NBB-158, PD1-B a PD8): G arremessa uma pedra do inventário na direção do olhar, sem trocar o que está na mão; sem pedras, avisa "Sem pedras para arremessar". Ela sai a 14 m/s e cai com a gravidade (uns 20 m mirando a 45°), com 0,8 s entre arremessos; o gesto faz 3 m de ruído. Ela para no primeiro toque (chão, tronco ou rocha), sem quicar, e ali faz **20 m de ruído**: a criatura vai até lá se não sabe onde o jogador está (rondando, investigando ou procurando, RF-21); as presas fogem; um coelho no caminho morre. A pedra fica no chão e se pega de novo com E (no máximo 30 no chão; não entram no save).
 
 ## Caça
 
