@@ -37,6 +37,8 @@ export class Atmosphere {
   private readonly ambient: HemisphericLight;
   private readonly sun: DirectionalLight;
   private readonly moon: DirectionalLight;
+  /** NBB-156 (OB4-A, OB12): how red the last night is, 0 (as usual) to 1. */
+  redness = 0;
 
   constructor(scene: Scene, clock: DayClock) {
     this.scene = scene;
@@ -61,7 +63,10 @@ export class Atmosphere {
 
     // Fog and sky color: night → day, pulled toward the dusk tint at dawn and dusk.
     const fog = Color3.Lerp(toColor(settings.nightFog), toColor(settings.dayFog), daylight);
-    const tinted = Color3.Lerp(fog, toColor(settings.duskFog), warmth * 0.6);
+    const dusk = Color3.Lerp(fog, toColor(settings.duskFog), warmth * 0.6);
+    // OB4-A: the last night's fog pulls toward a dark red.
+    const lastNight = CONFIG.objective.lastNight;
+    const tinted = Color3.Lerp(dusk, toColor(lastNight.fog), this.redness);
     this.scene.fogColor = tinted;
     this.scene.clearColor = Color4.FromColor3(tinted);
 
@@ -73,7 +78,7 @@ export class Atmosphere {
     this.ambient.intensity =
       nightAmbient.intensity + (dayAmbient.intensity - nightAmbient.intensity) * daylight;
     this.ambient.diffuse = Color3.Lerp(
-      toColor(nightAmbient.color),
+      Color3.Lerp(toColor(nightAmbient.color), toColor(lastNight.ambient), this.redness),
       toColor(dayAmbient.color),
       daylight,
     );

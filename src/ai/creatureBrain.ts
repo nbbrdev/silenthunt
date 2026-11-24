@@ -117,6 +117,14 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   wallBetween: (ax: number, az: number, bx: number, bz: number) => boolean = () => false;
   /** NBB-154 (MI1-A): true while the player hides in a bush (set by the HidingSystem). */
   isPlayerHidden: () => boolean = () => false;
+  /**
+   * NBB-156 (OB4-A, OB11-B): the last night, after the rescue was called: it attacks without
+   * stalking, the torch does not hold it, it does not give up and it searches the bushes longer.
+   */
+  lastNight = false;
+  /** OB10-A: banished by the ritual; once it has run off, it is gone from this world. */
+  private banished = false;
+  private gone = false;
   /** MI4-A: where it lost the hidden player; it searches around this spot. */
   private searchCenter: FlatVector = { x: 0, z: 0 };
   private hitLanded = false;
@@ -184,6 +192,9 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   /** VD5: sends it far away, out of sight, to roam again (when the player dies or respawns). */
   sendAway(): void {
+    if (this.banished) {
+      return;
+    }
     this.placeOutOfSight(randomInRange(this.random, this.roamRange()));
     this.enter("roam");
   }
@@ -206,6 +217,9 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
    * it loses them and searches around where they were.
    */
   playerHid(): void {
+    if (this.banished) {
+      return;
+    }
     const stalking = this.currentState === "stalk";
     const chasing = this.currentState === "attack" && this.strikeTime < 0;
     if (!stalking && !chasing) {
@@ -221,9 +235,35 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   /** MI5-B: hidden too long in the same bush at night: it sniffs them out and comes for them. */
   sniffOut(): void {
-    if (this.currentState !== "attack") {
+    if (this.currentState !== "attack" && !this.banished) {
       this.enter("attack");
     }
+  }
+
+  /** OB10-A: true once the ritual banished it. */
+  get isBanished(): boolean {
+    return this.banished;
+  }
+
+  /**
+   * OB10-A, OB12: the ritual banishes it: it runs off into the fog for `banishFleeSeconds` and is
+   * gone for good (`now`: gone at once, as when a saved game loads).
+   */
+  banish(now = false): void {
+    this.banished = true;
+    if (now) {
+      this.vanish();
+      return;
+    }
+    this.enter("retreat");
+    this.stateLimit = CONFIG.objective.banishFleeSeconds;
+  }
+
+  private vanish(): void {
+    this.gone = true;
+    this.currentGait = { animation: "Andar", speedRatio: 0 };
+    this.currentAnimation?.stop();
+    this.attachedNode?.setEnabled(false);
   }
 
   /**
@@ -403,7 +443,11 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         this.pickRoamTarget();
         break;
       case "search":
-        this.stateLimit = randomInRange(this.random, settings.search.seconds);
+        // OB11-B: the last night it searches the bushes longer.
+        this.stateLimit = randomInRange(
+          this.random,
+          this.lastNight ? CONFIG.objective.lastNight.searchSeconds : settings.search.seconds,
+        );
         this.pickSearchTarget();
         break;
     }
@@ -411,10 +455,19 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   private update(seconds: number): void {
     const body = this.attachedNode;
-    if (!body) {
+    if (!body || this.gone) {
       return;
     }
     this.stateTime += seconds;
+    if (this.banished) {
+      // OB12: banished, it runs off into the fog and is gone.
+      if (this.stateTime >= this.stateLimit) {
+        this.vanish();
+        return;
+      }
+      this.updateRetreat(seconds);
+      return;
+    }
     this.lookedAt = this.isLookedAt();
     if (this.distanceToPlayer() > CONFIG.creature.relocateDistance) {
       this.placeOutOfSight(randomInRange(this.random, this.roamRange()));
@@ -503,7 +556,8 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     // MI10: while the player hides, time alone does not lead it to them (only MI5-B does).
     const timeToStalk = this.stateTime >= this.stateLimit && !this.isPlayerHidden();
     if (this.canSeePlayer() || timeToStalk) {
-      this.enter("stalk");
+      // OB4-A: the last night it skips the stalking and attacks.
+      this.enter(this.lastNight && this.isNight ? "attack" : "stalk");
       return;
     }
     this.wander(seconds);
@@ -560,6 +614,11 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   private updateStalk(seconds: number): void {
     const settings = CONFIG.creature;
+    if (this.lastNight && this.isNight) {
+      // OB4-A: no stalking the last night.
+      this.enter("attack");
+      return;
+    }
     if (this.stateTime >= this.stateLimit) {
       this.enter(this.isNight ? "attack" : "roam");
       return;
@@ -615,7 +674,9 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       const atFire = this.fires.some(
         (fire) => Math.hypot(fire.x - x, fire.z - z) < settings.fireKeepAway,
       );
-      if (atFire || this.stateTime >= this.stateLimit) {
+      // OB11-B: the last night it does not give up (the fire still keeps it away).
+      const givesUp = this.stateTime >= this.stateLimit && !this.lastNight;
+      if (atFire || givesUp) {
         this.enter("retreat");
         return;
       }
@@ -709,6 +770,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
 
   /** RF-24, GF2-B: a lit torch, looked straight at from close by. */
   private torchHoldsIt(): boolean {
+    // OB11-B: the last night the torch does not hold it.
+    if (this.lastNight) {
+      return false;
+    }
     return (
       this.senses.torch.isLit &&
       this.lookedAt &&

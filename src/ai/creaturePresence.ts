@@ -71,6 +71,11 @@ export class CreaturePresence {
     brain.onHeldGrowl.add(() => this.growl?.play());
   }
 
+  /** NBB-156 (OB12): its growl now (banished by the ritual). */
+  growlNow(): void {
+    this.growl?.play();
+  }
+
   /** Loads the sounds (SO1-A files in `public/sounds/creature/`) and ties them to the body. */
   async loadSounds(audio: GameAudio): Promise<void> {
     const settings = CONFIG.creature.sounds;

@@ -14,12 +14,25 @@ import {
   createWoodMesh,
 } from "./resources";
 import { createTorchModel } from "./torch";
+import {
+  createAntennaMesh,
+  createBatteryMesh,
+  createDeerSkullMesh,
+  createRadioMesh,
+  createTubesMesh,
+} from "./objective";
 import { createBedrollMesh } from "../structures/bed";
 import { createCampfireModel } from "../structures/campfire";
 import { createShotgunModel } from "./shotgun";
 
 /** The world's branch and rock are scaled to a size that fits in a hand (meters, longest side). */
-const HAND_SIZE: Partial<Record<ItemId, number>> = { branch: 0.5, stone: 0.11, campfire: 0.4 };
+const HAND_SIZE: Partial<Record<ItemId, number>> = {
+  branch: 0.5,
+  stone: 0.11,
+  campfire: 0.4,
+  // NBB-156: the radio with its antenna up would cross the whole screen at its real size.
+  radio: 0.35,
+};
 
 /**
  * The model of any item (NBB-143): for the hand (IN6-B) and the inventory icons (IN7-A). It
@@ -84,6 +97,16 @@ function buildModel(scene: Scene, item: ItemId): TransformNode {
     }
     case "bed":
       return createBedrollMesh(scene);
+    case "battery":
+      return createBatteryMesh(scene);
+    case "antenna":
+      return createAntennaMesh(scene);
+    case "tubes":
+      return createTubesMesh(scene);
+    case "radio":
+      return createRadioMesh(scene);
+    case "deerSkull":
+      return createDeerSkullMesh(scene);
     case "rawMeat":
     case "cookedMeat": {
       const meat = createMeatModel(scene, item);

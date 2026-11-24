@@ -11,6 +11,7 @@ const NAMES: Partial<Record<ItemId, [string, string]>> = {
   rawMeat: ["carne", "carnes"],
   fat: ["gordura", "gorduras"],
   leather: ["couro", "couros"],
+  deerSkull: ["crânio de cervo", "crânios de cervo"],
 };
 import type { ChunkManager } from "../world/chunks";
 import type { Interaction, InteractionSystem } from "./interactions";
@@ -147,6 +148,8 @@ export class CarcassSystem {
       { item: "rawMeat", count: settings.meat[animal.kind] },
       { item: "fat", count: settings.fat[animal.kind] },
       { item: "leather", count: settings.leather[animal.kind] },
+      // OB8-A: the deer leaves its skull too.
+      { item: "deerSkull", count: settings.skull[animal.kind] },
     ];
     return items.filter((stack) => stack.count > 0);
   }

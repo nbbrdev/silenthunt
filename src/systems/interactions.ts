@@ -236,6 +236,14 @@ export class InteractionSystem {
    * The nearest thing with something for E to do; a mere notice ("Fogueira (4:53)", "Precisa
    * da faca") only shows when nothing nearby has an action (sleeping next to a fire, NBB-146).
    */
+  /** Development: what E would do now, and how far it is. */
+  get debugNearest(): { label: string; distance: number; held: number } | undefined {
+    const nearest = this.nearest();
+    return nearest
+      ? { label: nearest.label, distance: nearest.distance, held: this.holdSeconds }
+      : undefined;
+  }
+
   private nearest(): Interaction | undefined {
     let nearest: Interaction | undefined;
     const better = (a: Interaction, b: Interaction) =>

@@ -316,6 +316,20 @@ function getEyeMaterial(scene: Scene): StandardMaterial {
   return material;
 }
 
+/**
+ * NBB-156 (OB4-A, OB12): the eyes' color, from their usual yellowish white (0) to the last night's
+ * red (1).
+ */
+export function setCreatureEyeRedness(scene: Scene, redness: number): void {
+  const color = Color3.Lerp(
+    toColor(CONFIG.palette.creatureEyes),
+    toColor(CONFIG.objective.lastNight.eyes),
+    Math.max(0, Math.min(1, redness)),
+  );
+  getEyeMaterial(scene).emissiveColor = color;
+  getEyeHaloMaterial(scene).emissiveColor = color.scale(CONFIG.creature.eyes.haloStrength);
+}
+
 const haloMaterialByScene = new WeakMap<Scene, StandardMaterial>();
 
 /** Additive soft glow around each eye, unaffected by fog and light (OL1-B). */

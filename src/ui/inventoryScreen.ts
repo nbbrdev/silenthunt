@@ -1,4 +1,4 @@
-import { PointerEventTypes, type Scene } from "@babylonjs/core";
+import { Observable, PointerEventTypes, type Scene } from "@babylonjs/core";
 import {
   Button,
   Control,
@@ -33,6 +33,12 @@ interface SlotView {
 export class InventoryScreen {
   /** Asked before opening (not while dead). */
   canOpen: () => boolean = () => true;
+  /** NBB-156 (OB12): whether a recipe shows (the radio's only with its three parts). */
+  recipeVisible: (recipe: Recipe) => boolean = () => true;
+  /** NBB-156 (OB12): a panel to the left of the inventory, for the notes ("Anotações"). */
+  readonly sidePanel: Rectangle;
+  /** Fired when the screen opens (true) or closes (false). */
+  readonly onToggled = new Observable<boolean>();
 
   private readonly inventory: Inventory;
   private readonly player: Player;
@@ -107,10 +113,12 @@ export class InventoryScreen {
     );
     const recipesWidth = RECIPES_WIDTH;
     const between = 12;
+    // The notes, the inventory and the recipes side by side, centered together.
+    const total = SIDE_WIDTH + panelWidth + recipesWidth + between * 2;
     this.panel = new Rectangle("inventoryPanel");
     this.panel.width = `${panelWidth}px`;
     this.panel.height = `${panelHeight}px`;
-    this.panel.left = `${-(recipesWidth + between) / 2}px`;
+    this.panel.left = `${-total / 2 + SIDE_WIDTH + between + panelWidth / 2}px`;
     this.panel.background = "rgba(10, 10, 10, 0.82)";
     this.panel.color = "rgba(255, 255, 255, 0.2)";
     this.panel.thickness = 1;
@@ -125,10 +133,21 @@ export class InventoryScreen {
     title.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
     this.panel.addControl(title);
 
+    this.sidePanel = new Rectangle("notesPanel");
+    this.sidePanel.width = `${SIDE_WIDTH}px`;
+    this.sidePanel.height = `${panelHeight}px`;
+    this.sidePanel.left = `${-total / 2 + SIDE_WIDTH / 2}px`;
+    this.sidePanel.background = this.panel.background;
+    this.sidePanel.color = this.panel.color;
+    this.sidePanel.thickness = 1;
+    this.sidePanel.cornerRadius = 6;
+    this.sidePanel.isVisible = false;
+    ui.addControl(this.sidePanel);
+
     this.recipesPanel = new Rectangle("recipesPanel");
     this.recipesPanel.width = `${recipesWidth}px`;
     this.recipesPanel.height = `${panelHeight}px`;
-    this.recipesPanel.left = `${(panelWidth + between) / 2}px`;
+    this.recipesPanel.left = `${total / 2 - recipesWidth / 2}px`;
     this.recipesPanel.background = this.panel.background;
     this.recipesPanel.color = this.panel.color;
     this.recipesPanel.thickness = 1;
@@ -280,6 +299,8 @@ export class InventoryScreen {
     this.open = false;
     this.panel.isVisible = false;
     this.recipesPanel.isVisible = false;
+    this.sidePanel.isVisible = false;
+    this.onToggled.notifyObservers(false);
     this.hotbarPanel.isVisible = !this.hotbarIsHidden;
     // CF2-B: closing the screen stops what was being made (nothing is used up).
     this.crafting.stop();
@@ -307,6 +328,8 @@ export class InventoryScreen {
     this.open = true;
     this.panel.isVisible = true;
     this.recipesPanel.isVisible = true;
+    this.sidePanel.isVisible = true;
+    this.onToggled.notifyObservers(true);
     this.hotbarPanel.isVisible = false;
     // IN3-A: the world goes on; the player stands still and gets the mouse pointer.
     this.player.controlsEnabled = false;
@@ -392,6 +415,7 @@ export class InventoryScreen {
     // CF1-A: each recipe shows what it needs (what is missing in red) and whether it can be made.
     const busy = this.crafting.progress !== undefined;
     for (const row of this.recipeRows) {
+      row.frame.isVisible = this.recipeVisible(row.recipe);
       const icon = this.icons[row.recipe.item];
       row.icon.isVisible = icon !== undefined;
       if (icon && row.icon.source !== icon) {
@@ -423,6 +447,8 @@ export class InventoryScreen {
 
 /** CF1-A: the recipe column's width, and where its rows start and how far apart (pixels). */
 const RECIPES_WIDTH = 350;
+/** NBB-156: the notes column's width (pixels). */
+const SIDE_WIDTH = 270;
 const RECIPE_TOP = 48;
 const RECIPE_STEP = 58;
 

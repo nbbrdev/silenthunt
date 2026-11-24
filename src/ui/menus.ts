@@ -35,6 +35,8 @@ export interface MenuWorld {
   save: () => Promise<void>;
   /** Forgets the saved world and reloads into a new one (RF-61, SV2-A). */
   newWorld: () => Promise<void>;
+  /** NBB-156 (OB12): the objective's progress, shown under "Pausado". */
+  progress?: () => string[];
 }
 
 type Screen = "main" | "pause" | "options" | "credits" | "confirm" | "start";
@@ -181,13 +183,28 @@ export class GameMenus {
 
   private buildPause(): void {
     this.title("Pausado", CONFIG.menu.headingSize);
+    // OB12: where the way out stands.
+    const progress = this.world.progress?.() ?? [];
+    for (const line of progress) {
+      this.text(line, CONFIG.menu.textSize);
+    }
+    if (progress.length > 0) {
+      this.spacer(12);
+    }
     this.button("Voltar ao jogo", () => this.resume());
     this.button("Opções", () => this.open("options"));
-    this.button("Menu principal", () => {
-      void this.world.save().finally(() => {
-        this.hasSave = true;
-        this.open("main");
-      });
+    this.button("Menu principal", () => this.goToMain());
+  }
+
+  /** Saves and goes to the main menu (MN3-A); also the victory screen's "Menu principal". */
+  goToMain(): void {
+    if (this.screen === undefined) {
+      // From the game (the victory screen): the world stops first, as for any menu.
+      this.open("pause");
+    }
+    void this.world.save().finally(() => {
+      this.hasSave = true;
+      this.open("main");
     });
   }
 

@@ -10,6 +10,11 @@ export interface CabinSite {
   rotation: number;
   /** The first cabin, near the start: the one with the shotgun (RF-34). */
   first: boolean;
+  /**
+   * NBB-156 (OB2-A, OB12): the cabins on the way out: 0 is the first cabin (the first note), 1 to
+   * 3 hold the radio's parts. Undefined for the others.
+   */
+  step?: number;
 }
 
 /**
@@ -70,13 +75,15 @@ export function cabinsInChunk(cx: number, cz: number, seed: number): CabinSite[]
   const settings = CONFIG.cabins;
   const sites: CabinSite[] = [];
 
-  const first = firstCabin(seed);
-  if (Math.floor(first.x / chunkSize) === cx && Math.floor(first.z / chunkSize) === cz) {
-    sites.push(first);
+  for (const site of objectiveCabins(seed)) {
+    if (Math.floor(site.x / chunkSize) === cx && Math.floor(site.z / chunkSize) === cz) {
+      sites.push(site);
+    }
   }
 
   const random = createRandom(Math.floor(hashPosition(cx, cz, 97, seed) * 2 ** 31));
-  if (random() < settings.chancePerChunk) {
+  // A chunk with a cabin on the way out gets no other.
+  if (sites.length === 0 && random() < settings.chancePerChunk) {
     const x = (cx + 0.2 + random() * 0.6) * chunkSize;
     const z = (cz + 0.2 + random() * 0.6) * chunkSize;
     const { spawn } = CONFIG.player;
@@ -102,14 +109,35 @@ export function cabinsNear(x: number, z: number, seed: number): CabinSite[] {
   return sites;
 }
 
-/** ES1: the cabin with the shotgun, about 60 m from the start, its door facing the start. */
-function firstCabin(seed: number): CabinSite {
+const objectiveCache = new Map<number, CabinSite[]>();
+
+/**
+ * NBB-156 (OB2-A, OB12): the cabins on the way out, from the seed alone: the first cabin (ES1,
+ * the shotgun's) and the three with the radio's parts, about 150, 300 and 500 m from the start in
+ * seeded directions, their doors facing the start.
+ */
+export function objectiveCabins(seed: number): CabinSite[] {
+  const cached = objectiveCache.get(seed);
+  if (cached) {
+    return cached;
+  }
   const { spawn } = CONFIG.player;
-  const angle = hashPosition(1, 2, 3, seed) * Math.PI * 2;
-  const distance = CONFIG.cabins.firstDistance;
-  const x = spawn.x + Math.sin(angle) * distance;
-  const z = spawn.z + Math.cos(angle) * distance;
+  const { cabinDistances, distanceJitter } = CONFIG.objective;
   const { chunkSize } = CONFIG.world;
-  const id = `${Math.floor(x / chunkSize)},${Math.floor(z / chunkSize)}:0`;
-  return { id, x, z, rotation: Math.atan2(spawn.x - x, spawn.z - z), first: true };
+  const place = (step: number, angle: number, distance: number): CabinSite => {
+    const x = spawn.x + Math.sin(angle) * distance;
+    const z = spawn.z + Math.cos(angle) * distance;
+    const id = `${Math.floor(x / chunkSize)},${Math.floor(z / chunkSize)}:${step === 0 ? 0 : `q${step}`}`;
+    const rotation = Math.atan2(spawn.x - x, spawn.z - z);
+    return { id, x, z, rotation, first: step === 0, step };
+  };
+  // ES1: the first cabin keeps the place it always had.
+  const sites = [place(0, hashPosition(1, 2, 3, seed) * Math.PI * 2, CONFIG.cabins.firstDistance)];
+  cabinDistances.forEach((distance, index) => {
+    const angle = hashPosition(5, index, 7, seed) * Math.PI * 2;
+    const jitter = 1 + (hashPosition(11, index, 13, seed) * 2 - 1) * distanceJitter;
+    sites.push(place(index + 1, angle, distance * jitter));
+  });
+  objectiveCache.set(seed, sites);
+  return sites;
 }

@@ -16,7 +16,12 @@ export type ItemId =
   | "rawMeat"
   | "cookedMeat"
   | "campfire"
-  | "bed";
+  | "bed"
+  | "battery"
+  | "antenna"
+  | "tubes"
+  | "radio"
+  | "deerSkull";
 
 /** The item names shown to the player (O4-A: pt-BR). */
 export const ITEM_LABELS: Record<ItemId, string> = {
@@ -37,7 +42,24 @@ export const ITEM_LABELS: Record<ItemId, string> = {
   cookedMeat: "Carne cozida",
   campfire: "Fogueira",
   bed: "Cama",
+  battery: "Bateria",
+  antenna: "Antena",
+  tubes: "Válvulas",
+  radio: "Rádio",
+  deerSkull: "Crânio de cervo",
 };
+
+/** NBB-156 (OB7-A, OB12): the radio's parts, the radio and the skulls never go to the backpack. */
+export const KEPT_ON_DEATH: readonly ItemId[] = [
+  "battery",
+  "antenna",
+  "tubes",
+  "radio",
+  "deerSkull",
+];
+
+/** OB2-A: the radio's parts, in the order of the cabins that hold them. */
+export const RADIO_PARTS: readonly ItemId[] = ["battery", "antenna", "tubes"];
 
 /** Every item, in a fixed order (icons, development tools). */
 export const ALL_ITEMS = Object.keys(ITEM_LABELS) as ItemId[];

@@ -13,6 +13,8 @@ export interface World {
   terrain: Terrain;
   chunks: ChunkManager;
   clock: DayClock;
+  /** NBB-156: its light and fog (the last night turns them red). */
+  atmosphere: Atmosphere;
 }
 
 /** The game world: the infinite forest (NBB-129) with its day and night cycle (NBB-130). */
@@ -24,7 +26,7 @@ export function createWorld(engine: Engine, physics: HavokPlugin, seed: number):
   // A long pause (e.g. another tab) should not skip a whole night: at most 0.1 s per frame. The
   // clock stops while the game is paused (MN3-A).
   scene.onBeforeRenderObservable.add(() => clock.update(frameSeconds(scene)));
-  new Atmosphere(scene, clock);
+  const atmosphere = new Atmosphere(scene, clock);
 
   const terrain = new Terrain(seed);
   const library = new VegetationLibrary(scene);
@@ -32,5 +34,5 @@ export function createWorld(engine: Engine, physics: HavokPlugin, seed: number):
   const { spawn } = CONFIG.player;
   chunks.loadAround(new Vector3(spawn.x, 0, spawn.z));
 
-  return { scene, terrain, chunks, clock };
+  return { scene, terrain, chunks, clock, atmosphere };
 }

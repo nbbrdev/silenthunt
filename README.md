@@ -57,6 +57,7 @@ Em desenvolvimento há ferramentas extras: a galeria de modelos em `/?galeria`, 
 
 ## Como jogar
 
+- **Saia da floresta.** Uma cabana perto do início tem um bilhete: siga os bilhetes, com a bússola no topo da tela, até as três peças de um rádio, monte-o no inventário e chame o resgate. Ele chega ao amanhecer, depois de uma última noite vermelha. Ou leia o diário do caçador e tente banir a criatura.
 - **Você começa sem nada.** Junte galhos, pedras e fibra e faça a faca, o machado, o arco e a fogueira no inventário (Tab).
 - **Faça silêncio.** Correr, pisar em galhos secos e atirar fazem barulho; andar agachado e no musgo, quase nenhum. A neblina esconde você tanto quanto esconde o resto.
 - **A noite é da criatura.** De dia ela só observa de longe. À noite, ela espreita e ataca, e um golpe dela mata. Fogueiras acesas a mantêm longe; encará-la com a tocha acesa a segura na borda da luz, mas não a espanta. Agachado numa moita, com a tocha apagada, ninguém vê você, e uma pedra arremessada (G) a atrai para longe.

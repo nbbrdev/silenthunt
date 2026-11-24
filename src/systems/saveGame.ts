@@ -20,6 +20,7 @@ import type { ChunkManager } from "../world/chunks";
 import type { StructureManager, SavedPiece } from "../world/structures";
 import type { StumpField } from "../world/stumps";
 import type { InteractionSystem } from "./interactions";
+import type { SavedObjective } from "./objective";
 
 /** SV5: the save's format; a save of any other format is not loaded. */
 const FORMAT_VERSION = 1;
@@ -50,6 +51,8 @@ interface SaveData {
   shotgunLoaded: number;
   /** NBB-148: missing in saves from before the backpacks: none (MO6-A). */
   backpacks?: SavedBackpack[];
+  /** NBB-156 (OB12): missing in older saves: nothing found yet, the opening already seen. */
+  objective?: Partial<SavedObjective>;
 }
 
 /** Everything the save reads from and writes back to. */
@@ -75,6 +78,8 @@ export interface SaveParts {
   life: { start: number };
   /** What the mouse holds in the inventory screen, outside the slots. */
   heldByMouse: () => Stack | undefined;
+  /** NBB-156: the way out (notes read, the rescue, the ritual, the deaths). */
+  objective: { saved: SavedObjective; restore(saved: Partial<SavedObjective>): void };
 }
 
 /** Puts a stack into saved slots as the inventory would (same item first, then empty slots). */
@@ -251,6 +256,7 @@ export class SaveGame {
       cabins: p.cabins.state,
       shotgunLoaded: p.shotgun.cartridges.loaded,
       backpacks: p.backpacks.saved,
+      objective: p.objective.saved,
     };
   }
 
@@ -277,5 +283,7 @@ export class SaveGame {
     p.player.view = data.player.view;
     // SV1-A: the creature is not saved: it starts far away.
     p.creature.sendAway();
+    // NBB-156: after the clock, so a last night saved at night comes back red.
+    p.objective.restore(data.objective ?? {});
   }
 }

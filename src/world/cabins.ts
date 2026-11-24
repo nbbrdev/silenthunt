@@ -14,7 +14,7 @@ import { CONFIG } from "../config";
 import { createRandom, hashPosition, randomInt } from "../core/random";
 import { createShotgunModel, type ShotgunModel } from "../models/items/shotgun";
 import { createCabinModel, type CabinModel } from "../models/structures/cabin";
-import type { Inventory } from "../player/inventory";
+import type { Inventory, Stack } from "../player/inventory";
 import type { Interaction, InteractionSystem } from "../systems/interactions";
 import { CABIN_SIZE, cabinsInChunk, type CabinSite } from "./cabinSites";
 import type { ChunkInfo, ChunkManager } from "./chunks";
@@ -242,22 +242,43 @@ export class CabinManager {
 
   private openChest(cabin: SpawnedCabin): void {
     const cartridges = this.chestCartridges(cabin);
+    const extra = this.extraContents(cabin.site);
+    const items: Stack[] = [...(extra?.items ?? [])];
+    if (cartridges > 0) {
+      items.push({ item: "cartridge", count: cartridges });
+    }
     // RF-57: with no room for what it holds, the chest stays closed.
-    if (cartridges > 0 && this.inventory.spaceFor("cartridge") < cartridges) {
+    if (!this.inventory.canFit(items)) {
       this.interactions.say("Inventário cheio");
       return;
     }
     this.opened.add(cabin.site.id);
     cabin.lid.rotation.x = LID_OPEN;
+    const found: string[] = [];
     if (cartridges > 0) {
-      this.inventory.add("cartridge", cartridges);
-      this.interactions.say(
-        `Você encontrou: ${cartridges} ${cartridges === 1 ? "cartucho" : "cartuchos"}`,
-      );
+      found.push(`${cartridges} ${cartridges === 1 ? "cartucho" : "cartuchos"}`);
+    }
+    for (const { item, count } of items) {
+      this.inventory.add(item, count);
+    }
+    found.push(...(extra?.found ?? []));
+    if (found.length > 0) {
+      const last = found.pop();
+      const text = found.length > 0 ? `${found.join(", ")} e ${last ?? ""}` : (last ?? "");
+      this.interactions.say(`Você encontrou: ${text}`);
     } else {
       this.interactions.say("O baú está vazio");
     }
+    extra?.onTaken();
   }
+
+  /**
+   * NBB-156 (OB12): what else a chest holds on the way out (a radio part, notes): the items, the
+   * words for what was found, and what happens once it is taken (the notes open).
+   */
+  extraContents: (
+    site: CabinSite,
+  ) => { items: Stack[]; found: string[]; onTaken: () => void } | undefined = () => undefined;
 
   /** ES5: what a chest holds; the same chest always holds the same thing. */
   private chestCartridges(cabin: SpawnedCabin): number {

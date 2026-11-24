@@ -271,6 +271,35 @@ export const CONFIG = {
       alpha: 0.5,
     },
   },
+  /**
+   * NBB-156 (RF-66 to RF-68; OB1 to OB13): the way out. Three cabins hold the radio's parts at
+   * `cabinDistances` from the start (± `distanceJitter`); notes give the next one's direction and
+   * distance (rounded to `noteDistanceStep`). The ritual burns 3 deer skulls in a lit fire, at
+   * night, with the creature within `ritualCreatureDistance`. The last night turns red.
+   */
+  objective: {
+    cabinDistances: [150, 300, 500],
+    distanceJitter: 0.1,
+    noteDistanceStep: 50,
+    /** OB6-A: the opening sentence stays this long. */
+    introSeconds: 6,
+    ritualSkulls: 3,
+    ritualCreatureDistance: 20,
+    ritualHoldSeconds: 2,
+    /** OB12: banished, it runs off for this long before it is gone. */
+    banishFleeSeconds: 3,
+    /** OB12: the screen darkens over this long before a victory. */
+    victoryFadeSeconds: 2,
+    /** OB4-A, OB11-B, OB12: the last night. */
+    lastNight: {
+      fog: { r: 0.12, g: 0.02, b: 0.02 },
+      ambient: { r: 0.7, g: 0.18, b: 0.15 },
+      eyes: { r: 1, g: 0.15, b: 0.1 },
+      /** The red comes in (and goes) over this long. */
+      fadeSeconds: 8,
+      searchSeconds: [40, 60] as [number, number],
+    },
+  },
   /** RF-13 (G11, TO5): how far away the player can be seen. */
   visibility: {
     dark: 8,
@@ -492,6 +521,12 @@ export const CONFIG = {
       /** FG1-A: bulky, one per slot. */
       campfire: 1,
       bed: 1,
+      /** NBB-156 (OB12): the radio, its parts and the deer skulls (3 for the ritual). */
+      battery: 1,
+      antenna: 1,
+      tubes: 1,
+      radio: 1,
+      deerSkull: 3,
     },
     /** PG1-A (RF-56): the player starts with nothing (the provisional kit, IN5-A, is gone). */
     starterKit: [] as { item: ItemId; count: number; slot: number }[],
@@ -576,6 +611,17 @@ export const CONFIG = {
           ["leather", 2],
         ],
       },
+      // OB12 (NBB-156): the radio, shown only once the three parts are there.
+      {
+        item: "radio",
+        count: 1,
+        seconds: 3,
+        cost: [
+          ["battery", 1],
+          ["antenna", 1],
+          ["tubes", 1],
+        ],
+      },
     ] as Recipe[],
   },
   /** NBB-144: the axe (RF-59, MC1-A, MC2, MC3-A). Meters and seconds. */
@@ -622,6 +668,8 @@ export const CONFIG = {
     /** RF-30, CA4-A: what each animal gives. */
     meat: { rabbit: 1, deer: 4 },
     leather: { rabbit: 0, deer: 1 },
+    /** OB8-A, OB12 (NBB-156): the deer's skull, for the ritual. */
+    skull: { rabbit: 0, deer: 1 },
     /** PG2-A: fat, for torches. */
     fat: { rabbit: 1, deer: 3 },
     /** E reaches a carcass this close (meters, to the middle of its body). */

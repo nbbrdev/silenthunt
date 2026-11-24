@@ -21,6 +21,10 @@ import { MusicPlayer } from "./systems/music";
 import { PreySounds } from "./systems/preySounds";
 import { CaughtSequence } from "./systems/caughtSequence";
 import { HidingSystem } from "./systems/hiding";
+import { ObjectiveSystem } from "./systems/objective";
+import { Compass } from "./ui/compass";
+import { NotePanel } from "./ui/notePanel";
+import { VictoryScreen } from "./ui/victoryScreen";
 import { StoneThrowSystem } from "./systems/stones";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
@@ -38,8 +42,8 @@ import { BedManager } from "./world/beds";
 import { BackpackManager } from "./world/backpacks";
 import { PlacingSystem } from "./systems/placing";
 import { StumpField } from "./world/stumps";
-import { Inventory } from "./player/inventory";
-import type { Held, ItemId } from "./player/items";
+import { Inventory, type Stack } from "./player/inventory";
+import { KEPT_ON_DEATH, type Held, type ItemId } from "./player/items";
 import { PickupSystem } from "./systems/pickups";
 import { SaveGame } from "./systems/saveGame";
 import { createItemIcons } from "./ui/itemIcons";
@@ -423,18 +427,60 @@ async function start(): Promise<void> {
       inventory,
       interactions,
     });
+    // NBB-156 (RF-66 to RF-68): the way out: the radio's cabins, notes, compass, ritual and the
+    // last night, and the victory screen.
+    const notePanel = new NotePanel(hud, gameInput, player);
+    new Compass(hud, scene, player);
+    const victoryScreen = new VictoryScreen(hud, scene, {
+      continuePlaying: () => {
+        player.controlsEnabled = true;
+        gameInput.pointerLockEnabled = true;
+        gameInput.capturePointer();
+      },
+      mainMenu: (): void => menus.goToMain(),
+    });
+    const objective: ObjectiveSystem = new ObjectiveSystem({
+      scene,
+      ui: hud,
+      input: gameInput,
+      player,
+      inventory,
+      inventoryScreen,
+      equipment,
+      interactions,
+      cabins,
+      campfires,
+      clock: world.clock,
+      atmosphere: world.atmosphere,
+      creature: creatureBrain,
+      presence,
+      notes: notePanel,
+      victory: victoryScreen,
+      seed: CONFIG.world.defaultSeed,
+      isPlaying: (): boolean => menus.isPlaying,
+    });
+    beds.sleepBlocked = () => objective.isLastNight;
+
     health.onDied.add(() => {
       // Closing the screen puts back whatever the mouse was holding.
       inventoryScreen.close(false);
-      const carried = inventory.saved.filter((stack) => stack !== null);
+      // OB7-A, OB12: the radio, its parts and the skulls stay with the player.
+      const slots = inventory.saved;
+      const keep = (stack: Stack | null) => stack !== null && KEPT_ON_DEATH.includes(stack.item);
+      const carried = slots.filter((stack): stack is Stack => stack !== null && !keep(stack));
       const loaded = shotgun.cartridges.loaded;
       if (loaded > 0) {
         carried.push({ item: "cartridge", count: loaded });
         shotgun.loadedCartridges = 0;
       }
-      inventory.restore(new Array<null>(inventory.size).fill(null), inventory.selected);
+      inventory.restore(
+        slots.map((stack) => (keep(stack) ? stack : null)),
+        inventory.selected,
+      );
       const at = player.feet;
       backpacks.drop(at.x, at.y, at.z, player.view.yaw, carried);
+      // OB12: counted, and the last night (if it was on) is lost, before the clock skips ahead.
+      objective.playerDied();
       const days = Math.floor((world.clock.elapsed - life.start) / world.clock.cycleSeconds);
       // GF5-B: dying at night means waking at dawn. The clock skips ahead now (dawn begins as
       // dark as the night) and hunger drops for the time skipped, as when sleeping (DO1).
@@ -487,6 +533,7 @@ async function start(): Promise<void> {
         interactions,
         life,
         heldByMouse: () => inventoryScreen.heldByMouse,
+        objective,
       },
       hud,
     );
@@ -502,11 +549,15 @@ async function start(): Promise<void> {
       options,
       hasSave,
       hasMusic: () => music.hasTracks || chaseEffects.usesPrivateMusic,
-      canPause: () => player.controlsEnabled && !health.isDead,
+      // Not while a note is open (or just closed with Esc), nor on the victory screen.
+      canPause: () =>
+        player.controlsEnabled && !health.isDead && !notePanel.justClosed && !victoryScreen.isOpen,
       save: () => saveGame.save(),
       newWorld: () => saveGame.newWorld(),
+      progress: () => objective.progress,
     });
-    inventoryScreen.canOpen = () => !health.isDead && menus.isPlaying;
+    inventoryScreen.canOpen = () =>
+      !health.isDead && menus.isPlaying && !notePanel.isOpen && !victoryScreen.isOpen;
     // MN1-C: the whole HUD in the game's font, now that it is built.
     applyGameFont(hud);
 
@@ -690,6 +741,11 @@ async function start(): Promise<void> {
           }),
           /** NBB-154: whether the player is hidden in a bush, for how long, and which bush. */
           hidden: () => hiding.debugState(),
+          /** NBB-156: the way out (notes, rescue, ritual, deaths, cabins) and the rescue call. */
+          objective: () => objective.debugState(),
+          callRescue: () => objective.debugCallRescue(),
+          /** What E would do now (development). */
+          interaction: () => interactions.debugNearest,
           /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */
           preySounds: () => ({ ...preySounds.played }),
           /** NBB-149: how many times each tool or weapon sound has played. */

@@ -49,6 +49,8 @@ export class BedManager {
   private nextId = 1;
   /** DO1: the fade, from 0 (clear) to 1 (black) and back; undefined when not sleeping. */
   private sleep: { seconds: number; skipped: boolean } | undefined;
+  /** NBB-156: no sleeping through the last night (the rescue only comes to who faces it). */
+  sleepBlocked: () => boolean = () => false;
 
   constructor(scene: Scene, player: Player, world: BedWorld, ui: AdvancedDynamicTexture) {
     this.player = player;
@@ -158,7 +160,8 @@ export class BedManager {
     }
     const creature = creaturePosition();
     const feet = this.player.feet;
-    if (Math.hypot(creature.x - feet.x, creature.z - feet.z) < CONFIG.bed.safeDistance) {
+    const near = Math.hypot(creature.x - feet.x, creature.z - feet.z) < CONFIG.bed.safeDistance;
+    if (near || this.sleepBlocked()) {
       interactions.say("Não dá para dormir: há perigo por perto");
       return;
     }
