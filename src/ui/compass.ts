@@ -1,5 +1,6 @@
 import type { Scene } from "@babylonjs/core";
 import { Control, Rectangle, TextBlock, type AdvancedDynamicTexture } from "@babylonjs/gui";
+import { CONFIG } from "../config";
 import type { Player } from "../player/player";
 import { COMPASS_LETTERS } from "../systems/objectiveTexts";
 
@@ -13,6 +14,12 @@ const HALF_ANGLE = Math.PI / 2;
  * north the notes use for their directions.
  */
 export class Compass {
+  /**
+   * NBB-157 (MP4-A, MP8): the map's destination, if any: a diamond in its direction with the
+   * distance under it, or an arrow at the strip's end when it lies outside the strip.
+   */
+  destination: () => { x: number; z: number } | undefined = () => undefined;
+
   constructor(ui: AdvancedDynamicTexture, scene: Scene, player: Player) {
     const strip = new Rectangle("compass");
     strip.width = `${HALF_WIDTH * 2}px`;
@@ -45,8 +52,57 @@ export class Compass {
       return { text, angle: (index * Math.PI) / 4 };
     });
 
+    const marker = new Rectangle("compassDestination");
+    marker.width = "9px";
+    marker.height = "9px";
+    marker.thickness = 0;
+    marker.background = CONFIG.map.colors.mark;
+    marker.rotation = Math.PI / 4;
+    marker.top = "18px";
+    marker.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    marker.isVisible = false;
+    ui.addControl(marker);
+    const arrow = new TextBlock("compassDestinationArrow", "");
+    arrow.color = CONFIG.map.colors.mark;
+    arrow.fontSize = 22;
+    arrow.width = "20px";
+    arrow.height = "26px";
+    arrow.top = "14px";
+    arrow.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    arrow.isVisible = false;
+    ui.addControl(arrow);
+    const distance = new TextBlock("compassDestinationDistance", "");
+    distance.color = "white";
+    distance.alpha = 0.75;
+    distance.fontSize = 12;
+    distance.width = "60px";
+    distance.height = "16px";
+    distance.top = "40px";
+    distance.verticalAlignment = Control.VERTICAL_ALIGNMENT_TOP;
+    distance.isVisible = false;
+    ui.addControl(distance);
+
     scene.onBeforeRenderObservable.add(() => {
       const yaw = player.view.yaw;
+      const target = this.destination();
+      marker.isVisible = false;
+      arrow.isVisible = false;
+      distance.isVisible = target !== undefined;
+      if (target) {
+        const feet = player.feet;
+        const angle = Math.atan2(target.x - feet.x, target.z - feet.z);
+        const offset = Math.atan2(Math.sin(angle - yaw), Math.cos(angle - yaw));
+        const x = (offset / HALF_ANGLE) * HALF_WIDTH;
+        const inside = Math.abs(x) <= HALF_WIDTH;
+        const left = inside ? x : Math.sign(x) * (HALF_WIDTH + 12);
+        marker.isVisible = inside;
+        marker.left = `${left}px`;
+        arrow.isVisible = !inside;
+        arrow.text = x < 0 ? "‹" : "›";
+        arrow.left = `${left}px`;
+        distance.left = `${left}px`;
+        distance.text = `${Math.round(Math.hypot(target.x - feet.x, target.z - feet.z))} m`;
+      }
       for (const { text, angle } of letters) {
         const offset = Math.atan2(Math.sin(angle - yaw), Math.cos(angle - yaw));
         const x = (offset / HALF_ANGLE) * HALF_WIDTH;

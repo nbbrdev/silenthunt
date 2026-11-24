@@ -21,6 +21,7 @@ import type { StructureManager, SavedPiece } from "../world/structures";
 import type { StumpField } from "../world/stumps";
 import type { InteractionSystem } from "./interactions";
 import type { SavedObjective } from "./objective";
+import type { SavedMap } from "./worldMap";
 
 /** SV5: the save's format; a save of any other format is not loaded. */
 const FORMAT_VERSION = 1;
@@ -53,6 +54,8 @@ interface SaveData {
   backpacks?: SavedBackpack[];
   /** NBB-156 (OB12): missing in older saves: nothing found yet, the opening already seen. */
   objective?: Partial<SavedObjective>;
+  /** NBB-157 (MP8): missing in older saves: nothing explored yet. */
+  map?: Partial<SavedMap>;
 }
 
 /** Everything the save reads from and writes back to. */
@@ -80,6 +83,8 @@ export interface SaveParts {
   heldByMouse: () => Stack | undefined;
   /** NBB-156: the way out (notes read, the rescue, the ritual, the deaths). */
   objective: { saved: SavedObjective; restore(saved: Partial<SavedObjective>): void };
+  /** NBB-157: the map (explored squares, marks, destination, cabins visited). */
+  map: { saved: SavedMap; restore(saved: Partial<SavedMap>): void };
 }
 
 /** Puts a stack into saved slots as the inventory would (same item first, then empty slots). */
@@ -257,6 +262,7 @@ export class SaveGame {
       shotgunLoaded: p.shotgun.cartridges.loaded,
       backpacks: p.backpacks.saved,
       objective: p.objective.saved,
+      map: p.map.saved,
     };
   }
 
@@ -285,5 +291,6 @@ export class SaveGame {
     p.creature.sendAway();
     // NBB-156: after the clock, so a last night saved at night comes back red.
     p.objective.restore(data.objective ?? {});
+    p.map.restore(data.map ?? {});
   }
 }

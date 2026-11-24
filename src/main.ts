@@ -22,6 +22,7 @@ import { PreySounds } from "./systems/preySounds";
 import { CaughtSequence } from "./systems/caughtSequence";
 import { HidingSystem } from "./systems/hiding";
 import { ObjectiveSystem } from "./systems/objective";
+import { WorldMap } from "./systems/worldMap";
 import { Compass } from "./ui/compass";
 import { NotePanel } from "./ui/notePanel";
 import { VictoryScreen } from "./ui/victoryScreen";
@@ -430,7 +431,7 @@ async function start(): Promise<void> {
     // NBB-156 (RF-66 to RF-68): the way out: the radio's cabins, notes, compass, ritual and the
     // last night, and the victory screen.
     const notePanel = new NotePanel(hud, gameInput, player);
-    new Compass(hud, scene, player);
+    const compass = new Compass(hud, scene, player);
     const victoryScreen = new VictoryScreen(hud, scene, {
       continuePlaying: () => {
         player.controlsEnabled = true;
@@ -460,6 +461,24 @@ async function start(): Promise<void> {
       isPlaying: (): boolean => menus.isPlaying,
     });
     beds.sleepBlocked = () => objective.isLastNight;
+    // NBB-157 (RF-69): M opens the map; its destination shows on the compass.
+    const worldMap: WorldMap = new WorldMap(scene, hud, {
+      input: gameInput,
+      player,
+      chunks: world.chunks,
+      seed: CONFIG.world.defaultSeed,
+      fires: () =>
+        campfires.list.map(({ at, fuel }) => ({ x: at[0] ?? 0, z: at[2] ?? 0, lit: fuel > 0 })),
+      beds: () => beds.saved.beds.map(({ x, z }) => ({ x, z })),
+      knownCabins: () => objective.knownCabins,
+      canOpen: (): boolean =>
+        menus.isPlaying &&
+        !health.isDead &&
+        !notePanel.isOpen &&
+        !victoryScreen.isOpen &&
+        !inventoryScreen.isOpen,
+    });
+    compass.destination = () => worldMap.destinationPoint;
 
     health.onDied.add(() => {
       // Closing the screen puts back whatever the mouse was holding.
@@ -534,6 +553,7 @@ async function start(): Promise<void> {
         life,
         heldByMouse: () => inventoryScreen.heldByMouse,
         objective,
+        map: worldMap,
       },
       hud,
     );
@@ -557,7 +577,11 @@ async function start(): Promise<void> {
       progress: () => objective.progress,
     });
     inventoryScreen.canOpen = () =>
-      !health.isDead && menus.isPlaying && !notePanel.isOpen && !victoryScreen.isOpen;
+      !health.isDead &&
+      menus.isPlaying &&
+      !notePanel.isOpen &&
+      !victoryScreen.isOpen &&
+      !worldMap.isOpen;
     // MN1-C: the whole HUD in the game's font, now that it is built.
     applyGameFont(hud);
 
@@ -744,6 +768,10 @@ async function start(): Promise<void> {
           /** NBB-156: the way out (notes, rescue, ritual, deaths, cabins) and the rescue call. */
           objective: () => objective.debugState(),
           callRescue: () => objective.debugCallRescue(),
+          /** NBB-157: the map's state, and a mark at (x, z) (optionally the destination). */
+          map: () => worldMap.debugState(),
+          mapMark: (x: number, z: number, destination = false) =>
+            worldMap.debugMark(x, z, destination),
           /** What E would do now (development). */
           interaction: () => interactions.debugNearest,
           /** NBB-149: how many prey sounds have played (alarm, cry, deer and rabbit running). */

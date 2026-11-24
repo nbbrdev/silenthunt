@@ -49,6 +49,7 @@ Em desenvolvimento há ferramentas extras: a galeria de modelos em `/?galeria`, 
 | Interagir (pegar, limpar carcaça, acender, cozinhar, dormir) | E (algumas ações pedem para segurar)                                |
 | Acender ou guardar a tocha                                   | F                                                                   |
 | Arremessar uma pedra (segurar para mirar)                    | G                                                                   |
+| Mapa                                                         | M                                                                   |
 | Recarregar a espingarda                                      | R                                                                   |
 | Escolher o item da mão                                       | 1 a 6 ou a roda do mouse                                            |
 | Inventário e receitas                                        | Tab                                                                 |

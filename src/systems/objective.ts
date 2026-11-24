@@ -182,6 +182,18 @@ export class ObjectiveSystem {
     return lines;
   }
 
+  /** NBB-157 (MP3-A): the cabins a note read points to (the map shows them before the visit). */
+  get knownCabins(): { x: number; z: number }[] {
+    const known: { x: number; z: number }[] = [];
+    this.sites.forEach((site, step) => {
+      const pointedTo = step > 0 && this.read.has(`note${step - 1}`);
+      if (pointedTo) {
+        known.push({ x: site.x, z: site.z });
+      }
+    });
+    return known;
+  }
+
   /** True while the last night is on (the red, the creature without mercy). */
   get isLastNight(): boolean {
     return this.lastNight;

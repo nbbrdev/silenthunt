@@ -300,6 +300,34 @@ export const CONFIG = {
       searchSeconds: [40, 60] as [number, number],
     },
   },
+  /**
+   * NBB-157 (RF-69; MP1-A to MP8): the map. The world is split into `cellSize` squares; those
+   * within `revealRadius` of the player become explored (checked every `revealSeconds`). The sheet
+   * is `width` × `height` pixels, north up, with `metersPerPixel` zoom levels.
+   */
+  map: {
+    cellSize: 8,
+    revealRadius: 40,
+    revealSeconds: 1,
+    width: 760,
+    height: 560,
+    metersPerPixel: [0.5, 1, 2],
+    startZoom: 1,
+    maxMarks: 12,
+    /** A click this close (pixels) to a mark picks the mark. */
+    markPickPixels: 12,
+    cabinVisitDistance: 15,
+    destinationReachDistance: 5,
+    colors: {
+      explored: "#d6cdb9",
+      unexplored: "#5d5446",
+      ink: "#2f281f",
+      tree: "rgba(47, 40, 31, 0.55)",
+      mark: "#8c2a1e",
+      fireLit: "#d9762b",
+      fireOut: "#7d766b",
+    },
+  },
   /** RF-13 (G11, TO5): how far away the player can be seen. */
   visibility: {
     dark: 8,

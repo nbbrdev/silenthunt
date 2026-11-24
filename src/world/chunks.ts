@@ -240,6 +240,25 @@ export class ChunkManager {
     );
   }
 
+  /**
+   * NBB-157 (MP7-A, MP8): the trees of chunk (cx, cz), loaded or not (the vegetation comes from
+   * the seed alone), without the ones felled.
+   */
+  treesIn(cx: number, cz: number): { x: number; z: number }[] {
+    const key = chunkKey(cx, cz);
+    const placements = this.chunks.get(key)?.placements ?? this.placeVegetation(cx, cz);
+    const removed = this.removedByChunk.get(key);
+    const trees: { x: number; z: number }[] = [];
+    placements.forEach((placement, index) => {
+      const tree =
+        placement.kind === "pine" || placement.kind === "oak" || placement.kind === "deadTree";
+      if (tree && !removed?.has(index)) {
+        trees.push({ x: placement.x, z: placement.z });
+      }
+    });
+    return trees;
+  }
+
   /** NBB-147: the changes of a saved game, applied to the chunks loaded now and the rest. */
   restoreChanges(changes: Record<string, number[]>): void {
     for (const [key, indexes] of Object.entries(changes)) {
