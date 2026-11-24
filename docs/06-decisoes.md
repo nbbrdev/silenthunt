@@ -557,6 +557,7 @@ Pedido do usuário: novos biomas, animais (hostis e pacíficos), lagos, rios e c
 | BM10-C | Passos na lama (pântano, fora das trilhas): "Footsteps_Walking Boot_Muddy Puddles-Water-Squelch", omnisounddesign (Freesound 336845, CC-BY 4.0), cortado em 6 passos. |
 | BM11-B | Passos no capim alto (campo aberto): "Footsteps on Grass", harrietniamh (400123, CC-BY 4.0), cortado em 6 passos. |
 | BM12 | Revisão do usuário (2026-11-24): detalhes decididos por Claude aprovados ("1 a 7 - Ok"): regras misturadas na fronteira pela proporção dos biomas; barulho de água da lama também no pouso; no campo, de pé, ×1,5 com ou sem tocha, e "dentro do capim" a até 1 m de uma touceira; na serra, subida medida 1 m à frente, correndo morro acima também 70% e fôlego de corrida, passos da criatura ouvidos até 17,5 m, ruído do jogador (passos e pulo) a 70%; juncos com as regras da moita; legenda do mapa a partir de dois biomas vistos; nomes PINHEIRAL, BOSQUE, PÂNTANO, CAMPO ABERTO, SERRA. |
+| BM13 | Revisão do usuário (2026-11-24): detalhes dos passos aprovados ("1 a 5 - Ok"): cada passo com 0,45 s a partir do pico e pico em −2 dB; ruído do chão lama ×1,2 e capim ×1,1, volume lama 0,9 e capim 0,8; o campo inteiro é chão de capim, o pântano fora das trilhas é lama; manchas de galhos em todos os biomas; lama mais escura e capim mais claro. Regra registrada como RF-70 no docs/03. |
 
 ## M6: Features novas (2026-11-23)
 
