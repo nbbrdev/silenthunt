@@ -17,6 +17,9 @@ import { knife } from "./items/knife";
 import { arms } from "./player/arms";
 import { torch } from "./items/torch";
 import { antenna, battery, deerSkull, radio, tubes } from "./items/objective";
+import { birch } from "./nature/birch";
+import { boulder, cliff, puddle } from "./nature/cliff";
+import { reeds, tallGrass } from "./nature/reeds";
 import { bush } from "./nature/bush";
 import { deadTree } from "./nature/deadTree";
 import { groundBranch } from "./nature/groundBranch";
@@ -35,6 +38,13 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   rock,
   groundBranch,
   groundTuft,
+  // BM4-A (NBB-163): the biomes' new models.
+  birch,
+  reeds,
+  tallGrass,
+  cliff,
+  boulder,
+  puddle,
   torch,
   creature,
   rabbit,

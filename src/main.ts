@@ -34,6 +34,7 @@ import { StoneThrowSystem } from "./systems/stones";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
+import { BIOME_NAMES, type Biome } from "./world/biomes";
 import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
@@ -888,6 +889,48 @@ async function start(): Promise<void> {
           /** Puts the player at (x, z) on the ground (to visit an animal or a place). */
           teleport: (x: number, z: number) =>
             player.respawn(new Vector3(x, world.terrain.heightAt(x, z), z)),
+          /** NBB-163 (BM8): the biome where the player stands, and its weights there. */
+          biome: () => {
+            const { x, z } = player.position;
+            const weights = world.terrain.biomeWeightsAt(x, z);
+            return {
+              biome: BIOME_NAMES[world.terrain.biomeAt(x, z)],
+              weights: Object.fromEntries(
+                Object.entries(weights).map(([name, value]) => [
+                  name,
+                  Math.round(value * 100) / 100,
+                ]),
+              ),
+            };
+          },
+          /**
+           * NBB-163 (BM8): to the middle of the nearest patch of a biome ("pinheiral", "bosque",
+           * "pântano", "campo" or "serra"), searched in rings around the player.
+           */
+          goToBiome: (name: string) => {
+            const wanted = (Object.keys(BIOME_NAMES) as Biome[]).find((biome) =>
+              BIOME_NAMES[biome]
+                .toLowerCase()
+                .normalize("NFD")
+                .replace(/[̀-ͯ]/g, "")
+                .startsWith(name.toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "")),
+            );
+            if (!wanted) {
+              return `Bioma desconhecido: ${name}`;
+            }
+            const { x, z } = player.position;
+            for (let ring = 50; ring <= 5000; ring += 50) {
+              for (let angle = 0; angle < Math.PI * 2; angle += 50 / ring) {
+                const px = x + Math.cos(angle) * ring;
+                const pz = z + Math.sin(angle) * ring;
+                if (world.terrain.biomeWeightsAt(px, pz)[wanted] >= 0.99) {
+                  player.respawn(new Vector3(px, world.terrain.heightAt(px, pz) + 0.5, pz));
+                  return { x: Math.round(px), z: Math.round(pz) };
+                }
+              }
+            }
+            return "Não encontrado a até 5 km";
+          },
           creatureStep: (seconds: number) => {
             creatureBrain.simulate(seconds);
             return creatureBrain.debugState();

@@ -9,7 +9,7 @@ import {
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { getSurfaceTextures, type SurfaceKind } from "./surfaceTextures";
-import { getFoliageTexture, type FoliageKind } from "./textures";
+import { getBirchBarkTexture, getFoliageTexture, type FoliageKind } from "./textures";
 
 /**
  * Sways vertices sideways on the GPU (W3). The offset grows with the square of the vertex height
@@ -75,6 +75,8 @@ interface ModelMaterials {
   fallenWood: StandardMaterial;
   /** Trunks and branches of standing plants: bark texture with relief, with wind. */
   wood: StandardMaterial;
+  /** BM4-A (NBB-163): the birch's pale bark with its dark marks, with wind. */
+  birchWood: StandardMaterial;
   /** Leaf cards: foliage texture with cut-out transparency, wind, visible from both sides. */
   leaves: Record<FoliageKind, StandardMaterial>;
 }
@@ -92,15 +94,23 @@ export function getModelMaterials(scene: Scene): ModelMaterials {
   const fallenWood = createSurfaceMaterial("modelFallenWood", scene, "bark");
   const wood = createSurfaceMaterial("modelWood", scene, "bark");
   new WindPlugin(wood);
+  // Birch bark is smooth: its drawn marks, no relief.
+  const birchWood = createMatteMaterial("modelBirchWood", scene);
+  birchWood.diffuseTexture = getBirchBarkTexture(scene);
+  new WindPlugin(birchWood);
 
   const materials = {
     stone,
     fallenWood,
     wood,
+    birchWood,
     leaves: {
       broadleaf: createLeafMaterial(scene, "broadleaf"),
       needles: createLeafMaterial(scene, "needles"),
       grass: createLeafMaterial(scene, "grass"),
+      reeds: createLeafMaterial(scene, "reeds"),
+      tallGrass: createLeafMaterial(scene, "tallGrass"),
+      birch: createLeafMaterial(scene, "birch"),
     },
   };
   materialsByScene.set(scene, materials);
@@ -158,6 +168,21 @@ export function getPlainMaterial(scene: Scene): StandardMaterial {
   }
   const material = createMatteMaterial("plain", scene);
   plainByScene.set(scene, material);
+  return material;
+}
+
+const wetByScene = new WeakMap<Scene, StandardMaterial>();
+
+/** BM4-A (NBB-163): wet mud: dark, with a soft shine where the light catches it (puddles). */
+export function getWetMaterial(scene: Scene): StandardMaterial {
+  const existing = wetByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const material = createMatteMaterial("wetMud", scene);
+  material.specularColor = new Color3(0.35, 0.35, 0.33);
+  material.specularPower = 80;
+  wetByScene.set(scene, material);
   return material;
 }
 

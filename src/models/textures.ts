@@ -34,12 +34,58 @@ export function getSoftDotTexture(scene: Scene): Texture {
   return texture;
 }
 
+const birchBarkByScene = new WeakMap<Scene, Texture>();
+
+/**
+ * BM4-A (NBB-163): birch bark: pale, with short dark marks across it (the lenticels) and a few
+ * larger dark patches, drawn by code. The bark's color comes from the vertices, as the other trees.
+ */
+export function getBirchBarkTexture(scene: Scene): Texture {
+  const existing = birchBarkByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const size = 256;
+  const texture = new DynamicTexture("birchBark", { width: size, height: size }, scene, true);
+  const context = texture.getContext();
+  const random = createRandom(707);
+  context.fillStyle = gray(235);
+  context.fillRect(0, 0, size, size);
+  // Faint streaks along the trunk.
+  for (let i = 0; i < 40; i++) {
+    context.fillStyle = gray(randomRange(random, 205, 225));
+    context.fillRect(random() * size, 0, randomRange(random, 1, 3), size);
+  }
+  // The marks across the trunk; drawn twice when they cross the edge, so the texture repeats.
+  for (let i = 0; i < 46; i++) {
+    const x = random() * size;
+    const y = random() * size;
+    const width = randomRange(random, 14, 70);
+    const height = randomRange(random, 2, 7);
+    context.fillStyle = gray(randomRange(random, 35, 80));
+    for (const shift of [0, -size]) {
+      context.fillRect(x + shift, y, width, height);
+    }
+  }
+  for (let i = 0; i < 5; i++) {
+    const x = random() * size;
+    const y = random() * size;
+    context.fillStyle = gray(randomRange(random, 50, 90));
+    for (const shift of [0, -size]) {
+      context.fillRect(x + shift, y, randomRange(random, 30, 60), randomRange(random, 10, 22));
+    }
+  }
+  texture.update();
+  birchBarkByScene.set(scene, texture);
+  return texture;
+}
+
 /**
  * Leaf textures drawn by code on a canvas (no image files: the challenge forbids ready-made
  * models, and these are generated like the meshes). They are grayscale with transparency; the
  * green comes from the vertex colors, so the palette stays in CONFIG.
  */
-export type FoliageKind = "broadleaf" | "needles" | "grass";
+export type FoliageKind = "broadleaf" | "needles" | "grass" | "reeds" | "tallGrass" | "birch";
 
 const SIZE = 512;
 const texturesByScene = new WeakMap<Scene, Map<FoliageKind, Texture>>();
@@ -70,8 +116,14 @@ export function getFoliageTexture(scene: Scene, kind: FoliageKind): Texture {
   context.clearRect(0, 0, SIZE, SIZE);
   if (kind === "broadleaf") {
     drawBroadleafCluster(context);
+  } else if (kind === "birch") {
+    drawBirchLeaves(context);
   } else if (kind === "needles") {
     drawNeedleSprays(context);
+  } else if (kind === "reeds") {
+    drawReeds(context);
+  } else if (kind === "tallGrass") {
+    drawTallGrass(context);
   } else {
     drawGrassBlades(context);
   }
@@ -176,6 +228,133 @@ function drawNeedleSprays(context: ICanvasRenderingContext): void {
           baseY + Math.sin(needleAngle) * needleLength,
         );
         context.stroke();
+      }
+    }
+  }
+}
+
+/**
+ * BM4-A (NBB-163): birch leaves: small rounded leaves hanging loose from thin drooping twigs, so a
+ * birch crown reads lighter and airier than an oak's.
+ */
+function drawBirchLeaves(context: ICanvasRenderingContext): void {
+  const random = createRandom(404);
+  for (let t = 0; t < 7; t++) {
+    const startX = randomRange(random, 80, 432);
+    let x = startX;
+    let y = randomRange(random, 20, 120);
+    context.strokeStyle = gray(110);
+    context.lineWidth = 3;
+    context.beginPath();
+    context.moveTo(x, y);
+    const sway = randomRange(random, -40, 40);
+    // A twig hanging down in a soft curve, leaves all along it.
+    for (let step = 0; step < 9; step++) {
+      const nextX = x + sway / 9 + randomRange(random, -6, 6);
+      const nextY = y + randomRange(random, 34, 44);
+      context.lineTo(nextX, nextY);
+      x = nextX;
+      y = nextY;
+    }
+    context.stroke();
+    for (let leaf = 0; leaf < 14; leaf++) {
+      const along = random();
+      const leafX = startX + sway * along + randomRange(random, -22, 22);
+      const leafY = 40 + along * 360 + randomRange(random, -16, 16);
+      const size = randomRange(random, 24, 36);
+      drawLeaf(context, leafX, leafY, size, size * 0.7, randomRange(random, -0.8, 0.8), 210);
+    }
+  }
+}
+
+/**
+ * BM4-A (NBB-163): reeds: tall, narrow blades rising from the bottom edge, a few of them topped
+ * by the dark brown head of a cattail (darker in the grayscale, so the color tints it darker).
+ */
+function drawReeds(context: ICanvasRenderingContext): void {
+  const random = createRandom(505);
+  for (let i = 0; i < 14; i++) {
+    const baseX = randomRange(random, 110, 402);
+    const height = randomRange(random, 380, 500);
+    const halfWidth = randomRange(random, 4, 8);
+    const bend = randomRange(random, -50, 50);
+    context.fillStyle = gray(randomRange(random, 175, 235));
+    context.beginPath();
+    context.moveTo(baseX - halfWidth, SIZE);
+    context.quadraticCurveTo(baseX + bend * 0.3, SIZE - height * 0.6, baseX + bend, SIZE - height);
+    context.quadraticCurveTo(
+      baseX + bend * 0.3 + halfWidth,
+      SIZE - height * 0.55,
+      baseX + halfWidth,
+      SIZE,
+    );
+    context.fill();
+  }
+  for (let i = 0; i < 3; i++) {
+    const x = randomRange(random, 170, 340);
+    const top = randomRange(random, 30, 90);
+    context.strokeStyle = gray(150);
+    context.lineWidth = 4;
+    context.beginPath();
+    context.moveTo(x, SIZE);
+    context.lineTo(x, top);
+    context.stroke();
+    // The cattail's sausage-shaped head, a little below the stem's tip.
+    context.fillStyle = gray(70);
+    fillEllipse(context, x, top + 70, 11, 42);
+  }
+}
+
+/** A filled ellipse (Babylon's canvas type has no `ellipse`: a scaled circle does the same). */
+function fillEllipse(
+  context: ICanvasRenderingContext,
+  x: number,
+  y: number,
+  radiusX: number,
+  radiusY: number,
+): void {
+  context.save();
+  context.translate(x, y);
+  context.scale(radiusX, radiusY);
+  context.beginPath();
+  context.arc(0, 0, 1, 0, Math.PI * 2);
+  context.restore();
+  context.fill();
+}
+
+/**
+ * BM4-A (NBB-163): tall grass of the open field: many thin blades and a few seed heads, dense
+ * enough that a crouching player disappears into it.
+ */
+function drawTallGrass(context: ICanvasRenderingContext): void {
+  const random = createRandom(606);
+  for (let i = 0; i < 34; i++) {
+    const baseX = randomRange(random, 60, 452);
+    const height = randomRange(random, 260, 500);
+    const halfWidth = randomRange(random, 3, 6);
+    const bend = randomRange(random, -90, 90);
+    context.fillStyle = gray(randomRange(random, 165, 240));
+    context.beginPath();
+    context.moveTo(baseX - halfWidth, SIZE);
+    context.quadraticCurveTo(baseX + bend * 0.3, SIZE - height * 0.6, baseX + bend, SIZE - height);
+    context.quadraticCurveTo(
+      baseX + bend * 0.3 + halfWidth,
+      SIZE - height * 0.55,
+      baseX + halfWidth,
+      SIZE,
+    );
+    context.fill();
+    if (random() < 0.3) {
+      // A seed head: a few light grains at the blade's tip.
+      context.fillStyle = gray(245);
+      for (let grain = 0; grain < 6; grain++) {
+        fillEllipse(
+          context,
+          baseX + bend + randomRange(random, -6, 6),
+          SIZE - height + grain * 9,
+          3,
+          6,
+        );
       }
     }
   }

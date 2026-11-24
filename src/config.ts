@@ -157,6 +157,77 @@ export const CONFIG = {
       twigs: { r: 0.95, g: 0.88, b: 0.8 },
     },
   },
+  /**
+   * NBB-163 (BI1, BI2-A, BM2-A, BM3-A, BM8): the biomes, in irregular cells of 400–800 m drawn
+   * from the seed, blending over 40 m. The start and the cabins keep firm, wooded ground.
+   */
+  biomes: {
+    /** BM2-A: each cell's chance of being each biome. */
+    shares: { pineForest: 0.4, broadleaf: 0.15, marsh: 0.15, field: 0.15, ridge: 0.15 },
+    /** The grid the cells' centers are scattered on (meters): cells of about 400–800 m. */
+    cellSize: 600,
+    /** The cells' borders wander this far (meters), so they are not straight lines. */
+    borderWarp: 90,
+    /** BM8: two biomes blend over this width at their border (meters). */
+    blendMeters: 40,
+    /** BM8: always pine forest this close to the start (the menu's film, the first cabins). */
+    startRadius: 200,
+    /** BM3-A: around each cabin, pine forest or broadleaf wood (no mud, no cliffs). */
+    cabinRadius: 40,
+    /** Over this distance (meters) a forced biome blends back into the cell's own. */
+    forceBlend: 30,
+    /**
+     * BM8: the land of each biome. The field's hills are flatter; the marsh lies lower and almost
+     * flat; the ridge rises up to `ridgeHeight` m in steps of `stepHeight` m, the last
+     * `stepSharpness` of each step a steep face (where the rock walls go).
+     */
+    /**
+     * BM8: what grows in each biome. `treeShare` scales the trees (1 = as the pine forest);
+     * `treeMix` is each species' share. The extras are tried per chunk and kept where the biome is.
+     */
+    vegetation: {
+      treeShare: { pineForest: 1, broadleaf: 1, marsh: 0.4, field: 0.1, ridge: 0.35 },
+      treeMix: {
+        broadleaf: { pine: 0.15, oak: 0.45, deadTree: 0, birch: 0.4 },
+        marsh: { pine: 0.15, oak: 0, deadTree: 0.65, birch: 0.2 },
+        field: { pine: 0.45, oak: 0.35, deadTree: 0.2, birch: 0 },
+        ridge: { pine: 0.7, oak: 0, deadTree: 0.3, birch: 0 },
+      },
+      /** Tries per chunk of each extra (BM1: twice the bushes in the wood, twice the stones in the field). */
+      extraBushes: 40,
+      reeds: 70,
+      puddles: 14,
+      tallGrass: 160,
+      extraStones: 20,
+      boulders: 12,
+      cliffs: 40,
+      /** Reeds and tall grass grow in patches: where this noise (0–1) is above the line. */
+      patchSpacing: 25,
+      patchAbove: 0.45,
+      /** Rock walls go where the ridge's ground is steeper than this (rise per meter), 9 m apart. */
+      cliffSlope: 0.6,
+      cliffSpacing: 9,
+    },
+    /** BM8: the marsh's trails of firm ground: about 3 m wide, winding (a noise of this scale). */
+    marsh: { trailSpacing: 70, trailBand: 0.025 },
+    /** BM8: the ground's tint in each biome (multiplies the forest floor's). */
+    groundTints: {
+      pineForest: { r: 1, g: 1, b: 1 },
+      broadleaf: { r: 1.12, g: 0.95, b: 0.75 },
+      marsh: { r: 0.72, g: 0.78, b: 0.62 },
+      field: { r: 1.2, g: 1.12, b: 0.78 },
+      ridge: { r: 0.78, g: 0.8, b: 0.86 },
+    },
+    relief: {
+      fieldHills: 0.5,
+      marshHills: 0.15,
+      marshDrop: -2,
+      ridgeHeight: 25,
+      ridgeSpacing: 160,
+      stepHeight: 4,
+      stepSharpness: 0.3,
+    },
+  },
   /** Day and night cycle (RF-05, G4) and its light and fog (NBB-130). */
   dayNight: {
     /** G4: the day lasts 10 min, including 1 min of dawn at the start and 1 min of dusk at the end. */
@@ -771,9 +842,11 @@ export const CONFIG = {
     /** The blow lands this long into the swing. */
     hitAt: 0.3,
     /** MC2: blows to fell or break, and what it gives. */
-    hits: { pine: 6, oak: 6, deadTree: 4, rock: 5 },
-    wood: { pine: 4, oak: 4, deadTree: 2 },
+    hits: { pine: 6, oak: 6, deadTree: 4, birch: 5, rock: 5, boulder: 8 },
+    wood: { pine: 4, oak: 4, deadTree: 2, birch: 3 },
     stones: 3,
+    /** BM1 (NBB-163): a boulder of the ridge gives more stones. */
+    boulderStones: 5,
     /** MC1-A: the tree tips over in this long, then disappears. */
     fallSeconds: 1.5,
     /** Height of the stump left behind (meters). */
@@ -1326,6 +1399,18 @@ export const CONFIG = {
     groundDirt: { r: 0.2, g: 0.16, b: 0.12 },
     groundLitter: { r: 0.33, g: 0.25, b: 0.15 },
     groundMoss: { r: 0.18, g: 0.24, b: 0.13 },
+    /** BM4-A (NBB-163): the birch's white bark and its dark marks, its light yellow-green leaves. */
+    birchBark: { r: 0.8, g: 0.78, b: 0.72 },
+    birchMarks: { r: 0.13, g: 0.12, b: 0.11 },
+    birchLeaves: { r: 0.42, g: 0.45, b: 0.2 },
+    /** BM4-A: the marsh's reeds, the field's dry tall grass, the mud of the puddles. */
+    reeds: { r: 0.33, g: 0.36, b: 0.2 },
+    tallGrass: { r: 0.52, g: 0.49, b: 0.29 },
+    mud: { r: 0.2, g: 0.16, b: 0.12 },
+    /** BM4-A: the ridge's cliffs and boulders: colder, darker stone, lichen on top. */
+    cliffRock: { r: 0.34, g: 0.34, b: 0.34 },
+    cliffStreak: { r: 0.22, g: 0.22, b: 0.23 },
+    lichen: { r: 0.4, g: 0.42, b: 0.3 },
     /** How much each face's color may drift from the base color (0 = none). */
     variation: 0.08,
   },
@@ -1359,6 +1444,17 @@ export const CONFIG = {
     groundBranch: { length: [0.5, 1], forks: [0, 2] },
     /** 2–3 crossed grass cards. */
     groundTuft: { height: [0.2, 0.5], cards: [2, 3] },
+    /** BM4-A (NBB-163): slender white trunk that keeps going up (a leader), a light crown. */
+    birch: { height: [9, 15], depth: 3, leafCardsPerTwig: [6, 10] },
+    /** Marsh reeds: tall crossed cards, taller than a crouching player's eyes (1.0 m). */
+    reeds: { height: [1.2, 1.8], cards: [4, 6] },
+    /** The field's tall grass: up to a crouching player's eyes. */
+    tallGrass: { height: [0.9, 1.3], cards: [5, 7] },
+    /** The ridge's rock walls (up to 600 triangles) and boulders (up to 300). */
+    cliff: { width: [7, 11], height: [4, 8], depth: [2.5, 4] },
+    boulder: { size: [2.2, 3.6] },
+    /** A shallow puddle of mud, flat on the ground. */
+    puddle: { radius: [0.8, 2] },
   },
   /** Foliage sway (W3): sideways offset = strength × height² (meters), so the base stays still. */
   wind: {

@@ -1,5 +1,8 @@
 import { Mesh, Vector3, VertexBuffer, type Scene, type TransformNode } from "@babylonjs/core";
 import { CONFIG } from "../config";
+import { birch } from "../models/nature/birch";
+import { boulder, cliff, puddle } from "../models/nature/cliff";
+import { reeds, tallGrass } from "../models/nature/reeds";
 import { bush } from "../models/nature/bush";
 import { deadTree } from "../models/nature/deadTree";
 import { groundBranch } from "../models/nature/groundBranch";
@@ -10,16 +13,41 @@ import { rock } from "../models/nature/rock";
 import type { ModelGenerator } from "../models/types";
 
 export type VegetationKind =
-  "pine" | "oak" | "deadTree" | "bush" | "rock" | "groundBranch" | "groundTuft";
+  | "pine"
+  | "oak"
+  | "deadTree"
+  | "birch"
+  | "bush"
+  | "rock"
+  | "boulder"
+  | "cliff"
+  | "groundBranch"
+  | "groundTuft"
+  | "reeds"
+  | "tallGrass"
+  | "puddle";
+
+/** The kinds that are trees (the axe fells them; trunks block; the map draws them). */
+export type TreeKind = "pine" | "oak" | "deadTree" | "birch";
+
+export function isTree(kind: VegetationKind): kind is TreeKind {
+  return kind === "pine" || kind === "oak" || kind === "deadTree" || kind === "birch";
+}
 
 const GENERATORS: Record<VegetationKind, ModelGenerator> = {
   pine,
   oak,
   deadTree,
+  birch,
   bush,
   rock,
+  boulder,
+  cliff,
   groundBranch,
   groundTuft,
+  reeds,
+  tallGrass,
+  puddle,
 };
 
 /** The seed of each variation of a model. */
@@ -191,10 +219,12 @@ export class VegetationLibrary {
 
 function copyDistanceFor(kind: VegetationKind): number {
   const { tree, medium, small } = CONFIG.world.copyDistance;
-  if (kind === "pine" || kind === "oak" || kind === "deadTree") {
+  if (isTree(kind) || kind === "cliff" || kind === "boulder") {
     return tree;
   }
-  return kind === "bush" || kind === "rock" ? medium : small;
+  return kind === "bush" || kind === "rock" || kind === "reeds" || kind === "tallGrass"
+    ? medium
+    : small;
 }
 
 /** Widest horizontal distance of the vertices between 0.8 and 1.6 m high (above the roots). */

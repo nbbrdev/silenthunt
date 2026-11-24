@@ -121,11 +121,14 @@ export class ChoppingSystem {
     this.noise.emit(this.player.feet, CONFIG.noise.radius.chop, "chop");
     const settings = CONFIG.axe;
     const id = `${target.chunkKey}:${target.index}`;
-    const isRock = target.kind === "rock";
+    const isRock = target.kind === "rock" || target.kind === "boulder";
     this.sounds?.play(isRock ? "stoneHit" : "chop");
-    const gives: number = isRock
-      ? settings.stones
-      : settings.wood[target.kind as keyof typeof settings.wood];
+    const gives: number =
+      target.kind === "boulder"
+        ? settings.boulderStones
+        : isRock
+          ? settings.stones
+          : settings.wood[target.kind as keyof typeof settings.wood];
     const item = isRock ? "stone" : "wood";
     const blows = (this.blows.get(id) ?? 0) + 1;
     if (blows < settings.hits[target.kind]) {

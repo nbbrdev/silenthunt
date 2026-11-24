@@ -1,4 +1,5 @@
 import { CONFIG } from "../config";
+import { biomeAt, biomeWeights, type Biome, type BiomeWeights } from "./biomes";
 import { cabinsNear } from "./cabinSites";
 import { fractalNoise } from "./noise";
 
@@ -35,10 +36,56 @@ export class Terrain {
     return height;
   }
 
+  /** BI2-A (NBB-163): how much of each biome is at (x, z). */
+  biomeWeightsAt(x: number, z: number): BiomeWeights {
+    return biomeWeights(x, z, this.seed);
+  }
+
+  /** BM6-A: the biome with the most weight at (x, z). */
+  biomeAt(x: number, z: number): Biome {
+    return biomeAt(x, z, this.seed);
+  }
+
+  /**
+   * MW1, BM8: the land's shape. The pine forest and the broadleaf wood keep the gentle hills; the
+   * field is gentler still; the marsh lies low and almost flat; the ridge rises up to ~25 m higher
+   * in steps with steep faces. At a border the shapes blend with the biomes.
+   */
   private hillsAt(x: number, z: number): number {
     const { hillHeight, hillSpacing } = CONFIG.world;
-    const hills = fractalNoise(x / hillSpacing, z / hillSpacing, this.seed, 4);
-    return (hills - 0.5) * 2 * hillHeight;
+    const hills =
+      (fractalNoise(x / hillSpacing, z / hillSpacing, this.seed, 4) - 0.5) * 2 * hillHeight;
+    const w = this.biomeWeightsAt(x, z);
+    const relief = CONFIG.biomes.relief;
+    let height = hills * (w.pineForest + w.broadleaf);
+    height += hills * relief.fieldHills * w.field;
+    height += (hills * relief.marshHills + relief.marshDrop) * w.marsh;
+    if (w.ridge > 0) {
+      height += (hills + this.ridgeAt(x, z)) * w.ridge;
+    }
+    return height;
+  }
+
+  /** BM8: the ridge's extra height: broad rises cut into steps with steep faces. */
+  private ridgeAt(x: number, z: number): number {
+    const { ridgeHeight, ridgeSpacing, stepHeight, stepSharpness } = CONFIG.biomes.relief;
+    const rise = fractalNoise(x / ridgeSpacing, z / ridgeSpacing, this.seed + 9301, 3);
+    const raw = (Math.max(0, rise - 0.3) / 0.7) * ridgeHeight;
+    // Steps: most of each step is a gentle shelf, the last part a steep face.
+    const step = Math.floor(raw / stepHeight);
+    const within = raw / stepHeight - step;
+    const face = Math.max(0, (within - (1 - stepSharpness)) / stepSharpness);
+    return (step + face * face * (3 - 2 * face)) * stepHeight + within * stepHeight * 0.15;
+  }
+
+  /**
+   * BM1, BM8 (NBB-163): the marsh's trails of firm ground: narrow winding bands (~3 m) where a
+   * slow noise crosses its middle value.
+   */
+  isMarshTrail(x: number, z: number): boolean {
+    const { trailSpacing, trailBand } = CONFIG.biomes.marsh;
+    const trail = fractalNoise(x / trailSpacing, z / trailSpacing, this.seed + 9401, 2);
+    return Math.abs(trail - 0.5) < trailBand;
   }
 
   /** Ground type at (x, z) (RF-03, MW6): patches of moss, dry leaves, dry twigs and bare dirt. */
@@ -47,6 +94,18 @@ export class Terrain {
     const twigs = fractalNoise(x / (spacing * 0.6), z / (spacing * 0.6), this.seed + 7001, 2);
     if (twigs > 0.7) {
       return "twigs";
+    }
+    // BM1: the broadleaf wood's floor is dry leaves; the marsh's trails are firm moss.
+    const weights = this.biomeWeightsAt(x, z);
+    if (weights.broadleaf > 0.5) {
+      return "leaves";
+    }
+    if (weights.marsh > 0.5 && this.isMarshTrail(x, z)) {
+      return "moss";
+    }
+    // The ridge is bare: stony dirt, no moss.
+    if (weights.ridge > 0.5) {
+      return "dirt";
     }
     const moisture = fractalNoise(x / spacing, z / spacing, this.seed + 7002, 3);
     if (moisture > 0.58) {

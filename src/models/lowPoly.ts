@@ -2,7 +2,7 @@ import { Color3, Mesh, VertexBuffer, type Material } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { hashPosition } from "../core/random";
 
-type RGB = { readonly r: number; readonly g: number; readonly b: number };
+export type RGB = { readonly r: number; readonly g: number; readonly b: number };
 
 /** Turns a palette entry from CONFIG into a Babylon color. */
 export function toColor(rgb: RGB): Color3 {

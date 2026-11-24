@@ -23,8 +23,11 @@ import type { InteractionSystem } from "./interactions";
 import type { SavedObjective } from "./objective";
 import type { SavedMap } from "./worldMap";
 
-/** SV5: the save's format; a save of any other format is not loaded. */
-const FORMAT_VERSION = 1;
+/**
+ * SV5: the save's format; a save of any other format is not loaded. 2: the biomes (NBB-163,
+ * BM7-A) change what grows where, so older worlds start over.
+ */
+const FORMAT_VERSION = 2;
 
 /** The saved world (SV1-A). */
 interface SaveData {

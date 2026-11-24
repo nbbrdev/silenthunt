@@ -18,9 +18,11 @@ import {
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { createRandom, hashPosition, randomInt, randomRange } from "../core/random";
+import { BIOMES, type Biome } from "./biomes";
 import { cabinWallCircles, cabinsInChunk, cabinsNear } from "./cabinSites";
+import { fractalNoise } from "./noise";
 import type { Terrain } from "./terrain";
-import type { VegetationKind, VegetationLibrary } from "./vegetation";
+import { isTree, type TreeKind, type VegetationKind, type VegetationLibrary } from "./vegetation";
 
 /** One thing placed in a chunk. */
 interface Placement {
@@ -49,7 +51,7 @@ export interface Pickable {
 export interface Choppable {
   chunkKey: string;
   index: number;
-  kind: "pine" | "oak" | "deadTree" | "rock";
+  kind: TreeKind | "rock" | "boulder";
   variant: number;
   x: number;
   y: number;
@@ -250,9 +252,7 @@ export class ChunkManager {
     const removed = this.removedByChunk.get(key);
     const trees: { x: number; z: number }[] = [];
     placements.forEach((placement, index) => {
-      const tree =
-        placement.kind === "pine" || placement.kind === "oak" || placement.kind === "deadTree";
-      if (tree && !removed?.has(index)) {
+      if (isTree(placement.kind) && !removed?.has(index)) {
         trees.push({ x: placement.x, z: placement.z });
       }
     });
@@ -305,9 +305,9 @@ export class ChunkManager {
             return;
           }
           let size: number;
-          if (kind === "pine" || kind === "oak" || kind === "deadTree") {
+          if (isTree(kind)) {
             size = this.library.trunkRadius(kind, variant) * scale;
-          } else if (kind === "rock") {
+          } else if (kind === "rock" || kind === "boulder") {
             const rockSize = this.library.size(kind, variant) * scale;
             if (rockSize < blockingRockSize) {
               return;
@@ -337,7 +337,7 @@ export class ChunkManager {
     const felled: Choppable[] = [];
     chunk?.placements.forEach((placement, index) => {
       const { kind, variant, scale } = placement;
-      if (placement.removed && (kind === "pine" || kind === "oak" || kind === "deadTree")) {
+      if (placement.removed && isTree(kind)) {
         const radius = this.library.trunkRadius(kind, variant) * scale;
         felled.push({ ...placement, kind, chunkKey: key, index, radius });
       }
@@ -365,10 +365,18 @@ export class ChunkManager {
           }
           let obstacleRadius: number;
           let height: number;
-          if (kind === "pine" || kind === "oak" || kind === "deadTree") {
+          if (kind === "cliff") {
+            // BM4-A: a rock wall, as a row of circles along its length.
+            const reachSquared = (radius + this.library.size(kind, variant) * scale) ** 2;
+            if ((placement.x - x) ** 2 + (placement.z - z) ** 2 <= reachSquared) {
+              found.push(...cliffCircles(placement, this.library.size(kind, variant)));
+            }
+            continue;
+          }
+          if (isTree(kind)) {
             obstacleRadius = this.library.trunkRadius(kind, variant) * scale;
             height = TRUNK_BLOCK_HEIGHT;
-          } else if (kind === "rock") {
+          } else if (kind === "rock" || kind === "boulder") {
             const size = this.library.size(kind, variant) * scale;
             if (size < blockingRockSize) {
               continue;
@@ -560,16 +568,39 @@ export class ChunkManager {
     });
     const nearSpawn = (x: number, z: number) => x * x + z * z < spawnClearRadius * spawnClearRadius;
 
-    // Trees: try the "dense woods" amount and keep each one by the local density.
+    // Trees: try the "dense woods" amount and keep each one by the local density. BM8: each biome
+    // has its share of trees and its own mix of species (the pine forest, as before).
+    const biomeVegetation = CONFIG.biomes.vegetation;
     const treeTries = Math.round(perChunk.trees * denseTrees);
     for (let i = 0; i < treeTries; i++) {
       const { x, z } = randomPoint();
-      if (random() * denseTrees >= this.terrain.treeDensityAt(x, z)) {
+      const weights = this.terrain.biomeWeightsAt(x, z);
+      let share = 0;
+      for (const biome of BIOMES) {
+        share += weights[biome] * biomeVegetation.treeShare[biome];
+      }
+      if (random() * denseTrees >= this.terrain.treeDensityAt(x, z) * share) {
         continue;
+      }
+      // The species, from the mix of the biomes here (blended at a border).
+      const mix = { pine: 0, oak: 0, deadTree: 0, birch: 0 };
+      for (const biome of BIOMES) {
+        const own =
+          biome === "pineForest" ? { ...treeMix, birch: 0 } : biomeVegetation.treeMix[biome];
+        mix.pine += own.pine * weights[biome];
+        mix.oak += own.oak * weights[biome];
+        mix.deadTree += own.deadTree * weights[biome];
+        mix.birch += own.birch * weights[biome];
       }
       const pick = random();
       const kind: VegetationKind =
-        pick < treeMix.pine ? "pine" : pick < treeMix.pine + treeMix.oak ? "oak" : "deadTree";
+        pick < mix.pine
+          ? "pine"
+          : pick < mix.pine + mix.oak
+            ? "oak"
+            : pick < mix.pine + mix.oak + mix.deadTree
+              ? "deadTree"
+              : "birch";
       // Sunk a little so trunks never float on slopes.
       place(kind, x, z, 0.15);
     }
@@ -611,7 +642,105 @@ export class ChunkManager {
         stone.scale = size / this.library.size("rock", stone.variant);
       }
     }
+    this.placeBiomeExtras(random, randomPoint, place, nearSpawn, smallest, largest);
     return placements;
+  }
+
+  /**
+   * BM1, BM8 (NBB-163): what only some biomes have, after everything else (so the pine forest's
+   * own placements stay as they were): more bushes in the wood, reeds and mud in the marsh, tall
+   * grass and more loose stones in the field, boulders and rock walls on the ridge. Each try is
+   * kept by how much of its biome is there.
+   */
+  private placeBiomeExtras(
+    random: () => number,
+    randomPoint: () => { x: number; z: number },
+    place: (kind: VegetationKind, x: number, z: number, sink?: number) => Placement | undefined,
+    nearSpawn: (x: number, z: number) => boolean,
+    smallestStone: number,
+    largestStone: number,
+  ): void {
+    const settings = CONFIG.biomes.vegetation;
+    const terrain = this.terrain;
+    const weight = (x: number, z: number, biome: Biome) => terrain.biomeWeightsAt(x, z)[biome];
+    // Reeds and tall grass grow in patches, not evenly.
+    const inPatch = (x: number, z: number) =>
+      fractalNoise(x / settings.patchSpacing, z / settings.patchSpacing, terrain.seed + 9501, 2) >
+      settings.patchAbove;
+
+    for (let i = 0; i < settings.extraBushes; i++) {
+      const { x, z } = randomPoint();
+      if (!nearSpawn(x, z) && random() < weight(x, z, "broadleaf")) {
+        place("bush", x, z, 0.05);
+      }
+    }
+    for (let i = 0; i < settings.reeds; i++) {
+      const { x, z } = randomPoint();
+      if (random() < weight(x, z, "marsh") && inPatch(x, z) && !terrain.isMarshTrail(x, z)) {
+        place("reeds", x, z, 0.05);
+      }
+    }
+    for (let i = 0; i < settings.puddles; i++) {
+      const { x, z } = randomPoint();
+      if (random() < weight(x, z, "marsh") && !terrain.isMarshTrail(x, z)) {
+        place("puddle", x, z);
+      }
+    }
+    for (let i = 0; i < settings.tallGrass; i++) {
+      const { x, z } = randomPoint();
+      if (random() < weight(x, z, "field") && inPatch(x, z)) {
+        place("tallGrass", x, z, 0.05);
+      }
+    }
+    for (let i = 0; i < settings.extraStones; i++) {
+      const { x, z } = randomPoint();
+      if (nearSpawn(x, z) || random() >= weight(x, z, "field")) {
+        continue;
+      }
+      const stone = place("rock", x, z);
+      if (stone) {
+        stone.scale =
+          randomRange(random, smallestStone, largestStone) /
+          this.library.size("rock", stone.variant);
+      }
+    }
+    for (let i = 0; i < settings.boulders; i++) {
+      const { x, z } = randomPoint();
+      if (random() < weight(x, z, "ridge")) {
+        // Sunk deeper: on the ridge's slopes its lower side must not float.
+        place("boulder", x, z, 0.8);
+      }
+    }
+    // Rock walls on the ridge's steep faces, along the slope, a few meters apart.
+    const walls: { x: number; z: number }[] = [];
+    for (let i = 0; i < settings.cliffs; i++) {
+      const { x, z } = randomPoint();
+      if (weight(x, z, "ridge") < 0.7) {
+        continue;
+      }
+      const gx = (terrain.heightAt(x + 1, z) - terrain.heightAt(x - 1, z)) / 2;
+      const gz = (terrain.heightAt(x, z + 1) - terrain.heightAt(x, z - 1)) / 2;
+      const slope = Math.hypot(gx, gz);
+      if (slope < settings.cliffSlope) {
+        continue;
+      }
+      if (walls.some((wall) => Math.hypot(wall.x - x, wall.z - z) < settings.cliffSpacing)) {
+        continue;
+      }
+      // Its length runs across the slope (along the contour); it stands on the lower side.
+      const along = { x: -gz / slope, z: gx / slope };
+      const wall = place("cliff", x, z);
+      if (wall) {
+        wall.rotation = Math.atan2(-along.z, along.x);
+        wall.scale = 1;
+        const lower = Math.min(
+          terrain.heightAt(x - (gx / slope) * 1.5, z - (gz / slope) * 1.5),
+          terrain.heightAt(x, z),
+        );
+        wall.y = lower - 0.3;
+        walls.push({ x, z });
+      }
+    }
   }
 
   /** Collisions only for chunks the player can reach (colliderRadius around the player). */
@@ -644,7 +773,19 @@ export class ChunkManager {
       if (placement.removed) {
         continue;
       }
-      if (kind === "pine" || kind === "oak" || kind === "deadTree") {
+      if (kind === "cliff") {
+        // BM4-A: the rock wall blocks as a row of tall capsules along its length.
+        for (const circle of cliffCircles(placement, this.library.size(kind, variant))) {
+          const post = new PhysicsShapeCapsule(
+            new Vector3(circle.x, y, circle.z),
+            new Vector3(circle.x, y + circle.height, circle.z),
+            circle.radius,
+            this.scene,
+          );
+          container.addChild(post);
+          shapes.push(post);
+        }
+      } else if (isTree(kind)) {
         const radius = this.library.trunkRadius(kind, variant) * scale;
         const trunk = new PhysicsShapeCapsule(
           new Vector3(x, y + radius, z),
@@ -654,7 +795,7 @@ export class ChunkManager {
         );
         container.addChild(trunk);
         shapes.push(trunk);
-      } else if (kind === "rock") {
+      } else if (kind === "rock" || kind === "boulder") {
         const size = this.library.size(kind, variant) * scale;
         if (size >= CONFIG.world.blockingRockSize) {
           const stone = new PhysicsShapeSphere(
@@ -691,6 +832,28 @@ function chunkKey(cx: number, cz: number): string {
 }
 
 /**
+ * BM4-A: a rock wall seen from above, as a row of circles along its length (its local x axis,
+ * turned by the placement's rotation), for walking, arrows and the creature's steering.
+ */
+function cliffCircles(placement: Placement, width: number): Obstacle[] {
+  const length = width * placement.scale;
+  const radius = Math.min(1.6, length * 0.16);
+  const count = Math.max(2, Math.ceil(length / (radius * 1.6)));
+  const along = { x: Math.cos(placement.rotation), z: -Math.sin(placement.rotation) };
+  const circles: Obstacle[] = [];
+  for (let i = 0; i < count; i++) {
+    const t = (i / (count - 1) - 0.5) * (length - radius * 2);
+    circles.push({
+      x: placement.x + along.x * t,
+      z: placement.z + along.z * t,
+      radius,
+      height: 6,
+    });
+  }
+  return circles;
+}
+
+/**
  * Terrain of one chunk: a grid in world coordinates. Normals and texture coordinates come from
  * the world position (not from the chunk), so neighboring chunks join without visible seams.
  */
@@ -720,7 +883,18 @@ function buildTerrainMesh(scene: Scene, terrain: Terrain, cx: number, cz: number
 
       uvs.push(x / tile, z / tile);
       const tint = groundTints[terrain.groundTypeAt(x, z)];
-      colors.push(tint.r, tint.g, tint.b, 1);
+      // BM8: each biome's own ground color, blended at the borders; the marsh's trails lighter.
+      const weights = terrain.biomeWeightsAt(x, z);
+      let r = 0;
+      let g = 0;
+      let b = 0;
+      for (const biome of BIOMES) {
+        const own = CONFIG.biomes.groundTints[biome];
+        r += own.r * weights[biome];
+        g += own.g * weights[biome];
+        b += own.b * weights[biome];
+      }
+      colors.push(tint.r * r, tint.g * g, tint.b * b, 1);
     }
   }
   const stride = cells + 1;
