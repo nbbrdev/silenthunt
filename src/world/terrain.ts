@@ -4,7 +4,7 @@ import { cabinsNear } from "./cabinSites";
 import { fractalNoise } from "./noise";
 
 /** Ground types of RF-03. The noise system (NBB-131) asks which one is under the player. */
-export type GroundType = "dirt" | "moss" | "leaves" | "twigs";
+export type GroundType = "dirt" | "moss" | "leaves" | "twigs" | "mud" | "grass";
 
 /**
  * Everything about the land at any point of the infinite world, from the seed alone. Pure
@@ -100,8 +100,12 @@ export class Terrain {
     if (weights.broadleaf > 0.5) {
       return "leaves";
     }
-    if (weights.marsh > 0.5 && this.isMarshTrail(x, z)) {
-      return "moss";
+    // BM10-C, BM11-B: off the marsh's trails, mud; the open field, dry grass.
+    if (weights.marsh > 0.5) {
+      return this.isMarshTrail(x, z) ? "moss" : "mud";
+    }
+    if (weights.field > 0.5) {
+      return "grass";
     }
     // The ridge is bare: stony dirt, no moss.
     if (weights.ridge > 0.5) {

@@ -155,6 +155,9 @@ export const CONFIG = {
       moss: { r: 0.8, g: 1.1, b: 0.75 },
       leaves: { r: 1.05, g: 0.95, b: 0.8 },
       twigs: { r: 0.95, g: 0.88, b: 0.8 },
+      /** NBB-163: the marsh's dark wet mud and the field's dry grass. */
+      mud: { r: 0.75, g: 0.72, b: 0.65 },
+      grass: { r: 1.05, g: 1.05, b: 0.9 },
     },
   },
   /**
@@ -291,7 +294,8 @@ export const CONFIG = {
       shotgun: 150,
     },
     /** RF-11 (G3): the ground multiplies movement noise. Twigs ground = leaves (NO4). */
-    groundMultiplier: { moss: 0.7, dirt: 1, leaves: 1.4, twigs: 1.4 },
+    /** BM10-C, BM11-B (NBB-163): the marsh's mud and the field's dry tall grass. */
+    groundMultiplier: { moss: 0.7, dirt: 1, leaves: 1.4, twigs: 1.4, mud: 1.2, grass: 1.1 },
     /** RF-11: stepping on a visible dry branch snaps it: one loud crack (NO4-B). */
     branchSnapRadius: 12,
     /** NO4-B: the feet step on a branch when this close (meters) to its middle. */
@@ -310,7 +314,7 @@ export const CONFIG = {
     volume: { crouch: 0.22, walk: 0.45, run: 0.75 },
     crouchRate: 0.9,
     /** Soft ground sounds softer (RF-11). */
-    groundVolume: { dirt: 1, moss: 0.75, leaves: 0.9, twigs: 0.9 },
+    groundVolume: { dirt: 1, moss: 0.75, leaves: 0.9, twigs: 0.9, mud: 0.9, grass: 0.8 },
     /** Each step's pitch varies by up to ±8%, so they do not sound repeated. */
     pitchJitter: 0.08,
     /** NO4-B: the branch cracking underfoot, loud even when crouching. */

@@ -8,7 +8,7 @@ import type { ChunkManager } from "../world/chunks";
 import type { GroundType, Terrain } from "../world/terrain";
 import type { Player } from "./player";
 
-const GROUNDS: readonly GroundType[] = ["dirt", "moss", "leaves", "twigs"];
+const GROUNDS: readonly GroundType[] = ["dirt", "moss", "leaves", "twigs", "mud", "grass"];
 
 /**
  * The player's footsteps (NBB-131): each step is a noise event whose radius depends on the gait
@@ -58,14 +58,14 @@ export class Footsteps {
         audio.engine,
       );
     const range = (count: number) => Array.from({ length: count }, (_, index) => index + 1);
-    const [dirt, moss, leaves, twigs, snapSounds] = await Promise.all([
+    const [dirt, moss, leaves, twigs, mud, grass, snapSounds] = await Promise.all([
       ...GROUNDS.map((ground) =>
         Promise.all(range(stepsPerGround).map((n) => load(`step-${ground}-${n}`))),
       ),
       Promise.all(range(snaps).map((n) => load(`snap-${n}`))),
     ]);
-    if (dirt && moss && leaves && twigs && snapSounds) {
-      this.sounds = { steps: { dirt, moss, leaves, twigs }, snaps: snapSounds };
+    if (dirt && moss && leaves && twigs && mud && grass && snapSounds) {
+      this.sounds = { steps: { dirt, moss, leaves, twigs, mud, grass }, snaps: snapSounds };
     }
   }
 

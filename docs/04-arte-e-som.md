@@ -36,6 +36,7 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 |---|---|---|
 | Pinheiro, carvalho, árvore morta | balanço leve com o vento | 6 |
 | Arbusto, pedras, galhos, folhagem do chão | — | 6 |
+| Bétula, juncos, capim alto, paredão, pedra grande, poça de lama (BM4-A) | balanço leve com o vento (bétula, juncos, capim) | 41 |
 | Criatura | andar, espreitar, atacar, recuar | 11 |
 | Coelho | pastar, alerta, correr, morrer | 15 |
 | Cervo | pastar, alerta, correr, morrer | 15 |

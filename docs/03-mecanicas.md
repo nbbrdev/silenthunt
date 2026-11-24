@@ -34,6 +34,13 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-04** Vegetação: 3 espécies de árvore (pinheiro, carvalho, árvore morta), arbustos, pedras e galhos soltos. A densidade varia por região (clareiras e mata fechada).
 - **RF-05** Ciclo de dia e noite (M5-B): **dia de 10 min e noite de 6 min**, com 1 min de entardecer e 1 min de amanhecer dentro desses tempos (G4). O jogo começa de manhã.
 - **RF-06** Neblina densa sempre. Visibilidade (G11): cerca de **40 m de dia** e **15 m à noite** (sem luz).
+- **RF-70** **Biomas** (NBB-163; BI1, BI2-A, BM1 a BM12): o mundo se divide em manchas de 400 a 800 m, sorteadas pela semente, com mistura de 40 m nas fronteiras. O começo (200 m) é sempre pinheiral, e em volta das cabanas o chão é firme. Cada bioma muda a forma de jogar:
+  - **Pinheiral** (~40%): o de antes.
+  - **Bosque de folhosas** (~15%): carvalhos e bétulas, chão de folhas secas (passos 50% mais barulhentos), o dobro de moitas.
+  - **Pântano** (~15%): baixo e quase plano, árvores mortas, juncos e poças. Fora das **trilhas de terra firme** (musgo), a **lama** deixa na metade da velocidade e cada passo faz barulho de água no raio do galho estalando. A neblina chega 40% mais perto, para o jogador e para a criatura. Os juncos escondem como moita.
+  - **Campo aberto** (~15%): poucas árvores, capim alto e muitas pedras soltas. De pé, o jogador é visto 50% mais longe; agachado no capim alto, só a menos de 15 m.
+  - **Serra rochosa** (~15%): morros até ~25 m mais altos em degraus, paredões e pedras grandes (para o machado). Subir encosta de mais de 15° deixa a 70% da velocidade e cansa como correr. O vento encobre os passos: os do jogador e os da criatura chegam a 70% do alcance.
+  - Chãos novos: **lama** (pântano) e **capim** (campo), com passos próprios. O mapa pinta cada bioma, e o nome dele aparece ao entrar.
 
 ## Furtividade
 
