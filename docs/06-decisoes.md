@@ -541,6 +541,19 @@ Pedido do usuário: novos biomas, animais (hostis e pacíficos), lagos, rios e c
 | BI9-A | Uma issue no fim para o ambiente de cada bioma: sons próprios, neblina e partículas. |
 | BI10-B | Uma medição de FPS no fim do marco, na máquina do usuário. Hoje o jogo roda a 60 FPS sem problemas. |
 
+## NBB-163: Biomas (2026-11-24)
+
+| Código | Decisão |
+| -- | -- |
+| BM1 | O que cada bioma muda no jogo: **pinheiral** é a base; **bosque de folhosas**: folhas secas deixam os passos 50% mais barulhentos, mas há o dobro de moitas, e mais cervos (o javali depois); **pântano**: fora das trilhas de terra firme a lama deixa 50% mais lento e cada passo faz barulho de água, neblina mais densa (o jogador e a criatura veem menos), juncos altos escondem como moita quando agachado; **campo aberto**: poucas árvores, de pé a criatura vê 50% mais longe, agachado no capim alto o jogador fica escondido para quem está a mais de ~15 m, muitas pedras soltas (os lobos depois); **serra rochosa**: subir encostas é mais lento e gasta fôlego, pedras grandes para o machado, o vento encobre os passos (o ruído dele e o dela chegam 30% menos longe), quedas de penhasco ferem (cachoeiras e urso depois). |
+| BM2-A | Pinheiral em ~40% do mundo; bosque, pântano, campo e serra em ~15% cada; manchas de 400 a 800 m. |
+| BM3-A | As cabanas continuam onde estão; num raio de ~40 m de cada uma o chão vira pinheiral ou bosque (sem lama nem penhasco). |
+| BM4-A | Modelos novos, gerados por código e revisados na galeria: bétula (bosque), juncos e lama com poças (pântano), capim alto (campo), paredões e pedras grandes (serra) e um chão próprio para cada bioma. |
+| BM5-A | O mapa de papel pinta cada bioma com um tom próprio nas áreas exploradas. |
+| BM6-A | Ao entrar num bioma novo, o nome dele aparece discreto no alto da tela, como a mensagem do amanhecer, menor. |
+| BM7-A | Saves de antes dos biomas: **começam um mundo novo**, com o aviso de hoje (SV5): a versão do save sobe. |
+| BM8 | Detalhes propostos por Claude e aprovados ("Ok"): manchas em células irregulares de 400 a 800 m, sorteadas pela semente nas proporções da BM2, mistura de 40 m; 200 m em volta do começo sempre pinheiral; relevo: serra até ~25 m mais alta com degraus íngremes e paredões, pântano baixo e quase plano, campo com ondulações suaves; vegetação: bosque carvalho 45%, bétula 40%, pinheiro 15%, árvores como hoje e o dobro de moitas; pântano árvore morta 65%, bétula 20%, pinheiro 15%, 40% das árvores, juncos em tufos e poças de lama; campo 10% das árvores, capim alto em manchas e o dobro de pedras soltas; serra pinheiro 70%, árvore morta 30%, 35% das árvores e o triplo de pedras grandes; chão com cor própria por bioma, misturado; bosque: ruído dos passos ×1,5; pântano: trilhas firmes de ~3 m por ruído, fora delas 50% da velocidade, barulho de água no raio do galho estalando e passos de lama, neblina 40% mais perto para os dois, juncos como moita (agachado, sem tocha, a menos de 1,5 m); campo: de pé a criatura vê ×1,5 mais longe, agachado no capim alto só é visto a menos de 15 m; serra: encosta acima de 15° dá 70% da velocidade e gasta fôlego como correr, ruído do jogador e passos da criatura com alcance ×0,7; passos na lama e no capim com candidatos para o usuário escolher (SM2-B) depois dos modelos; mapa com um tom por bioma e legenda; aviso do bioma em maiúsculas espaçadas de 26 px a 12% do topo, entra em 0,6 s, fica 2,5 s, sai em 1 s, só após 5 s no bioma, nunca no começo e sem repetir; ordem: modelos primeiro (capturas de dia, noite e neblina), depois os biomas no mundo, depois as regras; limites: bétula como as árvores, juncos e capim em cartões, paredão até 600 triângulos, pedra grande até 300; `silentHunt.biome()` e `silentHunt.goToBiome()`. |
+
 ## M6: Features novas (2026-11-23)
 
 | Código | Decisão |
