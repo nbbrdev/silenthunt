@@ -521,6 +521,7 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | EN6 | Sem conferência de clone limpo por Claude: o usuário roda o projeto na própria máquina. |
 | EN7 | Detalhes propostos por Claude e aprovados ("1 a 7 - Ok"): copyright "2026 nbbrdev"; capturas em JPG numa grade 2 × 2 (`menu`, `day`, `night`, `shelter`), sem o contador de FPS e com o abrigo na clareira do início, à noite; "Como jogar" com 5 dicas, porta do preview (4173) como "normalmente", seção "Para desenvolver" com as ferramentas; tabela de controles do código e do docs/03, com R e o botão direito para desmontar; requisito "Node.js 24"; sai o aviso "Em desenvolvimento". |
 | EN8 | Releases (2026-11-23): a pedido do usuário, **como exceção à regra** "o agente nunca cria tags nem releases" (a regra continua valendo), Claude criou as tags anotadas e as releases do GitHub de todos os marcos: `v0.1.0` (M0, `d5a8561`), `v0.2.0` (M1, `a57e71f`), `v0.3.0` (M2, `6c62ae6`), `v0.4.0` (M3, `8315ec6`), `v0.5.0` (M4, `f989be9`) e `v1.0.0` (M5, `09c1133`, a principal). Notas em pt-BR com o que cada marco entregou; sem arquivos anexados. |
+| EN9 | Tags (2026-11-24): a pedido do usuário, de novo **como exceção à regra** "o agente nunca cria tags nem releases" (a regra continua valendo), Claude criou as tags anotadas `v1.1.0` (M6 · Pós-entrega, `5da60f5`, o fechamento do mapa) e `v1.2.0` (M7 · Acabamento, `0327a89`, o fechamento dos efeitos sonoros). Só as tags: sem releases do GitHub. |
 
 ## M6: Features novas (2026-11-23)
 
