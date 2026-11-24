@@ -21,11 +21,11 @@ npm run preview
 
 Depois abra no navegador o endereço que aparecer no terminal (normalmente http://localhost:4173) e clique em **Novo mundo**. O jogo salva sozinho no navegador; ao voltar, **Continuar** retoma o mesmo mundo.
 
-### Música (opcional)
+### Música
 
-A música do dia não vem no repositório. Para ouvi-la, coloque os arquivos (`.mp3`, `.ogg`, `.m4a` ou `.wav`, com qualquer nome) na pasta `assets-private/music/`, na raiz do projeto, e rode o `npm run build` de novo. Sem a pasta, o jogo funciona normalmente, só sem música de dia.
+Todas as músicas vêm com o jogo (CC0 e CC-BY, creditadas no [CREDITS.md](CREDITS.md)): o tema do menu, as faixas do dia, os trechos do amanhecer e do entardecer, a da vitória e a da perseguição.
 
-A música da perseguição já vem com o jogo (CC0). Para trocá-la, coloque uma faixa na pasta `assets-private/music/chase/`; se houver mais de uma, vale a primeira em ordem alfabética.
+Para trocar a música da perseguição (opcional), coloque uma faixa na pasta `assets-private/music/chase/`; se houver mais de uma, vale a primeira em ordem alfabética.
 
 ### Para desenvolver
 

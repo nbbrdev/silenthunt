@@ -17,7 +17,9 @@ import { BowControl } from "./player/bowControl";
 import { ShotgunControl } from "./player/shotgunControl";
 import { InteractionSystem } from "./systems/interactions";
 import { AmbienceSystem } from "./systems/ambience";
-import { MusicPlayer } from "./systems/music";
+import { MusicPlayer, type MusicCue } from "./systems/music";
+import { DayCues } from "./systems/dayCues";
+import { DayMessage } from "./ui/dayMessage";
 import { PreySounds } from "./systems/preySounds";
 import { CaughtSequence } from "./systems/caughtSequence";
 import { HidingSystem } from "./systems/hiding";
@@ -195,7 +197,8 @@ async function start(): Promise<void> {
     audio
       .then((audio) => ambience.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons do ambiente não carregados:", error));
-    const music = new MusicPlayer(scene, world.clock);
+    // NBB-161 (MF4-A): the main menu's theme plays while the main menu is open.
+    const music = new MusicPlayer(scene, world.clock, (): boolean => menus.isMainMenu);
     audio
       .then((audio) => music.load(audio))
       .catch((error: unknown) => console.warn("Música não carregada:", error));
@@ -588,7 +591,8 @@ async function start(): Promise<void> {
       audio,
       options,
       hasSave,
-      hasMusic: () => music.hasTracks || chaseEffects.usesPrivateMusic,
+      // MF15-A: only a private chase track (MT1-C) still comes from the Epidemic Sound folder.
+      hasMusic: () => chaseEffects.usesPrivateMusic,
       // Not while a note is open (or just closed with Esc), nor on the victory screen.
       canPause: () =>
         player.controlsEnabled && !health.isDead && !notePanel.justClosed && !victoryScreen.isOpen,
@@ -602,6 +606,19 @@ async function start(): Promise<void> {
       !notePanel.isOpen &&
       !victoryScreen.isOpen &&
       !worldMap.isOpen;
+    // NBB-161 (MF10-B to MF14-B): the dawn's and the dusk's piece and message; the victory's music.
+    const dayCues = new DayCues({
+      scene,
+      clock: world.clock,
+      music,
+      message: new DayMessage(hud, scene),
+      isPlaying: () => menus.isPlaying,
+      isDead: () => health.isDead,
+      isChased: () => creatureBrain.isChasing,
+      isVictory: () => victoryScreen.isOpen,
+    });
+    victoryScreen.onRevealed.add(() => void music.startVictory());
+    victoryScreen.onClosed.add(() => music.stopVictory());
     // MN1-C: the whole HUD in the game's font, now that it is built.
     applyGameFont(hud);
 
@@ -773,9 +790,12 @@ async function start(): Promise<void> {
             respawn: beds.respawnPoint?.asArray().map((value) => Math.round(value * 10) / 10),
             sleeping: beds.isSleeping,
           }),
-          /** NBB-149: the music (tracks found, what plays, seconds to the next); the next now. */
+          /** NBB-149: the music (what plays, seconds to the next, the menu's theme); the next now. */
           music: () => music.debugState(),
           musicNext: () => music.debugNext(),
+          /** NBB-161 (MF16): plays one piece ("dawn", "dusk", "victory", "menu"); the dawn's message. */
+          musicCue: (cue: MusicCue) => music.debugCue(cue),
+          dawnMessage: () => dayCues.debugDawn(),
           /** NBB-153: whether the creature is chasing and how strong the chase feels (0 to 1). */
           chase: () => ({
             chasing: creatureBrain.isChasing,

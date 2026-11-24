@@ -893,23 +893,47 @@ export const CONFIG = {
     /** Each play's pitch varies by up to ±5%. */
     pitchJitter: 0.05,
   },
-  /** NBB-149 (SM5-A, MU1-A, MU2): the music, from `assets-private/music/` (G10, out of Git). */
+  /**
+   * NBB-149 (SM5-A, MU2) and NBB-161 (MF1-A to MF16): the music, CC0 and CC-BY tracks that come
+   * with the game (`public/sounds/music/`, credited in CREDITS.md).
+   */
   music: {
-    /** MU1-A: the list of tracks the build makes (empty without the private folder). */
-    list: "music/index.json",
+    /** MF9: the day tracks, in random order without repeating. */
+    dayTracks: ["music/day-1.mp3", "music/day-2.mp3", "music/day-3.mp3", "music/day-4.mp3"],
     /** The first track 1–3 min after the game opens; then 5–10 min of silence between them. */
     firstDelay: [60, 180] as const,
     gap: [300, 600] as const,
-    /**
-     * VL2-A: the day music's own volume, under the music group (0.8 × 0.375 = the 0.3 it had),
-     * so the group can be loud enough for the chase music.
-     */
-    volume: 0.375,
+    /** MF16: the tracks' own volume, under the music group. */
+    volume: 0.45,
     fadeInSeconds: 3,
     fadeOutSeconds: 5,
     /** Only by day: below this daylight none starts, and the one playing fades out. */
     minDaylight: 0.5,
     duskFadeSeconds: 10,
+    /** MF4-A, MF8-A: the main menu's theme, in a loop; it starts over each time. */
+    menuFile: "music/menu.mp3",
+    menuFadeInSeconds: 2,
+    menuFadeOutSeconds: 1.5,
+    /** MF10-B, MF11-A: the short pieces at dawn and dusk, a little louder (they are short). */
+    dawnFile: "music/dawn.mp3",
+    duskFile: "music/dusk.mp3",
+    cueVolume: 0.6,
+    /** MF12-A: the victory's track, once. */
+    victoryFile: "music/victory.mp3",
+    victoryFadeInSeconds: 2,
+    victoryFadeOutSeconds: 1.5,
+  },
+  /** NBB-161 (MF13-B, MF14-B, MF16): the message at dawn and dusk, at the top of the screen. */
+  dayMessage: {
+    titleSize: 56,
+    lineSize: 20,
+    /** From the top of the screen (share of its height). */
+    top: 0.18,
+    fadeInSeconds: 1,
+    holdSeconds: 3,
+    fadeOutSeconds: 1.5,
+    /** A jump of the clock larger than this (seconds) is a sleep or a death, not a night lived. */
+    skipSeconds: 5,
   },
   /**
    * NBB-153 (PS3, PS4-A, PS6-A, PS7-C): the chase as the player feels it. The heartbeat beats faster

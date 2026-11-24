@@ -1,4 +1,4 @@
-import type { Scene } from "@babylonjs/core";
+import { Observable, type Scene } from "@babylonjs/core";
 import {
   Control,
   Rectangle,
@@ -28,6 +28,9 @@ export class VictoryScreen {
   private readonly reveal = new MenuReveal();
   private fading = false;
   private open = false;
+  /** MF12-A: the ending's text came up (its music starts) and the screen closed (it leaves). */
+  readonly onRevealed = new Observable<void>();
+  readonly onClosed = new Observable<void>();
 
   constructor(
     ui: AdvancedDynamicTexture,
@@ -96,6 +99,7 @@ export class VictoryScreen {
         // EM7-A: the lines come out of black, one after the other.
         this.choices.chooseFirst();
         this.reveal.start(this.content);
+        this.onRevealed.notifyObservers();
       }
     });
   }
@@ -121,6 +125,7 @@ export class VictoryScreen {
     this.open = false;
     this.cover.isVisible = false;
     this.content.isVisible = false;
+    this.onClosed.notifyObservers();
   }
 
   private line(name: string): TextBlock {

@@ -74,17 +74,20 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 - **Lista inicial:** passos do jogador por tipo de chão (terra, musgo, folhas, galho estalando), passos da criatura, respiração e rosnado baixo, a mordida do golpe fatal (GF7-A), o farfalhar da moita (MI9-A), a pedra arremessada caindo (PD7-C), vento, pássaros de dia, grilos e corujas à noite, fogo crepitando, faca, arco, espingarda, machado na madeira, coelho e cervo fugindo.
 - **Lista final (SM1-A):** a inicial mais pouso, fogueira (acender, apagar), tocha, machado na pedra e árvore caindo, bufo de alarme do cervo, grito dos animais ao morrer, pegar coisas, limpar carcaça, comer, peças de construção, porta e baú. Sem sons de interface. CC0 de preferência, CC-BY só quando claramente melhor (SM3-A).
 - **Ambiente (SM4-A):** camadas em loop (vento; pássaros de dia; grilos à noite) que trocam no entardecer e no amanhecer, e sons soltos 3D de vez em quando (coruja, pássaro distante, galho estalando longe).
-- **Volumes (SM7):** mestre, efeitos, ambiente e música no `config.ts`. Desde a VL1-A a VL3-A (2026-11-23): mestre 0,6; grupos de efeitos 1, ambiente 0,7 e música 0,8; a música do dia tem volume próprio de 0,375, e a da perseguição toca a 1 no grupo de música; o coração vai de 0,9 a 1,8 e o ofegar até 1.
+- **Volumes (SM7):** mestre, efeitos, ambiente e música no `config.ts`. Desde a VL1-A a VL3-A (2026-11-23): mestre 0,6; grupos de efeitos 1, ambiente 0,7 e música 0,8; as faixas de música têm volume próprio de 0,45 (MF16; era 0,375) e os trechos do amanhecer e do entardecer 0,6, e a da perseguição toca a 1 no grupo de música; o coração vai de 0,9 a 1,8 e o ofegar até 1.
 
 ### Música
 
-**(G10)** A música do Epidemic Sound **não vai para o Git** (O5-A): fica na pasta `assets-private/music/`, que está no `.gitignore`. O jogo funciona sem ela (só fica sem música). **Quando toca (SM5-A):** rara e baixa, só de dia, uma faixa a cada 5–10 min com silêncio entre elas; à noite, nada, para o jogador ouvir a floresta e a criatura.
+**(NBB-161, MF1-A a MF16)** Todas as músicas **vêm com o jogo**: faixas CC0 e CC-BY do Freesound em `public/sounds/music/`, creditadas no `CREDITS.md`. A pasta privada das faixas do dia (G10, MU1-A) saiu (MF15-A); a da perseguição continua (abaixo).
 
-**Como pôr as faixas (MU1-A, MU4):** coloque os arquivos de música (`.mp3`, `.ogg`, `.m4a` ou `.wav`, com qualquer nome) na pasta `assets-private/music/`, na raiz do projeto, e rode o jogo (`npm run dev`) ou o build (`npm run build`). Um plugin do Vite serve a pasta em `/music/` e, no build, copia as faixas para dentro do jogo; sem a pasta, o jogo fica sem música. A ordem é aleatória, sem repetir até tocar todas (MU2). Para os avaliadores: o usuário envia a pasta à parte (ex.: um link de download) e explica no README onde colocar. Antes disso, o usuário confere se a licença do Epidemic Sound permite uso em jogo.
+- **Menu principal (MF4-A, MF8-A):** um tema sombrio em loop ("Uneasy Horror Ambience Music", Evan Boyerman), que entra em 2 s ao abrir o menu principal e sai em 1,5 s ao entrar no jogo; recomeça a cada volta ao menu. A pausa fica em silêncio (MN3-A).
+- **Dia (SM5-A, MU2, MF5-A, MF9):** rara e baixa, só de dia: quatro faixas calmas e melancólicas (dois pianos, duas guitarras), em ordem aleatória sem repetir, a primeira 1–3 min depois de entrar no jogo e depois uma a cada 5–10 min com silêncio entre elas. À noite, nada, para o jogador ouvir a floresta e a criatura.
+- **Amanhecer e entardecer (MF10-B, MF11-A, MF13-B, MF14-B):** um trecho curto e repentino com uma mensagem no alto da tela. No amanhecer, "VOCÊ SOBREVIVEU" (noite vivida acordado) ou "AMANHECER" (depois de dormir); depois de morrer, nada. No entardecer, um sino e "A NOITE CHEGA" (não durante uma perseguição).
+- **Vitória (MF12-A):** uma faixa calma e esperançosa, uma vez, enquanto a tela de vitória está aberta.
 
 **Música da perseguição (NBB-153; MT1-C, MT2, MT3-D):** a exceção à SM5-A. Quando a criatura ataca à noite, entra junto com o rosnado uma música tensa ("Orchestral Suspense Loop 1", de awrmacd, CC0), em 0,5 s, e toca em loop enquanto o ataque dura (perseguição, golpe ou hesitação). Quando o ataque termina (fuga, golpe ou desistência), ela some em 3 s. Sai pelo grupo de música, então o controle "Música" das opções também vale para ela. A faixa vem com o jogo (`public/sounds/music/chase.mp3`, 80 s em loop sem emenda). Se houver uma faixa em `assets-private/music/chase/` (ex.: do Epidemic Sound), ela toma o lugar; com mais de uma, vale a primeira em ordem alfabética. O plugin do Vite a lista em `/music/chase.json`.
 
-> Se os efeitos sonoros do Epidemic Sound também não puderem ser redistribuídos, eles vão para a mesma pasta privada.
+> Se os efeitos sonoros do Epidemic Sound também não puderem ser redistribuídos, eles vão para uma pasta privada como a da perseguição.
 
 ## Fonte de letra (O7-A)
 

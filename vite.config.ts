@@ -13,14 +13,11 @@ const MUSIC_TYPES: Record<string, string> = {
 };
 
 /**
- * The private music collections: the day tracks (MU1-A) in the folder itself, listed at
- * `/music/index.json`, and the chase track (MT1-C) in its `chase/` subfolder, listed at
- * `/music/chase.json` and served under `/music/chase/`.
+ * The private music collections: the chase track (MT1-C) in the `chase/` subfolder, listed at
+ * `/music/chase.json` and served under `/music/chase/`. The day tracks no longer come from here
+ * (MF15-A): they come with the game.
  */
-const COLLECTIONS = [
-  { list: "index.json", folder: "" },
-  { list: "chase.json", folder: "chase" },
-] as const;
+const COLLECTIONS = [{ list: "chase.json", folder: "chase" }] as const;
 
 /** The music files in one private folder (none if it does not exist). */
 function musicFiles(folder: string): string[] {
@@ -48,8 +45,8 @@ function findTrack(path: string): { folder: string; name: string } | undefined {
 /**
  * MU1-A, MT1-C (NBB-149, NBB-153): makes the private music reachable at `/music/`, with the list
  * of each collection's tracks. While developing, it serves them from the folder; in the build, it
- * copies them in if the folder exists. Without the folder the lists are empty: no day music, and
- * the chase plays the track that comes with the game.
+ * copies them in if the folder exists. Without the folder the list is empty and the chase plays
+ * the track that comes with the game.
  */
 function privateMusic(): Plugin {
   return {
