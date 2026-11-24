@@ -35,6 +35,13 @@ export class CreaturePresence {
   private steps: StaticSound[] = [];
   private breath: StaticSound | undefined;
   private growl: StaticSound | undefined;
+  private call: StaticSound | undefined;
+  private scream: StaticSound | undefined;
+  private sniff: StaticSound | undefined;
+  /** FX15: game seconds since the last scream. */
+  private sinceScream = Infinity;
+  /** FX4-A: tonight's calls still to come, as seconds into the night (earliest first). */
+  private callTimes: number[] = [];
   /** Time walked since the last footstep, in animation seconds. */
   private stepClock = 0;
   private breathLevel = 0;
@@ -69,6 +76,10 @@ export class CreaturePresence {
     });
     // GF2-B: held off by the torch, it growls now and then.
     brain.onHeldGrowl.add(() => this.growl?.play());
+    // FX15: sent back by the torch or a fire, it screams.
+    brain.onScared.add(() => this.screamNow());
+    // FX4-A: each night, one or two calls at random moments.
+    clock.onNightfall.add(() => this.planCalls());
   }
 
   /** NBB-156 (OB12): its growl now (banished by the ritual). */
@@ -76,10 +87,60 @@ export class CreaturePresence {
     this.growl?.play();
   }
 
+  /** FX15: its scream (the fire, the ritual), at most every 20 s unless `always`. */
+  screamNow(always = false): void {
+    const settings = CONFIG.creature.sounds;
+    if (!this.scream || (!always && this.sinceScream < settings.screamEverySeconds)) {
+      return;
+    }
+    this.sinceScream = 0;
+    this.scream.play();
+  }
+
+  /** FX14: it sniffs at the bush where the player hides. */
+  sniffNow(): void {
+    this.sniff?.play();
+  }
+
+  /** Development (FX15): its call now, wherever it is. */
+  debugCall(): void {
+    this.call?.play();
+  }
+
+  private planCalls(): void {
+    const { callsPerNight, callQuietSeconds } = CONFIG.creature.sounds;
+    const [fewest, most] = callsPerNight;
+    const count = fewest + Math.floor(this.random() * (most - fewest + 1));
+    const night = CONFIG.dayNight.nightSeconds;
+    this.callTimes = Array.from({ length: count }, () =>
+      randomRange(this.random, callQuietSeconds, night - 30),
+    ).sort((a, b) => a - b);
+  }
+
+  /** FX4-A: when a call is due, it waits until it roams 60–100 m away to be heard. */
+  private callFromAfar(): void {
+    const next = this.callTimes[0];
+    if (next === undefined || !this.call || this.clock.phase !== "night") {
+      return;
+    }
+    const intoNight = this.clock.time - CONFIG.dayNight.daySeconds;
+    const [near, far] = CONFIG.creature.sounds.callDistance;
+    const distance = this.brain.playerDistance;
+    const roaming = this.brain.state === "roam" && this.root.isEnabled();
+    if (intoNight >= next && roaming && distance >= near && distance <= far) {
+      this.callTimes.shift();
+      this.call.play();
+    }
+  }
+
   /** Loads the sounds (SO1-A files in `public/sounds/creature/`) and ties them to the body. */
   async loadSounds(audio: GameAudio): Promise<void> {
     const settings = CONFIG.creature.sounds;
-    const load = async (file: string, loop = false): Promise<StaticSound> => {
+    const load = async (
+      file: string,
+      loop = false,
+      hearing: number = settings.hearingDistance,
+    ): Promise<StaticSound> => {
       const sound = await CreateSoundAsync(
         file,
         soundUrl(`creature/${file}`),
@@ -87,10 +148,10 @@ export class CreaturePresence {
           loop,
           maxInstances: 2,
           spatialEnabled: true,
-          // RF-25: heard up to 25 m, fading linearly.
+          // RF-25: heard up to 25 m, fading linearly (its call and scream carry farther).
           spatialDistanceModel: "linear",
           spatialMinDistance: 1,
-          spatialMaxDistance: settings.hearingDistance,
+          spatialMaxDistance: hearing,
           outBus: audio.effects,
         },
         audio.engine,
@@ -98,19 +159,32 @@ export class CreaturePresence {
       sound.spatial.attach(this.root);
       return sound;
     };
-    const [steps, breath, growl] = await Promise.all([
-      Promise.all(settings.files.steps.map((file) => load(file))),
-      load(settings.files.breath, true),
-      load(settings.files.growl),
+    const { files } = settings;
+    const [steps, breath, growl, call, scream, sniff] = await Promise.all([
+      Promise.all(files.steps.map((file) => load(file))),
+      load(files.breath, true),
+      load(files.growl),
+      load(files.call, false, settings.callHearingDistance),
+      load(files.scream, false, settings.screamHearingDistance),
+      load(files.sniff),
     ]);
     this.steps = steps;
     this.breath = breath;
     this.growl = growl;
+    this.call = call;
+    this.scream = scream;
+    this.sniff = sniff;
     growl.volume = settings.growlVolume;
+    call.volume = settings.callVolume;
+    scream.volume = settings.screamVolume;
+    sniff.volume = settings.sniffVolume;
+    sniff.playbackRate = settings.sniffRate;
     breath.volume = 0;
   }
 
   private update(seconds: number): void {
+    this.sinceScream += seconds;
+    this.callFromAfar();
     this.fadeEyes();
     this.walkSounds(seconds);
     this.breathe(seconds);

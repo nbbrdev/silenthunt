@@ -12,6 +12,8 @@ import { ITEM_LABELS, type Recipe } from "./items";
 export class Crafting {
   /** Fired when something starts, finishes or stops. */
   readonly onChanged = new Observable<void>();
+  /** FX14: something was made (its sound). */
+  readonly onMade = new Observable<void>();
 
   private readonly inventory: Inventory;
   private readonly say: (text: string) => void;
@@ -82,6 +84,7 @@ export class Crafting {
     this.current = undefined;
     const name = ITEM_LABELS[recipe.item];
     this.say(`Você fez: ${recipe.count > 1 ? `${name} (${recipe.count})` : name}`);
+    this.onMade.notifyObservers();
     this.onChanged.notifyObservers();
   }
 }

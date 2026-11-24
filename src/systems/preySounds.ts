@@ -20,13 +20,14 @@ interface Voice {
  * The prey's sounds (NBB-149; SA1-B, AN1-B to AN3), all 3D: a deer barks in alarm when it
  * notices the player (one bark for the group); the nearest fleeing deer gallops and the nearest
  * fleeing rabbit hops away, both made of the footsteps' leaves and twigs (AN2-A); a deer bleats
- * when it dies. The rabbit dies silently.
+ * when it dies. FX14 (NBB-162): a startled rabbit thumps the ground, and cries when it dies.
  */
 export class PreySounds {
   private readonly animals: () => PreyBrainBehavior[];
   private readonly ears: Node;
   private readonly lastState = new Map<PreyBrainBehavior, PreyState>();
-  private voices: { alarm: Voice; cry: Voice; run: Record<PreyKind, Voice> } | undefined;
+  private voices:
+    { alarm: Voice; cry: Voice; thump: Voice; run: Record<PreyKind, Voice> } | undefined;
   private sinceAlarm = Infinity;
   /** Development: how many of each sound have played. */
   readonly played = { alarm: 0, cry: 0, deer: 0, rabbit: 0 };
@@ -70,13 +71,14 @@ export class PreySounds {
       return { emitter, sounds };
     };
     const { files, hearingDistance } = settings;
-    const [alarm, cry, deerRun, rabbitRun] = await Promise.all([
+    const [alarm, cry, deerRun, rabbitRun, thump] = await Promise.all([
       voice("alarm", files.alarm, hearingDistance.alarm),
       voice("cry", files.cry, hearingDistance.cry),
       voice("deerRun", files.deerRun, hearingDistance.deerRun),
       voice("rabbitRun", files.rabbitRun, hearingDistance.rabbitRun),
+      voice("rabbitThump", files.rabbitThump, hearingDistance.rabbitThump),
     ]);
-    this.voices = { alarm, cry, run: { deer: deerRun, rabbit: rabbitRun } };
+    this.voices = { alarm, cry, thump, run: { deer: deerRun, rabbit: rabbitRun } };
   }
 
   private update(seconds: number): void {
@@ -107,6 +109,23 @@ export class PreySounds {
       }
       if (animal.kind === "deer" && state === "dead" && before !== undefined && before !== "dead") {
         this.play(voices.cry, body, settings.volume.cry, 1);
+        this.played.cry++;
+      }
+      // FX14: a rabbit thumps as it bolts, and cries (higher, softer) when it dies.
+      if (
+        animal.kind === "rabbit" &&
+        before === "graze" &&
+        (state === "alert" || state === "flee")
+      ) {
+        this.play(voices.thump, body, settings.volume.rabbitThump, 1);
+      }
+      if (
+        animal.kind === "rabbit" &&
+        state === "dead" &&
+        before !== undefined &&
+        before !== "dead"
+      ) {
+        this.play(voices.cry, body, settings.volume.rabbitCry, settings.rate.rabbitCry);
         this.played.cry++;
       }
       if (state === "flee") {

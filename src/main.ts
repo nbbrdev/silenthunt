@@ -20,6 +20,7 @@ import { AmbienceSystem } from "./systems/ambience";
 import { MusicPlayer, type MusicCue } from "./systems/music";
 import { DayCues } from "./systems/dayCues";
 import { DayMessage } from "./ui/dayMessage";
+import { uiSounds, type UiSound } from "./ui/uiSounds";
 import { PreySounds } from "./systems/preySounds";
 import { CaughtSequence } from "./systems/caughtSequence";
 import { HidingSystem } from "./systems/hiding";
@@ -316,6 +317,17 @@ async function start(): Promise<void> {
     audio
       .then((audio) => effects.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons das ferramentas não carregados:", error));
+    // NBB-162 (FX14, FX15): hurt, hungry, the backpack, something made; the bush sniffed at.
+    health.onDamaged.add(() => {
+      effects.play("hurtHit");
+      effects.play("hurtBreath");
+    });
+    hunger.onGrowl.add(() => effects.play("stomach"));
+    inventoryScreen.onToggled.add((open) => effects.play(open ? "bagOpen" : "bagClose"));
+    crafting.onMade.add(() => effects.play("craft"));
+    hiding.onSniffed.add(() => presence.sniffNow());
+    // FX12-A: the menus' click follows the options' general and effects volumes.
+    uiSounds.setGain(() => options.master * options.effects);
     // NBB-141: the cabins (the first one has the shotgun) and the shotgun itself (ES2).
     const shotgun = new ShotgunControl(
       scene,
@@ -464,6 +476,7 @@ async function start(): Promise<void> {
       presence,
       notes: notePanel,
       victory: victoryScreen,
+      sounds: effects,
       seed: CONFIG.world.defaultSeed,
       isPlaying: (): boolean => menus.isPlaying,
     });
@@ -487,7 +500,13 @@ async function start(): Promise<void> {
     });
     compass.destination = () => worldMap.destinationPoint;
 
+    // FX14: paper: a note read, the map opened or closed.
+    notePanel.onRead.add(() => effects.play("note"));
+    worldMap.onToggled.add(() => effects.play("map"));
+
     health.onDied.add(() => {
+      // FX15: the heart beats twice more, slower, and stops.
+      chaseEffects.heartStops();
       // Closing the screen puts back whatever the mouse was holding.
       inventoryScreen.close(false);
       // OB7-A, OB12: the radio, its parts and the skulls stay with the player.
@@ -615,7 +634,8 @@ async function start(): Promise<void> {
       isPlaying: () => menus.isPlaying,
       isDead: () => health.isDead,
       isChased: () => creatureBrain.isChasing,
-      isVictory: () => victoryScreen.isOpen,
+      // FX6-A: the helicopter's approach comes before the rescue's victory (no dawn message then).
+      isVictory: () => victoryScreen.isOpen || objective.rescueArriving,
     });
     victoryScreen.onRevealed.add(() => void music.startVictory());
     victoryScreen.onClosed.add(() => music.stopVictory());
@@ -796,6 +816,17 @@ async function start(): Promise<void> {
           /** NBB-161 (MF16): plays one piece ("dawn", "dusk", "victory", "menu"); the dawn's message. */
           musicCue: (cue: MusicCue) => music.debugCue(cue),
           dawnMessage: () => dayCues.debugDawn(),
+          /** NBB-162 (FX15): plays an effect by name (no name: lists them); its call; a click. */
+          sound: (name?: string) => {
+            const names = effects.names;
+            const found = names.find((effect) => effect === name);
+            if (found) {
+              effects.play(found, player.position);
+            }
+            return found ?? names;
+          },
+          creatureCall: () => presence.debugCall(),
+          click: (kind: UiSound = "confirm") => uiSounds.play(kind),
           /** NBB-153: whether the creature is chasing and how strong the chase feels (0 to 1). */
           chase: () => ({
             chasing: creatureBrain.isChasing,

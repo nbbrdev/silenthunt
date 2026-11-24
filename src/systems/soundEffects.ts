@@ -92,11 +92,26 @@ export class SoundEffects {
     if (effect.emitter && position) {
       effect.emitter.position.copyFrom(position);
     }
-    const { pitchJitter, rates } = CONFIG.effectSounds;
+    const { pitchJitter, rates, volume } = CONFIG.effectSounds;
     const rate = (rates as Partial<Record<EffectName, number>>)[name] ?? 1;
     sound.playbackRate = rate * (1 + (Math.random() * 2 - 1) * pitchJitter);
+    // Its own volume again (a fade may have lowered it).
+    sound.volume = volume[name];
     sound.play();
     this.played[name] = (this.played[name] ?? 0) + 1;
+  }
+
+  /** FX15: an effect that is playing fades out over `seconds`, then stops (the helicopter). */
+  fadeOut(name: EffectName, seconds: number): void {
+    for (const sound of this.effects[name]?.sounds ?? []) {
+      sound.setVolume(0, { duration: seconds });
+      window.setTimeout(() => sound.stop(), seconds * 1000);
+    }
+  }
+
+  /** Development (FX15): the effects' names, for `silentHunt.sound()`. */
+  get names(): EffectName[] {
+    return Object.keys(this.effects) as EffectName[];
   }
 
   /** Stops an effect that is playing (letting go of the bow, of E, putting the torch away). */

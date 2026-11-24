@@ -268,6 +268,8 @@ export class StoneThrowSystem {
     mesh.position.copyFrom(position);
     this.flying.push({ mesh, position, velocity, age: 0 });
     this.world.noise.emit(this.player.feet, settings.throwNoise, "throw");
+    // FX14: the throw swishes.
+    this.sounds?.play("throw");
   }
 
   private update(seconds: number): void {

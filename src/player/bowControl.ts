@@ -174,6 +174,8 @@ export class BowControl {
     }
     this.arrows.fire(origin, direction, minSpeed + (maxSpeed - minSpeed) * draw);
     this.sounds?.play("bowRelease");
+    // FX14: and the arrow flies off.
+    this.sounds?.play("arrowFly");
     this.noise.emit(this.player.feet, CONFIG.noise.radius.bow, "bow");
   }
 }

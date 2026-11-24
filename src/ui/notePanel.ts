@@ -1,3 +1,4 @@
+import { Observable } from "@babylonjs/core";
 import {
   Control,
   Rectangle,
@@ -25,6 +26,8 @@ export class NotePanel {
   private controlsBefore = true;
   /** When the last note closed (Esc also lets the mouse go; the pause should not open then). */
   private closedAt = -Infinity;
+  /** FX14: a note came up (the paper is heard). */
+  readonly onRead = new Observable<void>();
 
   constructor(ui: AdvancedDynamicTexture, input: Input, player: Player) {
     this.player = player;
@@ -121,6 +124,7 @@ export class NotePanel {
     this.title.text = note.title;
     this.body.text = note.text;
     this.sheet.isVisible = true;
+    this.onRead.notifyObservers();
   }
 }
 

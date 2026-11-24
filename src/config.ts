@@ -93,6 +93,9 @@ export const CONFIG = {
       /** With hunger at 0: this much health lost every `starveEverySeconds`. */
       starveDamage: 1,
       starveEverySeconds: 2,
+      /** FX14: below a quarter, the stomach growls every 40–80 s. */
+      growlBelow: 0.25,
+      growlEvery: [40, 80] as const,
       /** FO4-B: hunger after respawning. */
       respawnValue: 50,
       /** RF-35: what each meat gives. */
@@ -310,6 +313,11 @@ export const CONFIG = {
     ritualHoldSeconds: 2,
     /** OB12: banished, it runs off for this long before it is gone. */
     banishFleeSeconds: 3,
+    /** FX6-A, FX15: the rescue's helicopter is heard this long before its victory; then fades. */
+    helicopterSeconds: 10,
+    helicopterFadeSeconds: 1.5,
+    /** FX15: the radio's static before the voice answers (and the message shows). */
+    radioStaticSeconds: 3,
     /** OB12: the screen darkens over this long before a victory. */
     victoryFadeSeconds: 2,
     /** OB4-A, OB11-B, OB12: the last night. */
@@ -508,7 +516,27 @@ export const CONFIG = {
         steps: ["step-1.mp3", "step-2.mp3", "step-3.mp3", "step-4.mp3", "step-5.mp3", "step-6.mp3"],
         breath: "breath.mp3",
         growl: "growl.mp3",
+        /** FX7-A, FX8-A, FX14 (NBB-162). */
+        call: "call.mp3",
+        scream: "scream.mp3",
+        sniff: "sniff.mp3",
       },
+      /**
+       * FX4-A, FX15: its call from afar, 1 or 2 times a night, only while it roams 60–100 m away
+       * (heard from where it really is), never in the first minute of the night.
+       */
+      callsPerNight: [1, 2] as const,
+      callDistance: [60, 100] as const,
+      callQuietSeconds: 60,
+      callHearingDistance: 140,
+      callVolume: 1,
+      /** FX15: its scream when fire sends it back (and in the ritual), at most every 20 s. */
+      screamHearingDistance: 60,
+      screamVolume: 1,
+      screamEverySeconds: 20,
+      /** FX14: sniffing at the bush, lower and slower than a dog's. */
+      sniffVolume: 0.8,
+      sniffRate: 0.8,
       /** Heard up to this distance (meters), fading linearly. */
       hearingDistance: 25,
       /** One footstep every half cycle of the animation (seconds at normal speed). */
@@ -578,8 +606,11 @@ export const CONFIG = {
     sounds: {
       shot: "shot.mp3",
       reload: "reload.mp3",
+      /** FX14: the trigger pulled with both barrels empty. */
+      dryFire: "dry-fire.mp3",
       shotVolume: 1,
       reloadVolume: 0.8,
+      dryFireVolume: 0.7,
     },
   },
   /** The abandoned cabins (RF-34, ES1, ES5). Meters. */
@@ -824,8 +855,24 @@ export const CONFIG = {
       crows: ["crow-1.mp3", "crow-2.mp3", "crow-3.mp3"],
       /** AM6: the distant crack is one of the footsteps' snaps, lower and quieter. */
       snaps: ["snap-1.mp3", "snap-2.mp3", "snap-3.mp3", "snap-4.mp3"],
+      /** FX14: a tree creaking (night), a gust (day and night), a branch falling (night). */
+      creaks: ["tree-creak.mp3"],
+      gusts: ["wind-gust.mp3"],
+      branchFalls: ["branch-fall.mp3"],
     },
-    volume: { wind: 0.5, birds: 0.45, crickets: 0.5, owl: 0.9, crow: 0.8, snap: 0.7 },
+    volume: {
+      wind: 0.5,
+      birds: 0.45,
+      crickets: 0.5,
+      owl: 0.9,
+      crow: 0.8,
+      snap: 0.7,
+      creak: 0.8,
+      gust: 0.7,
+      branchFall: 0.9,
+    },
+    /** FX14: how often the lone sound is one of the new ones (a creak, a gust, a branch). */
+    extraChance: { day: 0.2, night: 0.35 },
     snapRate: 0.8,
     /** AM6: a lone sound every 20–60 s, 30–60 m away, heard up to 80 m. */
     oneShotEvery: [20, 60],
@@ -852,10 +899,36 @@ export const CONFIG = {
       stoneLand: ["tools/stone-land.mp3"],
       /** CH2-A: lighting the torch or a fire. */
       ignite: ["fire/ignite.mp3"],
-      /** CH3: the torch in hand crackles like the campfire, softer and higher. */
-      torchCrackle: ["fire/campfire.mp3"],
-      /** AC1: picking something up is a leaves footstep, soft and higher (a rustle). */
-      pickup: [1, 2, 3, 4, 5, 6].map((n) => `player/step-leaves-${n}.mp3`),
+      /** CH3, FX9-B: the torch in hand burns with its own loop. */
+      torchCrackle: ["fire/torch.mp3"],
+      /** FX14: picking something up (it was a leaves footstep, AC1). */
+      pickup: ["actions/pickup.mp3"],
+      /** FX14: putting out the torch (higher and softer) or a campfire (where it is). */
+      torchOut: ["fire/fire-out.mp3"],
+      fireOut: ["fire/fire-out.mp3"],
+      /** FX14: the skulls burning in the ritual. */
+      fireBurst: ["fire/fire-burst.mp3"],
+      /** FX14: paper: a note read, the map opened or closed. */
+      note: ["objective/note.mp3"],
+      map: ["objective/map.mp3"],
+      /** FX10, FX15: calling the rescue: static, then a voice answers. */
+      radioStatic: ["objective/radio-static.mp3"],
+      radioVoice: ["objective/radio-voice.mp3"],
+      /** FX6-A, FX11-A: the rescue's helicopter coming. */
+      helicopter: ["objective/helicopter.mp3"],
+      /** FX5-B, FX13: hurt, with no voice: a dull thud and a caught breath. */
+      hurtHit: ["player/hit.mp3"],
+      hurtBreath: ["player/breath.mp3"],
+      /** FX14: hungry. */
+      stomach: ["player/stomach.mp3"],
+      /** FX14: the inventory (the backpack) opening and closing; something made. */
+      bagOpen: ["actions/bag-open.mp3"],
+      bagClose: ["actions/bag-close.mp3"],
+      craft: ["actions/craft.mp3"],
+      /** FX14: a stone thrown is the knife's swing, lower. */
+      throw: ["tools/knife-swing.mp3"],
+      /** FX14: the arrow flying off the bow. */
+      arrowFly: ["tools/arrow-fly.mp3"],
       eat: ["actions/eat.mp3"],
       carcass: ["actions/carcass.mp3"],
       place: ["actions/place.mp3"],
@@ -874,19 +947,36 @@ export const CONFIG = {
       arrowHit: 0.8,
       stoneLand: 0.8,
       ignite: 0.7,
-      torchCrackle: 0.15,
-      pickup: 0.35,
+      torchCrackle: 0.35,
+      pickup: 0.5,
       eat: 0.6,
       carcass: 0.6,
       place: 0.7,
       dismantle: 0.7,
       door: 0.6,
       chest: 0.7,
+      torchOut: 0.5,
+      fireOut: 0.8,
+      fireBurst: 0.8,
+      note: 0.6,
+      map: 0.6,
+      radioStatic: 0.6,
+      radioVoice: 0.7,
+      helicopter: 1,
+      /** FX15: hurt, 0.8. */
+      hurtHit: 0.8,
+      hurtBreath: 0.8,
+      stomach: 0.5,
+      bagOpen: 0.5,
+      bagClose: 0.5,
+      craft: 0.7,
+      throw: 0.5,
+      arrowFly: 0.6,
     },
     /** Pitch of some effects (1 = as recorded). */
-    rates: { pickup: 1.3, torchCrackle: 1.3 },
+    rates: { torchOut: 1.2, throw: 0.75 },
     /** Heard from where they happen (3D); the others come from the player's hands. */
-    spatial: ["knifeHit", "treeFall", "arrowHit", "stoneLand"],
+    spatial: ["knifeHit", "treeFall", "arrowHit", "stoneLand", "fireOut"],
     /** These loop until stopped (while cleaning a carcass, while the torch burns). */
     loops: ["carcass", "torchCrackle"],
     hearingDistance: 50,
@@ -922,6 +1012,18 @@ export const CONFIG = {
     victoryFile: "music/victory.mp3",
     victoryFadeInSeconds: 2,
     victoryFadeOutSeconds: 1.5,
+  },
+  /**
+   * NBB-162 (FX3-A, FX12-A, FX15): the menus' wooden click: higher and soft passing over, lower
+   * and fuller confirming, lower and softer going back.
+   */
+  uiSounds: {
+    file: "ui/click.mp3",
+    /** Clicks that can overlap. */
+    voices: 4,
+    hover: { volume: 0.25, rate: 1.25 },
+    confirm: { volume: 0.5, rate: 0.8 },
+    back: { volume: 0.35, rate: 0.7 },
   },
   /** NBB-161 (MF13-B, MF14-B, MF16): the message at dawn and dusk, at the top of the screen. */
   dayMessage: {
@@ -969,6 +1071,9 @@ export const CONFIG = {
     musicVolume: 1,
     musicFadeInSeconds: 0.5,
     musicFadeOutSeconds: 3,
+    /** FX5-B, FX15: at death, two last beats, slower and slower (seconds after it), then none. */
+    lastBeats: [0.6, 1.5],
+    lastBeatVolume: 0.9,
   },
   /**
    * GF4-C, GF7-A, GF8 (NBB-155): "pego". The view turns to the creature's face in `turnSeconds`,
@@ -994,15 +1099,18 @@ export const CONFIG = {
         `player/step-twigs-${n}.mp3`,
       ]),
       rabbitRun: [1, 2, 3, 4, 5, 6].map((n) => `player/step-leaves-${n}.mp3`),
+      /** FX14: a startled rabbit thumps the ground as it bolts. */
+      rabbitThump: ["animals/rabbit-thump.mp3"],
     },
-    volume: { alarm: 1, cry: 0.8, deer: 0.7, rabbit: 0.35 },
+    /** FX14: a rabbit dying cries with the deer's cry, higher and softer. */
+    volume: { alarm: 1, cry: 0.8, deer: 0.7, rabbit: 0.35, rabbitThump: 0.8, rabbitCry: 0.4 },
     /** Running pitch: the deer heavier, the rabbit lighter. */
-    rate: { deer: 0.8, rabbit: 1.4 },
+    rate: { deer: 0.8, rabbit: 1.4, rabbitCry: 1.6 },
     /** Seconds between beats, repeating: a gallop (three quick beats and a pause) and hops. */
     rhythm: { deer: [0.09, 0.09, 0.26], rabbit: [0.07, 0.22] },
     /** A deer group barks once; another bark only after this long (seconds). */
     alarmEvery: 4,
-    hearingDistance: { alarm: 70, cry: 40, deerRun: 40, rabbitRun: 18 },
+    hearingDistance: { alarm: 70, cry: 40, deerRun: 40, rabbitRun: 18, rabbitThump: 25 },
   },
   /** NBB-148: the backpack left where the player died (RF-60, MO1-A to MO3-A). */
   backpack: {

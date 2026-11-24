@@ -298,6 +298,8 @@ export class CampfireManager {
   private putOut(fire: Fire): void {
     fire.fuel = 0;
     this.world.interactions.say("Fogueira apagada");
+    // FX14: heard going out, from where it is.
+    this.sounds?.play("fireOut", fire.model.root.position);
     this.refreshCreatureFires();
   }
 

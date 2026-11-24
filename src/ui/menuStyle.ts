@@ -6,6 +6,7 @@ import {
   type Container,
 } from "@babylonjs/gui";
 import { CONFIG } from "../config";
+import { uiSounds } from "./uiSounds";
 
 /** EM1-A: Babylon GUI has no letter spacing: a thin space between letters, a wide one between words. */
 const THIN_SPACE = " ";
@@ -76,13 +77,17 @@ export class MenuChoices {
     this.chosen = -1;
   }
 
-  /** EM10: the first option comes chosen. */
+  /** EM10: the first option comes chosen (quietly: no click). */
   chooseFirst(): void {
-    this.choose(0);
+    this.choose(0, false);
   }
 
-  /** A text option. */
-  option(text: string, act: () => void): Rectangle {
+  /** A text option; `back` ones ("Voltar", "Cancelar") click softer (FX15). */
+  option(text: string, act: () => void, back = false): Rectangle {
+    const run = (): void => {
+      uiSounds.play(back ? "back" : "confirm");
+      act();
+    };
     const settings = CONFIG.menu;
     const shown = spaced(text);
     const row = new Rectangle(`option-${text}`);
@@ -124,11 +129,11 @@ export class MenuChoices {
         dash.isVisible = on;
         label.color = on ? settings.hoverColor : settings.dimColor;
       },
-      act,
+      act: run,
       slide: { label, offset: 0 },
     });
     row.onPointerEnterObservable.add(() => this.choose(index));
-    row.onPointerUpObservable.add(() => act());
+    row.onPointerUpObservable.add(() => run());
     return row;
   }
 
@@ -199,13 +204,17 @@ export class MenuChoices {
     return this.choices.length - 1;
   }
 
-  private choose(index: number): void {
+  private choose(index: number, click = true): void {
     if (index === this.chosen) {
       return;
     }
     this.choices[this.chosen]?.light(false);
     this.chosen = index;
     this.choices[index]?.light(true);
+    if (click) {
+      // FX15: passing over an option.
+      uiSounds.play("hover");
+    }
   }
 
   private measure(text: string, size: number): number {

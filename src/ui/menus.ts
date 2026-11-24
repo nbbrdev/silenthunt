@@ -15,6 +15,7 @@ import type { Input } from "../core/input";
 import { applyVolumes, saveOptions, type GameOptions } from "../core/options";
 import type { Player } from "../player/player";
 import { creditLines } from "./credits";
+import { uiSounds } from "./uiSounds";
 import {
   MenuChoices,
   MenuReveal,
@@ -170,10 +171,13 @@ export class GameMenus {
       // EM10: back one screen; the pause stays (the browser will not let Esc capture the mouse).
       if (screen === "options") {
         saveOptions(this.world.options);
+        uiSounds.play("back");
         this.open(this.back);
       } else if (screen === "credits") {
+        uiSounds.play("back");
         this.open(this.back);
       } else if (screen === "confirm") {
+        uiSounds.play("back");
         this.open("main");
       }
       return;
@@ -305,7 +309,7 @@ export class GameMenus {
       GameMenus.markStartNew();
       void this.world.newWorld();
     });
-    this.option("Cancelar", () => this.open("main"));
+    this.option("Cancelar", () => this.open("main"), true);
   }
 
   /** After "Novo mundo": one click starts (the browser only lets a click capture the mouse). */
@@ -333,10 +337,14 @@ export class GameMenus {
     volume("Ambiente", "ambience");
     volume("Música", "music");
     this.spacer(12);
-    this.option("Voltar", () => {
-      saveOptions(options);
-      this.open(this.back);
-    });
+    this.option(
+      "Voltar",
+      () => {
+        saveOptions(options);
+        this.open(this.back);
+      },
+      true,
+    );
   }
 
   private buildCredits(): void {
@@ -370,7 +378,7 @@ export class GameMenus {
     this.column.addControl(viewer);
     this.credits = viewer;
     this.spacer(12);
-    this.option("Voltar", () => this.open(this.back));
+    this.option("Voltar", () => this.open(this.back), true);
   }
 
   private title(text: string, size: number): void {
@@ -385,8 +393,9 @@ export class GameMenus {
     this.column.addControl(this.textBlock(text, size));
   }
 
-  private option(text: string, onClick: () => void): void {
-    this.column.addControl(this.choices.option(text, onClick));
+  /** `back`: "Voltar" and "Cancelar" click softer (FX15). */
+  private option(text: string, onClick: () => void, back = false): void {
+    this.column.addControl(this.choices.option(text, onClick, back));
   }
 
   private spacer(pixels: number): void {

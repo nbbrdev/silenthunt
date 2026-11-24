@@ -32,6 +32,9 @@ export class ChaseEffects {
   private pantLevel = 0;
   /** GF8: the player was caught: everything stays silent until the respawn. */
   private silenced = false;
+  /** FX15: the heart's last beats still to come (seconds after death) and the time since it. */
+  private lastBeats: number[] = [];
+  private sinceDeath = 0;
 
   constructor(
     scene: Scene,
@@ -138,9 +141,17 @@ export class ChaseEffects {
   /** Back to normal when the player respawns. */
   resume(): void {
     this.silenced = false;
+    this.lastBeats = [];
+  }
+
+  /** FX5-B, FX15: at death the heart beats twice more, slower and slower, and stops. */
+  heartStops(): void {
+    this.lastBeats = [...CONFIG.chase.lastBeats];
+    this.sinceDeath = 0;
   }
 
   private update(seconds: number): void {
+    this.beatLast(seconds);
     if (seconds <= 0 || this.silenced) {
       return;
     }
@@ -178,6 +189,19 @@ export class ChaseEffects {
       this.panting.volume = settings.pantVolume * this.pantLevel;
     }
     this.updateMusic(seconds);
+  }
+
+  private beatLast(seconds: number): void {
+    const next = this.lastBeats[0];
+    if (next === undefined) {
+      return;
+    }
+    this.sinceDeath += seconds;
+    if (this.sinceDeath >= next && this.heartbeat) {
+      this.lastBeats.shift();
+      this.heartbeat.volume = CONFIG.chase.lastBeatVolume;
+      this.heartbeat.play();
+    }
   }
 
   /**

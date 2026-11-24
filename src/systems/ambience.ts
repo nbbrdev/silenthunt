@@ -28,7 +28,16 @@ export class AmbienceSystem {
   private readonly ears: Node;
   private readonly emitter: TransformNode;
   private loops: { wind: StaticSound; birds: StaticSound; crickets: StaticSound } | undefined;
-  private oneShots: { owls: OneShot[]; crows: OneShot[]; snaps: OneShot[] } | undefined;
+  private oneShots:
+    | {
+        owls: OneShot[];
+        crows: OneShot[];
+        snaps: OneShot[];
+        creaks: OneShot[];
+        gusts: OneShot[];
+        branchFalls: OneShot[];
+      }
+    | undefined;
   private nextOneShot = 0;
 
   constructor(scene: Scene, clock: DayClock, ears: Node) {
@@ -71,16 +80,22 @@ export class AmbienceSystem {
       return { sound, volume, rate };
     };
     const { files, volume } = settings;
-    const [wind, birds, crickets, owls, crows, snaps] = await Promise.all([
-      loop(files.wind),
-      loop(files.birds),
-      loop(files.crickets),
-      Promise.all(files.owls.map((file) => far(`ambience/${file}`, volume.owl))),
-      Promise.all(files.crows.map((file) => far(`ambience/${file}`, volume.crow))),
-      Promise.all(files.snaps.map((file) => far(`player/${file}`, volume.snap, settings.snapRate))),
-    ]);
+    const [wind, birds, crickets, owls, crows, snaps, creaks, gusts, branchFalls] =
+      await Promise.all([
+        loop(files.wind),
+        loop(files.birds),
+        loop(files.crickets),
+        Promise.all(files.owls.map((file) => far(`ambience/${file}`, volume.owl))),
+        Promise.all(files.crows.map((file) => far(`ambience/${file}`, volume.crow))),
+        Promise.all(
+          files.snaps.map((file) => far(`player/${file}`, volume.snap, settings.snapRate)),
+        ),
+        Promise.all(files.creaks.map((file) => far(`ambience/${file}`, volume.creak))),
+        Promise.all(files.gusts.map((file) => far(`ambience/${file}`, volume.gust))),
+        Promise.all(files.branchFalls.map((file) => far(`ambience/${file}`, volume.branchFall))),
+      ]);
     this.loops = { wind, birds, crickets };
-    this.oneShots = { owls, crows, snaps };
+    this.oneShots = { owls, crows, snaps, creaks, gusts, branchFalls };
   }
 
   /** Development: the loops' volumes now and when the next lone sound comes. */
@@ -125,9 +140,21 @@ export class AmbienceSystem {
     if (!oneShots) {
       return;
     }
-    const { snapChance } = CONFIG.ambience;
+    const { snapChance, extraChance } = CONFIG.ambience;
     const useSnap = Math.random() < (isDay ? snapChance.day : snapChance.night);
-    const pool = useSnap ? oneShots.snaps : isDay ? oneShots.crows : oneShots.owls;
+    // FX14: now and then a gust (any time), a creaking tree or a falling branch (at night).
+    const useExtra = !useSnap && Math.random() < (isDay ? extraChance.day : extraChance.night);
+    const extras = isDay
+      ? [oneShots.gusts]
+      : [oneShots.gusts, oneShots.creaks, oneShots.branchFalls];
+    const extra = extras[Math.floor(Math.random() * extras.length)] ?? oneShots.gusts;
+    const pool = useSnap
+      ? oneShots.snaps
+      : useExtra
+        ? extra
+        : isDay
+          ? oneShots.crows
+          : oneShots.owls;
     const pick = pool[Math.floor(Math.random() * pool.length)];
     if (!pick) {
       return;

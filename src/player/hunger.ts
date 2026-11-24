@@ -1,3 +1,4 @@
+import { Observable } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import type { PlayerHealth } from "./health";
 
@@ -10,6 +11,9 @@ export class PlayerHunger {
   private readonly health: PlayerHealth;
   private current: number = CONFIG.player.hunger.max;
   private starveSeconds = 0;
+  /** FX14: seconds until the stomach growls again (while hungry). */
+  private untilGrowl = 0;
+  readonly onGrowl = new Observable<void>();
 
   constructor(health: PlayerHealth) {
     this.health = health;
@@ -44,6 +48,15 @@ export class PlayerHunger {
     }
     const settings = CONFIG.player.hunger;
     this.current = Math.max(0, this.current - (settings.max / settings.emptySeconds) * seconds);
+    // FX14: hungry, the stomach growls now and then.
+    if (this.fraction < settings.growlBelow) {
+      this.untilGrowl -= seconds;
+      if (this.untilGrowl <= 0) {
+        const [shortest, longest] = settings.growlEvery;
+        this.untilGrowl = shortest + Math.random() * (longest - shortest);
+        this.onGrowl.notifyObservers();
+      }
+    }
     if (this.current > 0) {
       this.starveSeconds = 0;
       return;

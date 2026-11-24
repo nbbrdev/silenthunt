@@ -25,6 +25,7 @@ import { objectiveCabins, type CabinSite } from "../world/cabinSites";
 import type { CabinManager } from "../world/cabins";
 import type { CampfireManager } from "../world/campfires";
 import type { InteractionSystem } from "./interactions";
+import type { SoundEffects } from "./soundEffects";
 import {
   DIARY,
   INTRO_TEXT,
@@ -64,6 +65,8 @@ export interface ObjectiveParts {
   presence: CreaturePresence;
   notes: NotePanel;
   victory: VictoryScreen;
+  /** FX10, FX6-A, FX14: the radio, the helicopter and the skulls burning. */
+  sounds: SoundEffects;
   seed: number;
   /** True while the player is in the game (no menu open). */
   isPlaying: () => boolean;
@@ -94,6 +97,10 @@ export class ObjectiveSystem {
   private readonly sideList: StackPanel;
   /** Seconds left before the ritual's victory shows (0: none on the way). */
   private banishVictoryIn = 0;
+  /** FX6-A: seconds left of the helicopter's approach before the rescue's victory (0: none). */
+  private rescueVictoryIn = 0;
+  /** FX15: seconds left of the radio's static before the voice answers (0: none). */
+  private radioReplyIn = 0;
 
   constructor(parts: ObjectiveParts) {
     this.p = parts;
@@ -156,11 +163,22 @@ export class ObjectiveSystem {
         this.endLastNight();
         this.rescued = true;
         this.radioCalled = false;
-        this.showVictory(OBJECTIVE_WORDS.rescuedTitle);
+        // FX6-A: the helicopter is heard coming, then the victory.
+        this.p.sounds.play("helicopter");
+        this.rescueVictoryIn = CONFIG.objective.helicopterSeconds;
       }
     });
+    // FX15: the victory's music takes over from the helicopter.
+    parts.victory.onRevealed.add(() =>
+      parts.sounds.fadeOut("helicopter", CONFIG.objective.helicopterFadeSeconds),
+    );
 
     parts.scene.onBeforeRenderObservable.add(() => this.update(frameSeconds(parts.scene)));
+  }
+
+  /** FX6-A: the helicopter is coming (the rescue's victory is on its way: no dawn message). */
+  get rescueArriving(): boolean {
+    return this.rescueVictoryIn > 0;
   }
 
   /** OB12: where the way out stands, for the pause menu and the "Anotações" column. */
@@ -294,6 +312,21 @@ export class ObjectiveSystem {
         this.showVictory(OBJECTIVE_WORDS.banishedTitle);
       }
     }
+    if (this.rescueVictoryIn > 0) {
+      this.rescueVictoryIn -= seconds;
+      if (this.rescueVictoryIn <= 0) {
+        this.rescueVictoryIn = 0;
+        this.showVictory(OBJECTIVE_WORDS.rescuedTitle);
+      }
+    }
+    if (this.radioReplyIn > 0) {
+      this.radioReplyIn -= seconds;
+      if (this.radioReplyIn <= 0) {
+        this.radioReplyIn = 0;
+        this.p.sounds.play("radioVoice");
+        this.p.interactions.say(OBJECTIVE_WORDS.rescueComing);
+      }
+    }
 
     // OB4-A, OB12: the red comes in and goes away slowly.
     if (seconds > 0) {
@@ -310,7 +343,9 @@ export class ObjectiveSystem {
       return;
     }
     this.radioCalled = true;
-    this.p.interactions.say(OBJECTIVE_WORDS.rescueComing);
+    // FX15: static first; the voice answers (and the message shows) once it clears.
+    this.p.sounds.play("radioStatic");
+    this.radioReplyIn = CONFIG.objective.radioStaticSeconds;
     // At night the current night becomes the last one; by day, the next one will be.
     if (this.p.clock.phase === "night") {
       this.startLastNight();
@@ -498,7 +533,9 @@ export class ObjectiveSystem {
       return;
     }
     this.banished = true;
-    presence.growlNow();
+    // FX15: the skulls flare up and it screams (even if it just did: this one always comes).
+    this.p.sounds.play("fireBurst");
+    presence.screamNow(true);
     creature.banish();
     if (this.lastNight) {
       this.endLastNight();

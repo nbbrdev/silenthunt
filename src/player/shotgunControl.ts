@@ -69,6 +69,7 @@ export class ShotgunControl {
   private fireRequested = false;
   private shotSound: StaticSound | undefined;
   private reloadSound: StaticSound | undefined;
+  private dryFireSound: StaticSound | undefined;
 
   constructor(
     scene: Scene,
@@ -147,9 +148,10 @@ export class ShotgunControl {
         { volume, maxInstances: 2, outBus: audio.effects },
         audio.engine,
       );
-    [this.shotSound, this.reloadSound] = await Promise.all([
+    [this.shotSound, this.reloadSound, this.dryFireSound] = await Promise.all([
       load(settings.shot, settings.shotVolume),
       load(settings.reload, settings.reloadVolume),
+      load(settings.dryFire, settings.dryFireVolume),
     ]);
   }
 
@@ -207,8 +209,14 @@ export class ShotgunControl {
 
     const fire = this.fireRequested || input.wasPressed("Mouse0");
     this.fireRequested = false;
-    if (fire && canAct && this.reloadLeft <= 0 && this.cooldown <= 0 && this.loaded > 0) {
-      this.shoot();
+    if (fire && canAct && this.reloadLeft <= 0 && this.cooldown <= 0) {
+      if (this.loaded > 0) {
+        this.shoot();
+      } else {
+        // FX14: both barrels empty: only the click of the hammers.
+        this.dryFireSound?.play();
+        this.cooldown = settings.shotSeconds;
+      }
     }
 
     this.flashLeft = Math.max(0, this.flashLeft - seconds);

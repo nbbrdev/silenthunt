@@ -70,6 +70,8 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   readonly onPlayerHit = new Observable<number>();
   /** GF2-B: fired now and then while the torch holds it off (its growl). */
   readonly onHeldGrowl = new Observable<void>();
+  /** FX15: the torch or a fire sends it back (it screams). */
+  readonly onScared = new Observable<void>();
   /** Lit campfires (NBB-146 fills this): it never gets closer than `fireKeepAway` (RF-24). */
   readonly fires: Vector3[] = [];
   /** Fired on every state change (its sounds react to it, NBB-135). */
@@ -627,6 +629,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     if (this.backOffTime <= 0 && this.torchHoldsIt()) {
       this.stareTime = 0;
       this.backOffTime = settings.backOffSeconds;
+      this.onScared.notifyObservers();
     }
     const player = this.senses.player.position;
     const body = this.position();
@@ -677,6 +680,9 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       // OB11-B: the last night it does not give up (the fire still keeps it away).
       const givesUp = this.stateTime >= this.stateLimit && !this.lastNight;
       if (atFire || givesUp) {
+        if (atFire) {
+          this.onScared.notifyObservers();
+        }
         this.enter("retreat");
         return;
       }

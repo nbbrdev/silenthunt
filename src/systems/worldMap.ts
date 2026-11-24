@@ -1,4 +1,4 @@
-import { PointerEventTypes, type Scene } from "@babylonjs/core";
+import { Observable, PointerEventTypes, type Scene } from "@babylonjs/core";
 import {
   Image,
   Rectangle,
@@ -65,6 +65,8 @@ export class WorldMap {
   private zoom: number = CONFIG.map.startZoom;
   private open = false;
   private untilReveal = 0;
+  /** FX14: the map opened or closed (the paper is heard). */
+  readonly onToggled = new Observable<boolean>();
   /** The trees of each chunk drawn (refreshed each time the map opens: some may be felled). */
   private readonly trees = new Map<string, Point[]>();
 
@@ -201,12 +203,14 @@ export class WorldMap {
     this.trees.clear();
     this.reveal();
     this.draw();
+    this.onToggled.notifyObservers(true);
   }
 
   private close(): void {
     const { player, input } = this.p;
     this.open = false;
     this.sheet.isVisible = false;
+    this.onToggled.notifyObservers(false);
     player.controlsEnabled = true;
     input.pointerLockEnabled = true;
     // Inside the key event: the browser lets the game take the mouse back.

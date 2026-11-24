@@ -128,6 +128,10 @@ export class PlayerTorch {
       this.sounds?.play("torchCrackle");
     } else if (!lit) {
       this.sounds?.stop("torchCrackle");
+      if (this.lit) {
+        // FX14: put out (or burnt out), it is heard going out.
+        this.sounds?.play("torchOut");
+      }
     }
     this.lit = lit;
     // An unlit torch is put away: nothing in the hand.
