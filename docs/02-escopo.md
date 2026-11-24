@@ -79,6 +79,9 @@ Features novas pedidas pelo usuário em 2026-11-23 (FN0-A, FN1), promovidas ao e
 Pedido do usuário em 2026-11-24: deixar o jogo mais profissional (CI0-A). Cada melhoria tem issue e rodada próprias.
 
 37. **Menu cinematográfico:** cenas noturnas perto do início com a criatura em silhueta, câmera em movimento lento e cortes (CI1-A a CI8-A). [UX]
+38. **Estilo dos menus:** título, tipografia, destaque da opção, versão (AC1-A). [UX]
+39. **Músicas de fundo** (AC1-A). [UX]
+40. **Mais efeitos sonoros** no geral (AC1-A). [UX]
 
 ## Ordem de corte
 
