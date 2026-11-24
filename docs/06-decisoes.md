@@ -692,6 +692,17 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MF16 | Detalhes propostos por Claude e aprovados ("1 a 10 - Ok"): prévias MP3 de alta qualidade do Freesound em `public/sounds/music/` (`menu`, `day-1` a `day-4`, `dawn`, `dusk`, `victory`), com o volume igualado ao da perseguição e sem silêncio nas pontas; tema do menu em loop, entra em 2 s, sai em 1,5 s ao entrar no jogo, recomeça a cada volta ao menu, pausa em silêncio; faixas do dia nas regras da MU2; sino do entardecer também na última noite, não durante uma perseguição; sem som nem mensagem no amanhecer do resgate nem quando o jogo abre de manhã; mensagem no terço de cima, centralizada, no estilo dos menus (56 px espaçados com brilho, linha de baixo de 20 px a 60%), surge em 1 s, fica 3 s e some em 1,5 s; vitória entra em 2 s quando o texto aparece, toca uma vez, some em 1,5 s ao escolher, e a faixa do dia sai antes; tudo pelo grupo de música, amanhecer e entardecer a 0,6 e as faixas a 0,45; `CREDITS.md` com cada faixa, sem a linha do Epidemic Sound; `silentHunt.dawnMessage()` e `silentHunt.musicCue()`. |
 | MF17 | Revisão do usuário (2026-11-24): detalhes decididos por Claude aprovados ("1 a 11 - Ok"): faixas a −18 LUFS, pico de −1,5 dB, MP3 de 160 kbps; corte das pontas abaixo de −60 dB (sino 4,3 s, vitória 1:50, day-1 1:48); "Noite N" sob "A NOITE CHEGA"; pulo do relógio maior que 5 s conta como sono, morto não tem mensagem; dias e noites contados desde o começo do mundo; a faixa do dia para na hora ao abrir o menu principal; nenhuma faixa do dia com a vitória aberta; linha do Epidemic Sound nos créditos só com faixa privada da perseguição; mensagem a 18% do topo; ~19 MB de música no repositório; `musicCue()` e `dawnMessage()`. |
 
+## NBB-162: Mais efeitos sonoros (2026-11-24)
+
+| Código | Decisão |
+| -- | -- |
+| FX1 | Entram **todos os grupos**, nesta prioridade: criatura (chamado distante, grito ao fugir do fogo e no ritual, farejar), fogo (tocha própria, apagar tocha e fogueira), objetivo (rádio, papel do bilhete e do mapa, crânios queimando, helicóptero), jogador (dano, morte, fome), interface (menus, inventário, item fabricado), ferramentas (arremesso, flecha que erra, espingarda vazia, pegar coisas), coelho (fuga e guincho) e ambiente (árvores rangendo, rajadas, galho caindo longe). Muda a SM1-A, que deixava a interface sem som. |
+| FX2-A | Como a SM2-B: o usuário escolhe entre 2 ou 3 candidatos nos sons de clima e aviso (chamado e grito da criatura, tocha, rádio, helicóptero, interface, dano e morte); os pequenos Claude escolhe e o usuário revisa no jogo. Freesound, CC0 de preferência e CC-BY quando claramente melhor (SM3-A). |
+| FX3-A | Interface **sutil e orgânica** (madeira e papel): toque leve ao passar, batida grave e abafada ao confirmar, mais suave ao voltar. |
+| FX4-A | O **chamado distante** da criatura, uma ou duas vezes por noite, de 60 a 100 m, **vindo de onde ela está de verdade**: uma pista para o jogador atento. |
+| FX5-B | **Sem voz** no jogador: baque surdo e uma respiração presa ao levar dano; o coração para ao morrer. |
+| FX6-A | Um **helicóptero** se aproxima nos ~10 s antes da tela de vitória do resgate, junto com o escurecer. |
+
 ## Pendentes (proposto)
 
 Nenhuma.
