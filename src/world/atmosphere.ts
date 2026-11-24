@@ -39,6 +39,8 @@ export class Atmosphere {
   private readonly moon: DirectionalLight;
   /** NBB-156 (OB4-A, OB12): how red the last night is, 0 (as usual) to 1. */
   redness = 0;
+  /** NBB-159 (CI9): the menu's lighter, bluish fog, 0 (as usual) to 1. */
+  menuFog = 0;
 
   constructor(scene: Scene, clock: DayClock) {
     this.scene = scene;
@@ -66,7 +68,8 @@ export class Atmosphere {
     const dusk = Color3.Lerp(fog, toColor(settings.duskFog), warmth * 0.6);
     // OB4-A: the last night's fog pulls toward a dark red.
     const lastNight = CONFIG.objective.lastNight;
-    const tinted = Color3.Lerp(dusk, toColor(lastNight.fog), this.redness);
+    const red = Color3.Lerp(dusk, toColor(lastNight.fog), this.redness);
+    const tinted = Color3.Lerp(red, toColor(CONFIG.cinematic.fogColor), this.menuFog);
     this.scene.fogColor = tinted;
     this.scene.clearColor = Color4.FromColor3(tinted);
 

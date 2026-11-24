@@ -119,7 +119,9 @@ export class CreaturePresence {
   /** OL1-B: full brightness up to the fog distance, gone 30% beyond it. */
   private fadeEyes(): void {
     const eyes = this.root.position.add(new Vector3(0, EYE_HEIGHT * CONFIG.creature.scale, 0));
-    const distance = Vector3.Distance(eyes, this.camera.globalPosition);
+    // NBB-159: the camera in use (the main menu's film has its own).
+    const camera = this.root.getScene().activeCamera ?? this.camera;
+    const distance = Vector3.Distance(eyes, camera.globalPosition);
     const fog = fogVisibility(this.clock.daylight);
     const beyond = fog * CONFIG.creature.eyes.fadeBeyondFog;
     const brightness = Math.min(1, Math.max(0, 1 - (distance - fog) / beyond));
@@ -152,15 +154,24 @@ export class CreaturePresence {
     this.onStep.notifyObservers();
   }
 
+  /**
+   * NBB-159 (CI6-A, CI9): the main menu's film makes it breathe (or not) in its shots; `seconds`
+   * is real time, since the world is paused behind the menu.
+   */
+  filmBreath(on: boolean, seconds: number): void {
+    this.breathe(seconds, on);
+  }
+
   /** SO3: slow breathing while it stalks close by, fading in and out. */
-  private breathe(seconds: number): void {
+  private breathe(seconds: number, forced?: boolean): void {
     const breath = this.breath;
     if (!breath) {
       return;
     }
     const settings = CONFIG.creature.sounds;
     const close =
-      this.brain.state === "stalk" && this.brain.playerDistance < settings.breathDistance;
+      forced ??
+      (this.brain.state === "stalk" && this.brain.playerDistance < settings.breathDistance);
     const target = close ? settings.breathVolume : 0;
     const change = (settings.breathVolume / settings.breathFade) * seconds;
     this.breathLevel += Math.max(-change, Math.min(change, target - this.breathLevel));

@@ -1,5 +1,27 @@
 import type { ItemId, Recipe } from "./player/items";
 
+/** NBB-159 (CI9): one shot of the main menu's film. Points are [x, height above ground, z]. */
+export interface CinematicShot {
+  name: string;
+  camera?: { from: number[]; to: number[] };
+  target?: { from: number[]; to: number[] };
+  /** Circles `center` at `radius` and `height`, from one angle to another (radians). */
+  orbit?: { center: number[]; radius: number; height: number; from: number; to: number };
+  creature?: {
+    at: number[];
+    to?: number[];
+    heading: number;
+    animation: "Andar" | "Espreitar";
+    goneAt?: number;
+  };
+  /** The camera looks at the creature (the walking shot). */
+  follow?: boolean;
+  breath?: boolean;
+  growlAt?: number;
+  /** A dying fire, only to be seen, at [x, z]. */
+  fire?: number[];
+}
+
 /**
  * Every tunable value of the game lives here (ADR-08, G16).
  * Values marked "provisional" will be replaced by later issues.
@@ -327,6 +349,65 @@ export const CONFIG = {
       fireLit: "#d9762b",
       fireOut: "#7d766b",
     },
+  },
+  /**
+   * NBB-159 (CI1-A to CI9): the main menu's film. Shots near the start (the seed is always the
+   * same), each `shotSeconds` long, with a fade through black of `fadeSeconds`; heights are above
+   * the ground. The fog is lighter and bluish (`fogColor`, `fogBlend`) so her silhouette shows.
+   */
+  cinematic: {
+    shotSeconds: 8,
+    fadeSeconds: 0.3,
+    /** Going into the game: to black and back in this long. */
+    exitSeconds: 0.3,
+    fogColor: { r: 0.1, g: 0.12, b: 0.17 },
+    fogBlend: 1,
+    /** CI4-A: the handheld sway (radians and meters). */
+    swayAngle: 0.004,
+    swayMeters: 0.012,
+    /** CI7-A: the black bars' height (share of the screen) and the dark edges. */
+    barShare: 0.09,
+    edgeAlpha: 0.6,
+    breathVolume: 0.6,
+    /**
+     * CI9: the shots. Camera and target move from `from` to `to` ([x, height, z]); `creature`
+     * places her ([x, z], facing `heading` radians) with an animation, optionally walking to `to`
+     * or gone at `goneAt` seconds; `growlAt` growls; `fire` lights a dying fire at [x, z].
+     */
+    shots: [
+      {
+        name: "Clareira",
+        camera: { from: [-14, 0.9, -12], to: [-9, 1, -9] },
+        target: { from: [0, 1, -6], to: [0, 1.1, -6] },
+      },
+      {
+        name: "Olhos",
+        camera: { from: [2, 1.5, -2], to: [2, 1.5, 0] },
+        target: { from: [3, 2.9, 7], to: [3, 2.9, 7] },
+        creature: { at: [3, 7], heading: Math.PI + 0.14, animation: "Espreitar", goneAt: 5 },
+        breath: true,
+      },
+      {
+        name: "Cabana",
+        orbit: { center: [56.46, -26.3], radius: 10, height: 2, from: 2.5, to: 2.15 },
+        fire: [53.56, -24.95],
+      },
+      {
+        name: "Silhueta",
+        camera: { from: [-15, 1.4, 5], to: [-12, 1.4, 5] },
+        target: { from: [-13.5, 2.2, 14], to: [-12, 2.2, 14] },
+        creature: { at: [-12, 14], heading: Math.PI / 2, animation: "Espreitar" },
+        breath: true,
+        growlAt: 7,
+      },
+      {
+        name: "Passagem",
+        camera: { from: [10, 1.6, -34], to: [10, 1.6, -34] },
+        creature: { at: [0, -24], to: [20, -24], heading: Math.PI / 2, animation: "Andar" },
+        follow: true,
+        breath: true,
+      },
+    ] as CinematicShot[],
   },
   /** RF-13 (G11, TO5): how far away the player can be seen. */
   visibility: {

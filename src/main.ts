@@ -26,6 +26,7 @@ import { WorldMap } from "./systems/worldMap";
 import { Compass } from "./ui/compass";
 import { NotePanel } from "./ui/notePanel";
 import { VictoryScreen } from "./ui/victoryScreen";
+import { MenuCinema } from "./ui/menuCinema";
 import { StoneThrowSystem } from "./systems/stones";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
@@ -93,8 +94,11 @@ async function start(): Promise<void> {
     // MN4: the player's options (kept in the browser, apart from the world).
     const options = loadOptions();
     player.sensitivityScale = options.sensitivity;
-    setupPostProcessing(scene, player.camera);
-    scene.onBeforeRenderObservable.add(() => world.chunks.update(player.position));
+    const pipeline = setupPostProcessing(scene, player.camera);
+    // NBB-159: while the main menu's film runs, the world loads around its camera.
+    scene.onBeforeRenderObservable.add(() =>
+      world.chunks.update(film.isActive ? film.focus : player.position),
+    );
     const noise = new NoiseSystem();
     const footsteps = new Footsteps(scene, player, world.terrain, world.chunks, noise);
     // NBB-139: the arms on screen; the knife in the right hand, the torch in the left (MA1).
@@ -559,6 +563,22 @@ async function start(): Promise<void> {
     );
     const hasSave = await saveGame.load();
 
+    // NBB-159 (CI1-A to CI9): the main menu's film, under the menus.
+    const film: MenuCinema = new MenuCinema({
+      scene,
+      playerCamera: player.camera,
+      pipeline,
+      clock: world.clock,
+      atmosphere: world.atmosphere,
+      terrain: world.terrain,
+      creature: { root: creatureModel.root, animations: creatureModel.animations },
+      presence,
+      hearFrom: (camera) => {
+        void audio.then((sound) => sound.engine.listener.attach(camera)).catch(() => undefined);
+      },
+      isMainMenu: (): boolean => menus.isMainMenu,
+    });
+
     // NBB-150: the menus (MN2-A to MN7). The game opens on the main menu, with the world frozen.
     void audio.then((audio) => applyVolumes(options, audio)).catch(() => undefined);
     const menus = new GameMenus(scene, {
@@ -768,6 +788,9 @@ async function start(): Promise<void> {
           /** NBB-156: the way out (notes, rescue, ritual, deaths, cabins) and the rescue call. */
           objective: () => objective.debugState(),
           callRescue: () => objective.debugCallRescue(),
+          /** NBB-159: the film's state, and a jump to a shot (0 to 4) at a moment. */
+          film: () => film.debugState(),
+          filmShot: (index: number, seconds = 2) => film.debugShot(index, seconds),
           /** NBB-157: the map's state, and a mark at (x, z) (optionally the destination). */
           map: () => worldMap.debugState(),
           mapMark: (x: number, z: number, destination = false) =>

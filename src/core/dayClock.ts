@@ -46,8 +46,17 @@ export class DayClock {
     return this.currentPhase;
   }
 
+  /**
+   * NBB-159 (CI5-A): while the main menu's film runs, light, fog and sounds show the night,
+   * whatever the saved time (the time itself is not touched).
+   */
+  presentNight = false;
+
   /** 1 in full daylight, 0 at night, easing in between during dawn and dusk. */
   get daylight(): number {
+    if (this.presentNight) {
+      return 0;
+    }
     const { daySeconds, dawnSeconds, duskSeconds } = CONFIG.dayNight;
     const t = this.seconds;
     if (t < dawnSeconds) {
@@ -64,6 +73,9 @@ export class DayClock {
 
   /** 0..1, highest in the middle of dawn and dusk: drives the orange tint. */
   get warmth(): number {
+    if (this.presentNight) {
+      return 0;
+    }
     const { daySeconds, dawnSeconds, duskSeconds } = CONFIG.dayNight;
     const t = this.seconds;
     if (t < dawnSeconds) {

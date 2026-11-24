@@ -96,6 +96,14 @@ export class GameMenus {
     return this.screen === undefined;
   }
 
+  /**
+   * NBB-159 (CI8-A): true on the main menu and the screens reached from it (options, credits,
+   * the new world's confirmation and start): the film plays behind them, not behind the pause.
+   */
+  get isMainMenu(): boolean {
+    return this.screen !== undefined && this.screen !== "pause" && this.back === "main";
+  }
+
   /** Development: which menu is open, if any. */
   get current(): string {
     return this.screen ?? "jogo";
@@ -119,9 +127,19 @@ export class GameMenus {
       player.controlsEnabled = false;
       input.pointerLockEnabled = false;
       hud.rootContainer.isVisible = false;
-      void this.world.audio.then((audio) => audio.engine.pauseAsync()).catch(() => undefined);
     }
     this.screen = screen;
+    if (screen === "main") {
+      this.back = "main";
+    } else if (screen === "pause") {
+      this.back = "pause";
+    }
+    // CI10-B: the film needs no dark layer over it (its dark edges do that job); the pause does.
+    this.shade.background = this.isMainMenu ? "transparent" : CONFIG.menu.shade;
+    // MN3-A: the sound stops behind the pause; CI6-A: the main menu has the night's sound.
+    void this.world.audio
+      .then((audio) => (this.isMainMenu ? audio.engine.resumeAsync() : audio.engine.pauseAsync()))
+      .catch(() => undefined);
     this.ui.rootContainer.isVisible = true;
     this.column.clearControls();
     switch (screen) {
