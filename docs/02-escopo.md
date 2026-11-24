@@ -17,6 +17,7 @@ Versões aprovadas no G8. Como o jogo não é publicado (T7), a tag só marca o 
 | M4 · Sobreviver | 17–19/11 | Coleta, crafting, construção em grade, cama, save, mochila | `v0.5.0` |
 | M5 · Polimento | 19–20/11 | Som, música, menus, equilíbrio, bugs, instruções | `v1.0.0` |
 | M6 · Pós-entrega | sem prazo (PZ1) | Features novas do usuário depois da entrega (FN0-A, 2026-11-23) | `v1.1.0` |
+| M7 · Acabamento | sem prazo (PZ1) | Deixar o jogo mais profissional, uma melhoria por vez (CI0-A, 2026-11-24) | `v1.2.0` |
 
 ## Issues por marco
 
@@ -73,6 +74,11 @@ Features novas pedidas pelo usuário em 2026-11-23 (FN0-A, FN1), promovidas ao e
 34. **Objetivo do jogo.** [Frontend]
 35. **Mapa com marcações e waypoints.** [UX]
 36. **Arremessar pedra** para fazer barulho longe e atrair ou despistar a criatura (PD0-A, 2026-11-23). [Frontend]
+
+### M7 · Acabamento
+Pedido do usuário em 2026-11-24: deixar o jogo mais profissional (CI0-A). Cada melhoria tem issue e rodada próprias.
+
+37. **Menu cinematográfico:** cenas noturnas perto do início com a criatura em silhueta, câmera em movimento lento e cortes (CI1-A a CI8-A). [UX]
 
 ## Ordem de corte
 

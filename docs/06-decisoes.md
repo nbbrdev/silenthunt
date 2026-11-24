@@ -634,6 +634,20 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | MP8 | Detalhes propostos por Claude e aprovados ("1 a 19 Ok"): M abre e fecha, Esc fecha; não abre em menus, morte, vitória, bilhete ou inventário; mouse livre e jogador parado; quadrados de 8 m explorados a menos de 40 m, conferidos 1 vez por segundo; explorado em papel claro, o resto em papel escuro; árvores das áreas exploradas como pontinhos (as derrubadas somem); folha de 760 × 560 px, norte para cima; zoom de 3 níveis (1 px = 0,5, 1 ou 2 m), abre no do meio; jogador como seta; cabana como casinha, visitada a 15 m, a próxima aparece com o bilhete que aponta para ela; fogueira laranja (acesa) ou cinza (apagada); cama como retângulo; clique esquerdo põe uma marcação ("X" com número, até 12) ou a tira; botão direito a torna destino (ou desfaz), com um círculo em volta; destino na bússola como losango com a distância, ou setinha na ponta fora dos 90°; a 5 m deixa de ser destino; título "Mapa" e ajuda "Clique: marcar ou tirar · Botão direito: destino · Roda: zoom · M: fechar"; o save guarda explorados, marcações, destino e cabanas visitadas; tecla M nos controles (docs/03 e README), RF-69 novo, valores no `config.ts`. |
 | MP9 | Revisão do usuário (2026-11-24): detalhes decididos por Claude aprovados ("1 a 12 - Ok"): mapa desenhado ao abrir, no zoom e a cada clique; folha de 800 × 670 px; cores de papel, tinta e vermelho-escuro; tamanhos dos desenhos; números das marcações pela ordem da lista; zoom volta ao meio a cada abertura; cabanas visitadas incluem as raras; todas as camas aparecem; ao abrir, o lugar atual já conta como explorado; clique a menos de 12 px pega a marcação; destino na bússola como losango vermelho com a distância, ou "‹" e "›"; `silentHunt.map()` e `mapMark()`. |
 
+## M7: Acabamento e menu cinematográfico (2026-11-24)
+
+| Código | Decisão |
+|---|---|
+| CI0-A | Um marco novo, **M7 · Acabamento** (meta `v1.2.0`), para deixar o jogo mais profissional; o menu cinematográfico é a primeira issue (37, NBB-159), e cada melhoria seguinte tem issue e rodada próprias. |
+| CI1-A | As cenas acontecem **no próprio mundo do jogo**, com uma câmera de menu em pontos fixos perto do início (a semente é sempre a mesma), visual de noite e a criatura "emprestada"; ao clicar em "Continuar" ou "Novo mundo", tudo volta, e o save não é tocado. |
+| CI2-A | Umas **4 ou 5 cenas**, a criatura em 2 ou 3, sempre em **silhueta ou só os olhos** na neblina; as outras: a floresta vazia, a cabana, uma fogueira morrendo. |
+| CI3-A | Entre as cenas, **corte com um escurecer rápido** (~0,6 s). |
+| CI4-A | Em cada cena, um **movimento lento** de câmera (avançar, girar ou subir alguns metros em ~8 s), com um leve balanço de câmera na mão. |
+| CI5-A | Sempre a **noite** do jogo, com neblina e lua, e os olhos dela brilhando. |
+| CI6-A | No menu principal, o **ambiente da noite** (vento, grilos) e a respiração ou um rosnado baixo nas cenas com ela (exceção à MN3-A só no menu principal). |
+| CI7-A | **Faixas pretas** em cima e embaixo, como no cinema, e bordas escurecidas, com o menu por cima. |
+| CI8-A | Só o **menu principal** muda; a pausa continua mostrando o jogo congelado. |
+
 ## Pendentes (proposto)
 
 Nenhuma.
