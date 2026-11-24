@@ -1052,17 +1052,48 @@ export const CONFIG = {
   /** NBB-150 (MN6): the menus, on the left over the forest. */
   menu: {
     textColor: "rgba(236, 230, 218, 0.85)",
-    /** The fire's orange, when the mouse is over a button. */
+    /** EM3-A: the only accent, the fire's orange, on the chosen option. */
     hoverColor: "#ff9a3c",
+    /** EM2-A: the options not chosen. */
+    dimColor: "rgba(236, 230, 218, 0.5)",
     shade: "rgba(0, 0, 0, 0.45)",
-    titleSize: 76,
+    titleSize: 84,
     headingSize: 44,
-    buttonSize: 30,
+    /** The new world's question. */
+    questionSize: 30,
+    optionSize: 26,
     textSize: 20,
     /** Distance from the left edge (pixels). */
     left: 96,
     /** MN4: the mouse sensitivity can go from 0.25× to 2×. */
     sensitivityRange: [0.25, 2] as const,
+    /** EM1-A: the titles' cold glow. */
+    titleGlow: { color: "rgba(150, 180, 220, 0.55)", blur: 28 },
+    /** EM1-A: the main title fails like a lamp now and then (seconds between, its dimmest). */
+    flicker: { everySeconds: [6, 12] as const, low: 0.65, blinkSeconds: 0.1, gapSeconds: 0.08 },
+    /** EM10: a shadow under every other text, to read over the film. */
+    shadow: { color: "black", blur: 8, offsetY: 2 },
+    /** EM2-A: the chosen option's dash (pixels) and the room left for it. */
+    dash: { width: 20, height: 2 },
+    optionIndent: 30,
+    /** The chosen option's text slides right this far, this fast. */
+    slidePixels: 10,
+    slideSeconds: 0.12,
+    /** EM7-A: each screen comes out of black; each line starts a little after the one above. */
+    revealSeconds: 0.4,
+    revealStagger: 0.06,
+    /** EM6-A: one press of ←/→ moves a slider this much (volumes and sensitivity). */
+    sliderStep: 0.05,
+    sliderLabelSize: 18,
+    sliderTrack: "rgba(236, 230, 218, 0.25)",
+    /** EM5-A: changed at each milestone. */
+    version: "v1.2.0",
+    versionSize: 14,
+    versionColor: "rgba(236, 230, 218, 0.35)",
+    versionMargin: 24,
+    /** EM8-A: the victory screens. */
+    victoryTitleSize: 56,
+    victoryLineColor: "rgba(236, 230, 218, 0.6)",
   },
   hud: {
     /** MN1-C: the game's font (public/fonts, OFL), for the HUD, the menus and the credits. */

@@ -1,6 +1,5 @@
 import type { Scene } from "@babylonjs/core";
 import {
-  Button,
   Control,
   Rectangle,
   StackPanel,
@@ -9,12 +8,15 @@ import {
 } from "@babylonjs/gui";
 import { CONFIG } from "../config";
 import { frameSeconds } from "../core/gameTime";
+import type { Input } from "../core/input";
 import { OBJECTIVE_WORDS } from "../systems/objectiveTexts";
+import { MenuChoices, MenuReveal, glowingTitle, spaced, withShadow } from "./menuStyle";
 
 /**
  * The victory screen (NBB-156; OB5-A, OB12): the screen darkens, then the title of the ending
- * (rescue or ritual), the days survived and the deaths, and two buttons: go on playing in the same
- * world, or go to the main menu (the world stays saved).
+ * (rescue or ritual), the days survived and the deaths, and two choices: go on playing in the same
+ * world, or go to the main menu (the world stays saved). NBB-160 (EM8-A): in the menus' style,
+ * centered, with the keyboard.
  */
 export class VictoryScreen {
   private readonly cover: Rectangle;
@@ -22,12 +24,15 @@ export class VictoryScreen {
   private readonly title: TextBlock;
   private readonly days: TextBlock;
   private readonly deaths: TextBlock;
+  private readonly choices: MenuChoices;
+  private readonly reveal = new MenuReveal();
   private fading = false;
   private open = false;
 
   constructor(
     ui: AdvancedDynamicTexture,
     scene: Scene,
+    input: Input,
     actions: { continuePlaying: () => void; mainMenu: () => void },
   ) {
     this.cover = new Rectangle("victoryScreen");
@@ -43,34 +48,40 @@ export class VictoryScreen {
     this.content.isVisible = false;
     this.cover.addControl(this.content);
 
-    this.title = new TextBlock("victoryTitle", "");
-    this.title.color = "#c9c2b8";
-    this.title.fontSize = 48;
-    this.title.height = "70px";
+    // EM10: the main title's style, smaller and steady.
+    this.title = glowingTitle("", CONFIG.menu.victoryTitleSize);
+    this.title.paddingBottom = "12px";
     this.content.addControl(this.title);
     this.days = this.line("victoryDays");
     this.deaths = this.line("victoryDeaths");
-
-    const button = (name: string, label: string, act: () => void) => {
-      const control = Button.CreateSimpleButton(name, label);
-      control.width = "220px";
-      control.height = "48px";
-      control.paddingTop = "8px";
-      control.color = "#c9c2b8";
-      control.background = "#2a2725";
-      control.cornerRadius = 4;
-      control.thickness = 0;
-      control.onPointerClickObservable.add(() => {
-        this.hide();
-        act();
-      });
-      this.content.addControl(control);
-    };
     this.content.addControl(this.spacer());
-    button("victoryContinue", OBJECTIVE_WORDS.continuePlaying, actions.continuePlaying);
-    button("victoryMenu", OBJECTIVE_WORDS.mainMenu, actions.mainMenu);
+
+    this.choices = new MenuChoices(ui, true);
+    const choice = (label: string, act: () => void) => {
+      this.content.addControl(
+        this.choices.option(label, () => {
+          this.hide();
+          act();
+        }),
+      );
+    };
+    choice(OBJECTIVE_WORDS.continuePlaying, actions.continuePlaying);
+    choice(OBJECTIVE_WORDS.mainMenu, actions.mainMenu);
+
+    // EM6-A: ↑/↓ choose and Enter confirms (inside the key: the mouse can be captured there).
+    input.onKeyDownNow.add((code) => {
+      if (this.open && this.content.isVisible && this.choices.handleKey(code)) {
+        input.forgetPress(code);
+      }
+    });
 
     scene.onBeforeRenderObservable.add(() => {
+      if (!this.open) {
+        return;
+      }
+      const real = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      this.choices.update(real);
+      this.reveal.update(real);
       if (!this.fading) {
         return;
       }
@@ -82,6 +93,9 @@ export class VictoryScreen {
       if (this.cover.alpha >= 1) {
         this.fading = false;
         this.content.isVisible = true;
+        // EM7-A: the lines come out of black, one after the other.
+        this.choices.chooseFirst();
+        this.reveal.start(this.content);
       }
     });
   }
@@ -92,7 +106,7 @@ export class VictoryScreen {
 
   /** Darkens the screen, then shows the ending. */
   show(title: string, days: number, deaths: number): void {
-    this.title.text = title;
+    this.title.text = spaced(title);
     this.days.text = `Sobreviveu ${days} ${days === 1 ? "dia" : "dias"}`;
     this.deaths.text = `Morreu ${deaths} ${deaths === 1 ? "vez" : "vezes"}`;
     this.cover.alpha = 0;
@@ -110,9 +124,9 @@ export class VictoryScreen {
   }
 
   private line(name: string): TextBlock {
-    const text = new TextBlock(name, "");
-    text.color = "#8f8a83";
-    text.fontSize = 20;
+    const text = withShadow(new TextBlock(name, ""));
+    text.color = CONFIG.menu.victoryLineColor;
+    text.fontSize = CONFIG.menu.textSize;
     text.height = "32px";
     this.content.addControl(text);
     return text;

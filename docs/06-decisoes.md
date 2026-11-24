@@ -653,6 +653,21 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | CI11-A | A cena dos Olhos mostra **a silhueta inteira de frente**, a ~7,5 m, com os olhos acesos (mais perto, os olhos aparecem; longe, viravam 2 pixels). Muda o "só os olhos" da CI9. |
 | CI12 | Revisão do usuário (2026-11-24): detalhes decididos por Claude aprovados ("1 a 10 - Ok"): o filme segue atrás das telas abertas a partir do menu principal; a criatura aparece mesmo se banida no save; as outras animações pausam durante o filme; andar a 1,6 e espreitar a 0,35; fogo morrendo com 35% das partículas, mais lentas, e luz laranja 0,8 de alcance 7 m; câmera suavizada e tremor em ondas lentas; olhos a ~7,5 m e a passagem a ~10 m; neblina azul-escura (0,10; 0,12; 0,17); filme em tempo real; `silentHunt.film()` e `filmShot()`. |
 
+## NBB-160: Estilo dos menus (2026-11-24)
+
+| Código | Decisão |
+| -- | -- |
+| EM1-A | Título em **Crimson Pro maiúsculo, bem espaçado** (espaços finos entre as letras: o Babylon GUI não tem espaçamento de letras), com **brilho frio** em volta e um leve tremor de luz de vez em quando; sem fonte nova nem imagem. |
+| EM2-A | Opções em **maiúsculas espaçadas**; as outras **apagadas** (~50%) e a escolhida **acesa** na cor de destaque, com um **traço fino à esquerda**. |
+| EM3-A | Uma só cor de destaque: o **laranja do fogo** (#ff9a3c). |
+| EM4-A | A coluna continua **à esquerda**, com o meio da tela livre para o filme. |
+| EM5-A | **Versão discreta** no canto de baixo à direita, guardada no `config.ts` e trocada a cada marco. |
+| EM6-A | **Teclado** nos menus: setas (ou W/S) escolhem, Enter confirma, Esc volta uma tela; mouse e teclado mexem na mesma opção escolhida. |
+| EM7-A | Ao abrir uma tela, o título e as opções **surgem do preto** em ~0,4 s, uma opção logo depois da outra. |
+| EM8-A | O estilo vale em **todas as telas de menu**: principal, pausa, opções (barras mais finas no mesmo estilo), créditos, confirmação, "Clique para começar" e as telas de vitória. |
+| EM9-A | Sons ao passar e clicar ficam para a **NBB-162** (efeitos sonoros). |
+| EM10 | Detalhes propostos por Claude e aprovados ("1 a 19 - Ok"): título "SILENT HUNT" de 84 px, creme, espaço fino entre as letras e largo entre as palavras, brilho azulado (rgba 150, 180, 220 a 55%, desfoque 28 px) e, só no menu principal, uma ou duas piscadas a ~65% por 0,1 s a cada 6 a 12 s; títulos das outras telas no mesmo estilo em 44 px, sem piscar; sombra preta (desfoque 8 px, 2 px para baixo) em todo texto; maiúsculas aplicadas no código, com a pergunta da confirmação, o progresso da pausa e o texto dos créditos em minúsculas normais; opções de 26 px, apagadas a 50%, a escolhida laranja com traço de 20 × 2 px e o texto deslizando 10 px em 0,12 s; a primeira opção já escolhida ao abrir e o mouse muda a escolhida; ↑/↓ ou W/S escolhem, Enter ou Espaço confirmam, Esc volta uma tela em opções, créditos e confirmação (na pausa não volta ao jogo: o navegador não deixa o Esc prender o mouse); ←/→ ou A/D mudam as barras em 5% (sensibilidade em 0,05); nos créditos ↑/↓ rolam o texto; entrada do preto em 0,4 s com 0,06 s entre as opções, em todas as telas; barras com nome de 18 px em maiúsculas (laranja na escolhida), trilho de 2 px a 25%, parte cheia laranja e marcador quadrado de 12 px; seções dos créditos em maiúsculas espaçadas; versão "v1.2.0" de 14 px a 35%, a 24 px do canto de baixo à direita, só no menu principal e nas telas abertas a partir dele; vitória centralizada, título no estilo principal de 56 px sem piscar, dias e mortes a 60% e opções de texto com teclado no lugar dos botões; uma captura rápida para conferir. |
+
 ## Pendentes (proposto)
 
 Nenhuma.

@@ -24,6 +24,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 | Modo de construção | B |
 | Girar peça na construção | R |
 | Pausa | Esc |
+| Nos menus: escolher, confirmar, voltar (EM6-A) | ↑ ↓ ou W S; Enter ou Espaço; Esc (← → ou A D nas barras) |
 
 ## Mundo
 

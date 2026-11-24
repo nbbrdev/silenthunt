@@ -436,7 +436,7 @@ async function start(): Promise<void> {
     // last night, and the victory screen.
     const notePanel = new NotePanel(hud, gameInput, player);
     const compass = new Compass(hud, scene, player);
-    const victoryScreen = new VictoryScreen(hud, scene, {
+    const victoryScreen = new VictoryScreen(hud, scene, gameInput, {
       continuePlaying: () => {
         player.controlsEnabled = true;
         gameInput.pointerLockEnabled = true;

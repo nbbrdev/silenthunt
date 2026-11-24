@@ -36,13 +36,14 @@ export class Input {
         // Space would otherwise scroll the page, and Tab move the focus away from the game.
         event.preventDefault();
       }
-      if (!event.repeat) {
-        this.onKeyDownNow.notifyObservers(event.code);
-      }
       if (!this.down.has(event.code)) {
         this.pressedThisFrame.add(event.code);
       }
       this.down.add(event.code);
+      // After the press is recorded, so an observer can take it back (`forgetPress`).
+      if (!event.repeat) {
+        this.onKeyDownNow.notifyObservers(event.code);
+      }
     });
     window.addEventListener("keyup", (event) => {
       this.down.delete(event.code);
@@ -128,6 +129,11 @@ export class Input {
   /** True only on the frame the key went down. */
   wasPressed(code: string): boolean {
     return this.pressedThisFrame.has(code);
+  }
+
+  /** Takes back this frame's press (a menu used it: Space confirming must not also jump). */
+  forgetPress(code: string): void {
+    this.pressedThisFrame.delete(code);
   }
 
   /** Mouse movement since the last call, in pixels. */

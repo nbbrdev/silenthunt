@@ -1,7 +1,6 @@
 import type { Scene } from "@babylonjs/core";
 import {
   AdvancedDynamicTexture,
-  Button,
   Control,
   Rectangle,
   ScrollViewer,
@@ -16,6 +15,14 @@ import type { Input } from "../core/input";
 import { applyVolumes, saveOptions, type GameOptions } from "../core/options";
 import type { Player } from "../player/player";
 import { creditLines } from "./credits";
+import {
+  MenuChoices,
+  MenuReveal,
+  TitleFlicker,
+  glowingTitle,
+  spaced,
+  withShadow,
+} from "./menuStyle";
 
 /** What the menus touch in the rest of the game. */
 export interface MenuWorld {
@@ -48,7 +55,9 @@ const START_NEW_KEY = "silenthunt.startNew";
  * The menus (NBB-150; MN2-A to MN7): the main menu over the forest when the game opens, the pause
  * menu when Esc lets the mouse go, the options (mouse sensitivity and volumes), the credits (read
  * from CREDITS.md) and the confirmation before a new world. While any of them is open the world is
- * frozen (MN3-A), the HUD hidden and the mouse free.
+ * frozen (MN3-A), the HUD hidden and the mouse free. NBB-160 (EM1-A to EM10): spaced capitals with
+ * a cold glow, dim options with the chosen one lit in the fire's orange, the keyboard, each screen
+ * coming out of black and the version in a corner.
  */
 export class GameMenus {
   private readonly scene: Scene;
@@ -56,16 +65,23 @@ export class GameMenus {
   private readonly ui: AdvancedDynamicTexture;
   private readonly shade: Rectangle;
   private readonly column: StackPanel;
+  private readonly version: TextBlock;
+  private readonly choices: MenuChoices;
+  private readonly reveal = new MenuReveal();
+  private readonly flicker = new TitleFlicker();
   private screen: Screen | undefined;
   /** Where "Voltar" in the options and credits goes back to. */
   private back: "main" | "pause" = "main";
   private hasSave: boolean;
+  /** The credits' scroll (↑/↓ move it there). */
+  private credits: ScrollViewer | undefined;
 
   constructor(scene: Scene, world: MenuWorld) {
     this.scene = scene;
     this.world = world;
     this.hasSave = world.hasSave;
     this.ui = AdvancedDynamicTexture.CreateFullscreenUI("menus", true, scene);
+    this.choices = new MenuChoices(this.ui);
     this.shade = new Rectangle("menuShade");
     // MN1-C: everything in the menus inherits the game's font from here.
     this.shade.fontFamily = CONFIG.hud.fontFamily;
@@ -79,10 +95,33 @@ export class GameMenus {
     this.column.verticalAlignment = Control.VERTICAL_ALIGNMENT_CENTER;
     this.shade.addControl(this.column);
 
+    // EM5-A: the version, small in the bottom right corner.
+    const { version, versionSize, versionColor, versionMargin } = CONFIG.menu;
+    this.version = withShadow(new TextBlock("menuVersion", version));
+    this.version.fontSize = versionSize;
+    this.version.color = versionColor;
+    this.version.resizeToFit = true;
+    this.version.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_RIGHT;
+    this.version.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+    this.version.left = `${-versionMargin}px`;
+    this.version.top = `${-versionMargin}px`;
+    this.shade.addControl(this.version);
+
     world.input.onPointerReleased.add(() => {
       if (this.screen === undefined && world.canPause()) {
         this.open("pause");
       }
+    });
+    world.input.onKeyDownNow.add((code) => this.onKey(code));
+    scene.onBeforeRenderObservable.add(() => {
+      if (this.screen === undefined) {
+        return;
+      }
+      // Real time: the world is paused behind the menus.
+      const seconds = Math.min(scene.getEngine().getDeltaTime() / 1000, 0.1);
+      this.choices.update(seconds);
+      const dim = this.screen === "main" ? this.flicker.update(seconds) : 1;
+      this.reveal.update(seconds, dim);
     });
 
     // MN2-A: the main menu when the game opens; straight into the game after "Novo mundo".
@@ -119,6 +158,35 @@ export class GameMenus {
     sessionStorage.setItem(START_NEW_KEY, "1");
   }
 
+  /** EM6-A: the keys, inside the browser's key event (Enter may capture the mouse there). */
+  private onKey(code: string): void {
+    const screen = this.screen;
+    if (screen === undefined) {
+      return;
+    }
+    // A key used here does nothing in the game (Space confirming "Voltar ao jogo" is no jump).
+    this.world.input.forgetPress(code);
+    if (code === "Escape") {
+      // EM10: back one screen; the pause stays (the browser will not let Esc capture the mouse).
+      if (screen === "options") {
+        saveOptions(this.world.options);
+        this.open(this.back);
+      } else if (screen === "credits") {
+        this.open(this.back);
+      } else if (screen === "confirm") {
+        this.open("main");
+      }
+      return;
+    }
+    const scroll = this.credits?.verticalBar;
+    if (screen === "credits" && scroll && (code === "ArrowUp" || code === "ArrowDown")) {
+      const direction = code === "ArrowUp" ? -1 : 1;
+      scroll.value = Math.min(1, Math.max(0, scroll.value + direction * 0.1));
+      return;
+    }
+    this.choices.handleKey(code);
+  }
+
   private open(screen: Screen): void {
     const { input, player, hud } = this.world;
     if (this.screen === undefined) {
@@ -136,19 +204,20 @@ export class GameMenus {
     }
     // CI10-B: the film needs no dark layer over it (its dark edges do that job); the pause does.
     this.shade.background = this.isMainMenu ? "transparent" : CONFIG.menu.shade;
+    this.version.isVisible = this.isMainMenu;
     // MN3-A: the sound stops behind the pause; CI6-A: the main menu has the night's sound.
     void this.world.audio
       .then((audio) => (this.isMainMenu ? audio.engine.resumeAsync() : audio.engine.pauseAsync()))
       .catch(() => undefined);
     this.ui.rootContainer.isVisible = true;
     this.column.clearControls();
+    this.choices.clear();
+    this.credits = undefined;
     switch (screen) {
       case "main":
-        this.back = "main";
         this.buildMain();
         break;
       case "pause":
-        this.back = "pause";
         this.buildPause();
         break;
       case "options":
@@ -164,6 +233,9 @@ export class GameMenus {
         this.buildStart();
         break;
     }
+    // EM10: the first option comes chosen; EM7-A: the screen comes out of black.
+    this.choices.chooseFirst();
+    this.reveal.start(this.column);
   }
 
   /** Back to the game: the world moves again and the mouse is captured. */
@@ -177,7 +249,7 @@ export class GameMenus {
     player.controlsEnabled = true;
     input.pointerLockEnabled = true;
     if (capture) {
-      // Inside the click on the button: the browser lets the game capture the mouse.
+      // Inside the click or the key: the browser lets the game capture the mouse.
       input.capturePointer();
     }
     void audio
@@ -191,12 +263,12 @@ export class GameMenus {
   private buildMain(): void {
     this.title("Silent Hunt", CONFIG.menu.titleSize);
     if (this.hasSave) {
-      this.button("Continuar", () => this.resume());
+      this.option("Continuar", () => this.resume());
     }
     // RF-61: a saved world is only erased after confirming; without one, a new world just begins.
-    this.button("Novo mundo", () => (this.hasSave ? this.open("confirm") : this.resume()));
-    this.button("Opções", () => this.open("options"));
-    this.button("Créditos", () => this.open("credits"));
+    this.option("Novo mundo", () => (this.hasSave ? this.open("confirm") : this.resume()));
+    this.option("Opções", () => this.open("options"));
+    this.option("Créditos", () => this.open("credits"));
   }
 
   private buildPause(): void {
@@ -209,9 +281,9 @@ export class GameMenus {
     if (progress.length > 0) {
       this.spacer(12);
     }
-    this.button("Voltar ao jogo", () => this.resume());
-    this.button("Opções", () => this.open("options"));
-    this.button("Menu principal", () => this.goToMain());
+    this.option("Voltar ao jogo", () => this.resume());
+    this.option("Opções", () => this.open("options"));
+    this.option("Menu principal", () => this.goToMain());
   }
 
   /** Saves and goes to the main menu (MN3-A); also the victory screen's "Menu principal". */
@@ -227,19 +299,19 @@ export class GameMenus {
   }
 
   private buildConfirm(): void {
-    this.text("Começar um mundo novo? O mundo atual será apagado.", CONFIG.menu.buttonSize);
+    this.text("Começar um mundo novo? O mundo atual será apagado.", CONFIG.menu.questionSize);
     this.spacer(16);
-    this.button("Apagar e começar", () => {
+    this.option("Apagar e começar", () => {
       GameMenus.markStartNew();
       void this.world.newWorld();
     });
-    this.button("Cancelar", () => this.open("main"));
+    this.option("Cancelar", () => this.open("main"));
   }
 
   /** After "Novo mundo": one click starts (the browser only lets a click capture the mouse). */
   private buildStart(): void {
     this.title("Silent Hunt", CONFIG.menu.titleSize);
-    this.button("Clique para começar", () => this.resume());
+    this.option("Clique para começar", () => this.resume());
   }
 
   private buildOptions(): void {
@@ -261,7 +333,7 @@ export class GameMenus {
     volume("Ambiente", "ambience");
     volume("Música", "music");
     this.spacer(12);
-    this.button("Voltar", () => {
+    this.option("Voltar", () => {
       saveOptions(options);
       this.open(this.back);
     });
@@ -285,27 +357,36 @@ export class GameMenus {
       all.push({ kind: "heading", text: "Música" }, { kind: "text", text: "Epidemic Sound." });
     }
     for (const line of all) {
-      const size = line.kind === "heading" ? CONFIG.menu.buttonSize : CONFIG.menu.textSize;
-      const block = this.textBlock(line.text, size);
-      block.paddingTop = line.kind === "heading" ? "18px" : "4px";
+      // EM10: the sections' names in spaced capitals; the rest as written.
+      const heading = line.kind === "heading";
+      const size = heading ? CONFIG.menu.optionSize : CONFIG.menu.textSize;
+      const block = this.textBlock(heading ? spaced(line.text) : line.text, size);
+      block.paddingTop = heading ? "18px" : "4px";
       if (line.kind === "item") {
         block.paddingLeft = "16px";
       }
       lines.addControl(block);
     }
     this.column.addControl(viewer);
+    this.credits = viewer;
     this.spacer(12);
-    this.button("Voltar", () => this.open(this.back));
+    this.option("Voltar", () => this.open(this.back));
   }
 
   private title(text: string, size: number): void {
-    const block = this.textBlock(text, size);
+    const block = glowingTitle(text, size);
+    block.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+    block.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
     block.paddingBottom = "24px";
     this.column.addControl(block);
   }
 
   private text(text: string, size: number): void {
     this.column.addControl(this.textBlock(text, size));
+  }
+
+  private option(text: string, onClick: () => void): void {
+    this.column.addControl(this.choices.option(text, onClick));
   }
 
   private spacer(pixels: number): void {
@@ -316,7 +397,7 @@ export class GameMenus {
   }
 
   private textBlock(text: string, size: number): TextBlock {
-    const block = new TextBlock(undefined, text);
+    const block = withShadow(new TextBlock(undefined, text));
     block.color = CONFIG.menu.textColor;
     block.fontSize = size;
     block.textWrapping = true;
@@ -327,30 +408,7 @@ export class GameMenus {
     return block;
   }
 
-  /** MN6: a text-only button, soft white, the fire's orange under the mouse. */
-  private button(text: string, onClick: () => void): void {
-    const { textColor, hoverColor, buttonSize } = CONFIG.menu;
-    const button = Button.CreateSimpleButton(`menu-${text}`, text);
-    button.width = "420px";
-    button.height = `${Math.round(buttonSize * 1.7)}px`;
-    button.thickness = 0;
-    button.color = textColor;
-    button.fontSize = buttonSize;
-    button.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    if (button.textBlock) {
-      button.textBlock.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    }
-    button.onPointerEnterObservable.add(() => {
-      button.color = hoverColor;
-    });
-    button.onPointerOutObservable.add(() => {
-      button.color = textColor;
-    });
-    button.onPointerUpObservable.add(() => onClick());
-    this.column.addControl(button);
-  }
-
-  /** MN4: a labeled slider with its value beside it. */
+  /** MN4, EM10: a slider with its name and value; the keys choose it and ←/→ move it. */
   private slider(
     label: string,
     value: number,
@@ -359,31 +417,34 @@ export class GameMenus {
     format: (value: number) => string,
     onChange: (value: number) => void,
   ): void {
-    const { textColor, hoverColor, textSize } = CONFIG.menu;
+    const { textColor, dimColor, hoverColor, sliderLabelSize, sliderTrack, sliderStep } =
+      CONFIG.menu;
     const row = new StackPanel(`option-${label}`);
     row.isVertical = false;
-    row.height = "44px";
+    row.height = "48px";
     row.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    const name = new TextBlock(undefined, label);
-    name.width = "260px";
-    name.color = textColor;
-    name.fontSize = textSize + 4;
+    const name = withShadow(new TextBlock(undefined, spaced(label)));
+    name.width = "340px";
+    name.fontSize = sliderLabelSize;
     name.textHorizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
-    const shown = new TextBlock(undefined, format(value));
+    const shown = withShadow(new TextBlock(undefined, format(value)));
     shown.width = "90px";
     shown.color = textColor;
-    shown.fontSize = textSize + 4;
+    shown.fontSize = sliderLabelSize;
     const slider = new Slider(`slider-${label}`);
     slider.minimum = minimum;
     slider.maximum = maximum;
     slider.value = value;
     slider.width = "300px";
-    slider.height = "20px";
+    // A 2 px track (12 px less 5 above and below) and a 12 px square marker.
+    slider.height = "12px";
+    slider.barOffset = "5px";
+    slider.thumbWidth = "12px";
+    slider.isThumbCircle = false;
     slider.color = hoverColor;
-    slider.background = "rgba(255, 255, 255, 0.18)";
+    slider.background = sliderTrack;
     slider.borderColor = "transparent";
     slider.thumbColor = textColor;
-    slider.isThumbCircle = true;
     slider.onValueChangedObservable.add((next) => {
       shown.text = format(next);
       onChange(next);
@@ -392,6 +453,16 @@ export class GameMenus {
     row.addControl(slider);
     row.addControl(shown);
     this.column.addControl(row);
+    // EM10: 5% on the volumes, 0.05× on the sensitivity.
+    this.choices.adjustable(
+      [name, slider, shown],
+      (on) => {
+        name.color = on ? hoverColor : dimColor;
+      },
+      (direction) => {
+        slider.value = Math.min(maximum, Math.max(minimum, slider.value + direction * sliderStep));
+      },
+    );
   }
 }
 
