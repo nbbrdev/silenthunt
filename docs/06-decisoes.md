@@ -620,6 +620,18 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | OB15 | Revisão do usuário (2026-11-24): detalhes decididos por Claude aprovados ("1 a 19 - Ok"): chunk com cabana do objetivo sem cabana aleatória; direções das 3 cabanas sorteadas sem relação entre si; textos de "Você encontrou" ("a bateria", "a antena", "as válvulas", "um bilhete", "uma página de diário"); títulos "Bilhete 1" a "4" e "Diário, página 1" a "3"; folha de papel de 520 × 280 px com "[E] Fechar"; dica "Clique: Chamar o resgate"; avisos do ritual só com um crânio na mão, e o ritual na frente das ações da fogueira, com o som de acender; o ritual acontece enquanto ela espreita; **sem dormir na última noite** (aviso "Não dá para dormir: há perigo por perto"); vermelho em 8 s; rádio na mão a 0,35 m; depois do resgate o rádio não faz nada; "Sobreviveu N dias" desde o começo do mundo; bússola de 90° para cada lado, norte em +Z; coluna "Anotações" de 270 px à esquerda; frase inicial de 6 s, escondida com inventário ou bilhete aberto; Esc no bilhete não abre a pausa; `silentHunt.objective()`, `callRescue()` e `interaction()`; texto "Saia da floresta..." no README. |
 | MD1-A | O primeiro crânio parecia um bico: refeito com a nuca arredondada, focinho e mandíbula numa cunha só, osso nasal por cima e os olhos nas laterais (172 triângulos). |
 
+## NBB-157: Mapa (2026-11-24)
+
+| Código | Decisão |
+|---|---|
+| MP1-A | A **tecla M** abre o mapa em tela cheia, a qualquer momento (sem item). |
+| MP2-A | O mapa mostra **só o que o jogador explorou**: uma faixa de uns 40 m em volta do caminho por onde passou; o resto fica escuro. |
+| MP3-A | Marcadores automáticos: o **jogador** (posição e direção), as **cabanas visitadas** e a **próxima cabana** assim que o bilhete dela é lido, a **cama** e as **fogueiras**. As mochilas continuam sem marcador (MO4-A). |
+| MP4-A | Clicar no mapa põe uma **marcação**; clicar nela a tira. Uma marcação pode ser o **destino**, que aparece na **bússola** com a distância. |
+| MP5-A | O mapa abre **centrado no jogador**, com **zoom** na roda do mouse (uns 3 níveis). |
+| MP6-A | O **mundo continua** com o mapa aberto, como no inventário (IN3-A): o jogador fica parado. |
+| MP7-A | Aparência de **papel e tinta**, como os bilhetes: árvores como pontinhos, clareiras vazias, cabanas e marcações em desenhos simples. |
+
 ## Pendentes (proposto)
 
 Nenhuma.
