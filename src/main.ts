@@ -646,6 +646,7 @@ async function start(): Promise<void> {
       // FX6-A: the helicopter's approach comes before the rescue's victory (no dawn message then).
       isVictory: () => victoryScreen.isOpen || objective.rescueArriving,
     });
+    biomeEffects.active = () => !menus.isMainMenu;
     // NBB-163 (BM6-A): the biome's name, entering a new one.
     new BiomeBanner(
       hud,

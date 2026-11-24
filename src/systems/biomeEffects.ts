@@ -101,10 +101,14 @@ export class BiomeEffects {
     };
   }
 
+  /** False while the main menu's film plays (its shots are near the start, not here). */
+  active: () => boolean = () => true;
+
   private update(): void {
     const feet = this.player.feet;
     this.weights = this.terrain.biomeWeightsAt(feet.x, feet.z);
-    // BM1: the marsh's fog, for everyone's eyes.
-    fogConditions.scale = 1 - (1 - CONFIG.biomes.rules.marshFog) * this.weights.marsh;
+    // BM1: the marsh's fog, for everyone's eyes (not over the menu's film).
+    const marsh = this.active() ? this.weights.marsh : 0;
+    fogConditions.scale = 1 - (1 - CONFIG.biomes.rules.marshFog) * marsh;
   }
 }
