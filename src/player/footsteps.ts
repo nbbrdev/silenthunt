@@ -2,6 +2,7 @@ import { CreateSoundAsync, type Scene, type StaticSound } from "@babylonjs/core"
 import { CONFIG } from "../config";
 import { frameSeconds } from "../core/gameTime";
 import { soundUrl, type GameAudio } from "../core/audio";
+import type { BiomeEffects } from "../systems/biomeEffects";
 import { movementNoise, type NoiseSystem } from "../systems/noise";
 import type { ChunkManager } from "../world/chunks";
 import type { GroundType, Terrain } from "../world/terrain";
@@ -21,6 +22,8 @@ export class Footsteps {
   private readonly chunks: ChunkManager;
   private readonly noise: NoiseSystem;
   private stepTimer = 0;
+  /** BM1 (NBB-163): the biome's effect on the steps (louder leaves, the mud, the wind). */
+  biome: BiomeEffects | undefined;
   private sounds: { steps: Record<GroundType, StaticSound[]>; snaps: StaticSound[] } | undefined;
 
   constructor(
@@ -131,6 +134,9 @@ export class Footsteps {
   }
 
   private onGround(baseRadius: number): number {
-    return movementNoise(baseRadius, this.groundType());
+    const radius =
+      movementNoise(baseRadius, this.groundType()) * (this.biome?.stepNoiseFactor ?? 1);
+    // BM8: in the marsh's mud each step splashes as loud as a snapping branch.
+    return this.biome?.inMud ? Math.max(radius, CONFIG.noise.branchSnapRadius) : radius;
   }
 }

@@ -11,6 +11,7 @@ import { CONFIG } from "../config";
 import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
 import type { Player } from "../player/player";
+import { BIOMES, BIOME_NAMES, biomeAt, type Biome } from "../world/biomes";
 import { cabinsNear } from "../world/cabinSites";
 import type { ChunkManager } from "../world/chunks";
 
@@ -65,6 +66,8 @@ export class WorldMap {
   private zoom: number = CONFIG.map.startZoom;
   private open = false;
   private untilReveal = 0;
+  /** BM5-A: the biome of each explored square (filled as they are drawn). */
+  private readonly cellBiomes = new Map<string, Biome>();
   /** FX14: the map opened or closed (the paper is heard). */
   readonly onToggled = new Observable<boolean>();
   /** The trees of each chunk drawn (refreshed each time the map opens: some may be felled). */
@@ -315,6 +318,38 @@ export class WorldMap {
   }
 
   /** MP7-A: paper and ink. */
+  /** BM5-A: the biome of an explored square (remembered: it never changes). */
+  private biomeOf(key: string, ix: number, iz: number): Biome {
+    let biome = this.cellBiomes.get(key);
+    if (!biome) {
+      const { cellSize } = CONFIG.map;
+      biome = biomeAt((ix + 0.5) * cellSize, (iz + 0.5) * cellSize, this.p.seed);
+      this.cellBiomes.set(key, biome);
+    }
+    return biome;
+  }
+
+  /** BM8: a small legend of the biomes seen so far, at the bottom left of the sheet. */
+  private drawLegend(context: CanvasRenderingContext2D): void {
+    const { biomeColors, colors, height } = CONFIG.map;
+    const seen = BIOMES.filter((biome) => [...this.cellBiomes.values()].includes(biome));
+    if (seen.length < 2) {
+      return;
+    }
+    context.font = "13px 'Crimson Pro', serif";
+    context.textBaseline = "middle";
+    seen.forEach((biome, index) => {
+      const y = height - 14 - (seen.length - 1 - index) * 18;
+      context.fillStyle = biomeColors[biome];
+      context.fillRect(10, y - 6, 14, 12);
+      context.strokeStyle = colors.ink;
+      context.lineWidth = 1;
+      context.strokeRect(10, y - 6, 14, 12);
+      context.fillStyle = colors.ink;
+      context.fillText(BIOME_NAMES[biome], 30, y);
+    });
+  }
+
   private draw(): void {
     const settings = CONFIG.map;
     const { colors, cellSize, width, height } = settings;
@@ -326,9 +361,8 @@ export class WorldMap {
     context.fillStyle = colors.unexplored;
     context.fillRect(0, 0, width, height);
 
-    // The explored squares in light paper.
+    // The explored squares in light paper, BM5-A: tinted by their biome.
     const cellPixels = cellSize / mpp;
-    context.fillStyle = colors.explored;
     for (const key of this.explored) {
       const [ix = 0, iz = 0] = key.split(",").map(Number);
       const corner = this.toPixels(ix * cellSize, (iz + 1) * cellSize);
@@ -338,9 +372,11 @@ export class WorldMap {
         corner.px < width &&
         corner.py < height
       ) {
+        context.fillStyle = settings.biomeColors[this.biomeOf(key, ix, iz)];
         context.fillRect(corner.px, corner.py, cellPixels + 0.6, cellPixels + 0.6);
       }
     }
+    this.drawLegend(context);
 
     // The trees of the explored squares, as dots of ink.
     const dot = Math.max(0.8, 1.4 / mpp);

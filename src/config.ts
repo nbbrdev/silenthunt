@@ -208,6 +208,26 @@ export const CONFIG = {
       cliffSlope: 0.6,
       cliffSpacing: 9,
     },
+    /** BM1, BM8: how each biome changes the play (see BiomeEffects). */
+    rules: {
+      /** Broadleaf wood: the steps' noise radius is multiplied by this. */
+      broadleafStepNoise: 1.5,
+      /** Marsh: speed in the mud (off the trails); the fog's reach is multiplied by `marshFog`. */
+      mudSpeed: 0.5,
+      marshFog: 0.6,
+      /** Marsh: reeds hide a crouching player this close (meters), like a bush. */
+      reedsReach: 1.5,
+      /** Open field: standing, the distance the player is seen at is multiplied by this. */
+      fieldSight: 1.5,
+      /** Open field: crouched within this of tall grass, the player is seen only within `tallGrassSeen`. */
+      tallGrassReach: 1,
+      tallGrassSeen: 15,
+      /** Ridge: climbing steeper than this (degrees) is slower and tiring, as running is. */
+      climbDegrees: 15,
+      climbSpeed: 0.7,
+      /** Ridge: the player's steps and the creature's carry this much as far. */
+      ridgeNoise: 0.7,
+    },
     /** BM8: the marsh's trails of firm ground: about 3 m wide, winding (a noise of this scale). */
     marsh: { trailSpacing: 70, trailBand: 0.025 },
     /** BM8: the ground's tint in each biome (multiplies the forest floor's). */
@@ -427,6 +447,17 @@ export const CONFIG = {
       mark: "#8c2a1e",
       fireLit: "#d9762b",
       fireOut: "#7d766b",
+    },
+    /**
+     * BM5-A, BM8 (NBB-163): the explored paper's tone in each biome: dark green, ocher, gray-green,
+     * straw yellow and gray (light enough for the ink).
+     */
+    biomeColors: {
+      pineForest: "#c3c8a6",
+      broadleaf: "#d9c49a",
+      marsh: "#b7bfaa",
+      field: "#e2d7a4",
+      ridge: "#c6c3bd",
     },
   },
   /**
@@ -1097,6 +1128,17 @@ export const CONFIG = {
     hover: { volume: 0.25, rate: 1.25 },
     confirm: { volume: 0.5, rate: 0.8 },
     back: { volume: 0.35, rate: 0.7 },
+  },
+  /** NBB-163 (BM6-A, BM8): the biome's name, entering it, at the top of the screen. */
+  biomeBanner: {
+    size: 26,
+    /** From the top of the screen (share of its height). */
+    top: 0.12,
+    /** Only after this long in the new biome (no flicker at a border). */
+    afterSeconds: 5,
+    fadeInSeconds: 0.6,
+    holdSeconds: 2.5,
+    fadeOutSeconds: 1,
   },
   /** NBB-161 (MF13-B, MF14-B, MF16): the message at dawn and dusk, at the top of the screen. */
   dayMessage: {

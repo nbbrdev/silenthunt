@@ -37,8 +37,12 @@ export class VisibilitySystem {
     if (this.player.isCrouched) {
       distance *= crouchFactor;
     }
-    return distance;
+    // BM1 (NBB-163): the open field shows a standing player farther; its tall grass hides.
+    return this.biomeSight(distance);
   }
+
+  /** BM1 (NBB-163): the biome's say on the distance (set by BiomeEffects). */
+  biomeSight: (distance: number) => number = (distance) => distance;
 
   /**
    * MI3-A, MI10: how far the player would be seen standing and without the torch right now (8 m

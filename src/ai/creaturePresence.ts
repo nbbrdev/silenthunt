@@ -48,6 +48,8 @@ export class CreaturePresence {
   private breathing = false;
   /** PS4-A: fired at each of its footsteps (the view shakes when it is close, in a chase). */
   readonly onStep = new Observable<void>();
+  /** BM8 (NBB-163): how far its steps carry, as a share of the usual (set by BiomeEffects). */
+  hearingScale: () => number = () => 1;
 
   constructor(
     scene: Scene,
@@ -224,6 +226,8 @@ export class CreaturePresence {
     const jitter = settings.pitchJitter;
     step.playbackRate = 1 + randomRange(this.random, -jitter, jitter);
     step.volume = settings.stepVolume[animation];
+    // BM8 (NBB-163): the ridge's wind covers its steps: they carry less far.
+    step.spatial.maxDistance = settings.hearingDistance * this.hearingScale();
     step.play();
     this.onStep.notifyObservers();
   }

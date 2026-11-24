@@ -21,8 +21,14 @@ const FOG_REACH = Math.sqrt(-Math.log(0.05));
  */
 export function fogVisibility(daylight: number): number {
   const { dayVisibility, nightVisibility } = CONFIG.dayNight;
-  return nightVisibility + (dayVisibility - nightVisibility) * daylight;
+  return (nightVisibility + (dayVisibility - nightVisibility) * daylight) * fogConditions.scale;
 }
+
+/**
+ * BM1 (NBB-163): the place's own fog. The marsh's is denser: visibility is multiplied by `scale`
+ * (1 = as usual), for the player's eyes and the creature's alike. Set each frame by BiomeEffects.
+ */
+export const fogConditions = { scale: 1 };
 
 type RGB = { readonly r: number; readonly g: number; readonly b: number };
 

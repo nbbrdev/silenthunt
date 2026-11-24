@@ -35,6 +35,8 @@ import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
 import { CabinManager } from "./world/cabins";
 import { BIOME_NAMES, type Biome } from "./world/biomes";
+import { BiomeEffects } from "./systems/biomeEffects";
+import { BiomeBanner } from "./ui/biomeBanner";
 import { Equipment } from "./player/equipment";
 import { PlayerHands } from "./player/hands";
 import { PlayerHealth } from "./player/health";
@@ -155,6 +157,12 @@ async function start(): Promise<void> {
       world.clock,
       CONFIG.world.defaultSeed,
     );
+    // NBB-163 (BM1, BM8): what the biome where the player stands changes in the play.
+    const biomeEffects = new BiomeEffects(scene, world.terrain, world.chunks, player);
+    player.groundEffect = (direction) => biomeEffects.groundEffect(direction);
+    footsteps.biome = biomeEffects;
+    visibility.biomeSight = (distance) => biomeEffects.sightDistance(distance);
+    presence.hearingScale = () => biomeEffects.creatureHearingFactor;
     const audio = createGameAudio(player.camera);
     audio
       .then((audio) => presence.loadSounds(audio))
@@ -638,6 +646,13 @@ async function start(): Promise<void> {
       // FX6-A: the helicopter's approach comes before the rescue's victory (no dawn message then).
       isVictory: () => victoryScreen.isOpen || objective.rescueArriving,
     });
+    // NBB-163 (BM6-A): the biome's name, entering a new one.
+    new BiomeBanner(
+      hud,
+      scene,
+      () => biomeEffects.biome,
+      () => menus.isPlaying,
+    );
     victoryScreen.onRevealed.add(() => void music.startVictory());
     victoryScreen.onClosed.add(() => music.stopVictory());
     // MN1-C: the whole HUD in the game's font, now that it is built.
@@ -901,6 +916,8 @@ async function start(): Promise<void> {
                   Math.round(value * 100) / 100,
                 ]),
               ),
+              effects: biomeEffects.debugState(),
+              seenAt: Math.round(visibility.visibleDistance() * 10) / 10,
             };
           },
           /**

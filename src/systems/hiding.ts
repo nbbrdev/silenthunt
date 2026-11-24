@@ -92,7 +92,11 @@ export class HidingSystem {
     const nearest = this.chunks
       .pickablesNear(feet.x, feet.z, settings.bushRadius)
       .find((pickable) => pickable.kind === "bush");
-    const bush = nearest ? `${nearest.chunkKey}:${nearest.index}` : undefined;
+    // BM1 (NBB-163): the marsh's reeds hide like a bush.
+    const reeds = nearest
+      ? undefined
+      : this.chunks.nearestOf("reeds", feet.x, feet.z, CONFIG.biomes.rules.reedsReach);
+    const bush = nearest ? `${nearest.chunkKey}:${nearest.index}` : reeds;
     if (bush !== this.bush) {
       // MI8-B, MI10: going in or out of a bush rustles, and that is a noise.
       if (this.player.controlsEnabled) {

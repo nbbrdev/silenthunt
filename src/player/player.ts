@@ -33,6 +33,14 @@ export class Player {
   readonly camera: FreeCamera;
   /** Current stamina, from 0 to CONFIG.player.stamina.max (RF-42). */
   stamina: number = CONFIG.player.stamina.max;
+  /**
+   * BM1 (NBB-163): how the ground changes walking in a direction (set by BiomeEffects): a speed
+   * multiplier and whether it tires like running.
+   */
+  groundEffect: (direction: Vector3) => { speed: number; tiring: boolean } = () => ({
+    speed: 1,
+    tiring: false,
+  });
   /** MN4: the mouse sensitivity chosen in the options (1 = the base one). */
   sensitivityScale = 1;
   /** Fired when the player touches the ground after a jump or fall (it makes noise, RF-10). */
@@ -183,15 +191,19 @@ export class Player {
       move.normalize();
     }
 
+    const facing = Quaternion.FromEulerAngles(0, this.yaw, 0);
+    // BM1 (NBB-163): the ground may slow the player (the marsh's mud) or tire them (a climb).
+    const direction = move.applyRotationQuaternion(facing);
+    const ground = isMoving ? this.groundEffect(direction) : { speed: 1, tiring: false };
+
     const wantsToRun =
       controls && (this.input.isDown("ShiftLeft") || this.input.isDown("ShiftRight"));
     const isRunning = wantsToRun && isMoving && !this.crouched && canRun(this.stamina);
-    this.stamina = updateStamina(this.stamina, isRunning, dt);
+    this.stamina = updateStamina(this.stamina, isRunning || ground.tiring, dt);
 
     const { walkSpeed, runSpeed, crouchSpeed } = CONFIG.player;
-    const speed = this.crouched ? crouchSpeed : isRunning ? runSpeed : walkSpeed;
-    const facing = Quaternion.FromEulerAngles(0, this.yaw, 0);
-    const desiredVelocity = move.scale(speed).applyRotationQuaternion(facing);
+    const speed = (this.crouched ? crouchSpeed : isRunning ? runSpeed : walkSpeed) * ground.speed;
+    const desiredVelocity = direction.scale(speed);
 
     const support = this.controller.checkSupport(dt, DOWN);
     const velocity = this.computeVelocity(dt, support, desiredVelocity, facing);

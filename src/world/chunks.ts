@@ -235,6 +235,34 @@ export class ChunkManager {
     return found.sort((a, b) => a.distance - b.distance);
   }
 
+  /**
+   * BM1 (NBB-163): the nearest placement of `kind` within `radius` of (x, z) (the reeds and the
+   * tall grass the player hides in), as "chunkKey:index", or undefined.
+   */
+  nearestOf(kind: VegetationKind, x: number, z: number, radius: number): string | undefined {
+    const { chunkSize } = CONFIG.world;
+    const cx = Math.floor(x / chunkSize);
+    const cz = Math.floor(z / chunkSize);
+    let best: string | undefined;
+    let bestDistance = radius;
+    for (let dz = -1; dz <= 1; dz++) {
+      for (let dx = -1; dx <= 1; dx++) {
+        const chunk = this.chunks.get(chunkKey(cx + dx, cz + dz));
+        chunk?.placements.forEach((placement, index) => {
+          if (placement.kind !== kind || placement.removed) {
+            return;
+          }
+          const distance = Math.hypot(placement.x - x, placement.z - z);
+          if (distance <= bestDistance) {
+            bestDistance = distance;
+            best = `${chunk.key}:${index}`;
+          }
+        });
+      }
+    }
+    return best;
+  }
+
   /** NBB-147: the chunks' changes, for the save ("cx,cz" → indexes of what was taken). */
   get changes(): Record<string, number[]> {
     return Object.fromEntries(
