@@ -523,6 +523,24 @@ Pedido do usuário: o jogador começa sem nada e vai progredindo; a fonte de luz
 | EN8 | Releases (2026-11-23): a pedido do usuário, **como exceção à regra** "o agente nunca cria tags nem releases" (a regra continua valendo), Claude criou as tags anotadas e as releases do GitHub de todos os marcos: `v0.1.0` (M0, `d5a8561`), `v0.2.0` (M1, `a57e71f`), `v0.3.0` (M2, `6c62ae6`), `v0.4.0` (M3, `8315ec6`), `v0.5.0` (M4, `f989be9`) e `v1.0.0` (M5, `09c1133`, a principal). Notas em pt-BR com o que cada marco entregou; sem arquivos anexados. |
 | EN9 | Tags (2026-11-24): a pedido do usuário, de novo **como exceção à regra** "o agente nunca cria tags nem releases" (a regra continua valendo), Claude criou as tags anotadas `v1.1.0` (M6 · Pós-entrega, `5da60f5`, o fechamento do mapa) e `v1.2.0` (M7 · Acabamento, `0327a89`, o fechamento dos efeitos sonoros). Só as tags: sem releases do GitHub. |
 
+## M8: Mundo vivo (2026-11-24)
+
+Pedido do usuário: novos biomas, animais (hostis e pacíficos), lagos, rios e cachoeiras, para enriquecer o mundo e o ambiente.
+
+| Código | Decisão |
+| -- | -- |
+| BI0-A | Um marco novo, **M8 · Mundo vivo** (meta `v1.3.0`), com uma issue por parte, nesta ordem: 41 biomas, 42 relevo, lagos e rios, 43 cachoeiras, 44 animais pacíficos, 45 animais hostis, 46 ambiente de cada bioma. Cada uma com rodada própria. |
+| BI1 | Cinco biomas, todos no mesmo clima frio e com neblina: **pinheiral** (o de hoje), **bosque de folhosas**, **pântano**, **campo aberto** e **serra rochosa**. O usuário pediu que **cada um mude a forma de jogar** (ex.: mais moitas para se esconder, capim alto, lentidão no pântano fora do caminho certo); as regras de cada um vêm na rodada da issue 41. |
+| BI2-A | Grandes manchas sorteadas pela semente (centenas de metros), com transição suave de 30 a 50 m; o começo continua sempre no pinheiral (o filme do menu e as cabanas não mudam). |
+| BI3-B | **Nadar de verdade**, com fôlego e afogamento. |
+| BI4-A | **Sem sede**: a água é cenário, obstáculo e caminho. A sede continua no Backlog. |
+| BI5 | Rios, lagos e cachoeiras: **testar primeiro a água descendo pelo relevo** (simulada); se não funcionar bem no mundo infinito em chunks, vale a geração por ruído (rios como vales, lagos nas depressões, cachoeiras nos degraus da serra). |
+| BI6-B | O **material de água do Babylon** (reflexo e refração de verdade), de olho nos 60 FPS. |
+| BI7 | Animais pacíficos: **raposa**, **aves** que levantam voo (e avisam), **peixes** nos lagos e rios e **sapos** no pântano. Sem pesca por enquanto. |
+| BI8-A | Animais hostis: **lobo** (matilha, no campo), **urso** (raro, na serra) e **javali** (no bosque), só de dia e no entardecer; a noite continua da criatura, e eles fogem quando ela chega perto. Todos podem ser caçados. Tira do Backlog o "animal que revida" (M6-C). |
+| BI9-A | Uma issue no fim para o ambiente de cada bioma: sons próprios, neblina e partículas. |
+| BI10-B | Uma medição de FPS no fim do marco, na máquina do usuário. Hoje o jogo roda a 60 FPS sem problemas. |
+
 ## M6: Features novas (2026-11-23)
 
 | Código | Decisão |

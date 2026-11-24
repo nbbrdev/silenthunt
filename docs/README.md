@@ -23,6 +23,7 @@ Porta de entrada. Esta pasta é a **fonte da verdade** do conteúdo do jogo; cad
 | M5 · Polimento | Som, menus, equilíbrio, entrega | ✅ Concluído em 2026-11-23 |
 | M6 · Pós-entrega | Perseguição, moitas, golpe fatal, objetivo, mapa, arremessar pedra | Em andamento |
 | M7 · Acabamento | Menu cinematográfico e outras melhorias de acabamento | Em andamento |
+| M8 · Mundo vivo | Biomas, lagos, rios, cachoeiras, animais pacíficos e hostis | Em andamento |
 
 ## Convenções
 

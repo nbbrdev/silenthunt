@@ -18,6 +18,7 @@ Versões aprovadas no G8. Como o jogo não é publicado (T7), a tag só marca o 
 | M5 · Polimento | 19–20/11 | Som, música, menus, equilíbrio, bugs, instruções | `v1.0.0` |
 | M6 · Pós-entrega | sem prazo (PZ1) | Features novas do usuário depois da entrega (FN0-A, 2026-11-23) | `v1.1.0` |
 | M7 · Acabamento | sem prazo (PZ1) | Deixar o jogo mais profissional, uma melhoria por vez (CI0-A, 2026-11-24) | `v1.2.0` |
+| M8 · Mundo vivo | sem prazo (PZ1) | Biomas, água, cachoeiras e novos animais para enriquecer o mundo (BI0-A, 2026-11-24) | `v1.3.0` |
 
 ## Issues por marco
 
@@ -83,6 +84,16 @@ Pedido do usuário em 2026-11-24: deixar o jogo mais profissional (CI0-A). Cada 
 39. **Músicas de fundo** (AC1-A). [UX]
 40. **Mais efeitos sonoros** no geral (AC1-A). [UX]
 
+### M8 · Mundo vivo
+Pedido do usuário em 2026-11-24: enriquecer o mundo e o ambiente (BI0-A). Cada parte tem issue e rodada próprias.
+
+41. **Biomas:** pinheiral, bosque de folhosas, pântano, campo aberto e serra rochosa, cada um mudando a forma de jogar (BI1, BI2-A). [Frontend]
+42. **Relevo, lagos e rios,** com nado, fôlego e afogamento (BI3-B, BI5, BI6-B). [Frontend]
+43. **Cachoeiras** (BI5, BI6-B). [UX]
+44. **Animais pacíficos:** raposa, aves, peixes e sapos (BI7). [UX]
+45. **Animais hostis:** lobo, urso e javali, de dia e no entardecer (BI8-A). [Frontend]
+46. **Ambiente de cada bioma:** sons, neblina e partículas; medição de FPS no fim do marco (BI9-A, BI10-B). [UX]
+
 ## Ordem de corte
 
 **(G9)** Em 2026-11-16, com cerca de 3 dias de atraso, o usuário decidiu **manter todo o escopo** (R1-B); a lista abaixo continua como reserva. Se for preciso cortar, cortamos nesta ordem (o primeiro item é o primeiro a sair) e o item vai para o Backlog:
@@ -98,7 +109,8 @@ Os marcos M1 e M2 **não** são cortados: são o coração do desafio.
 ## Fora do escopo (Backlog)
 
 - Sede, frio e sanidade (M9-B/C).
-- Animal que revida, como o javali (M6-C).
+- ~~Animal que revida, como o javali (M6-C).~~ Promovido ao M8 em 2026-11-24 (BI8-A, issue 45).
+- Pesca (BI7).
 - Controle (gamepad) e celular (T4).
 - Exportar e importar o save num arquivo (T3).
 - Publicação (itch.io, VPS) (T7).
