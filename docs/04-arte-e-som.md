@@ -35,6 +35,8 @@ Depois da 1ª revisão, o usuário pediu modelos inspirados em referências mais
 | Modelo | Animações | Issue |
 |---|---|---|
 | Pinheiro, carvalho, árvore morta | balanço leve com o vento | 6 |
+| Árvores adultas ~2× maiores, tronco limpo embaixo; um quarto jovens (FL1-A a FL3-A, FL8-A) | balanço leve com o vento | 47 |
+| Feixes de luz: três folhas cruzadas com luz desenhada por código (FL5-A) | seguem o sol | 47 |
 | Arbusto, pedras, galhos, folhagem do chão | — | 6 |
 | Bétula, juncos, capim alto, paredão, pedra grande, poça de lama (BM4-A) | balanço leve com o vento (bétula, juncos, capim) | 41 |
 | Cachoeira: cortina de água com listras, espuma e névoa (CC3-A, CC9-B) | listras descendo; partículas | 43 |

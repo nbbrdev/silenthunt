@@ -7,6 +7,8 @@ import { Atmosphere } from "./atmosphere";
 import { ChunkManager } from "./chunks";
 import { Terrain } from "./terrain";
 import { VegetationLibrary } from "./vegetation";
+import { CanopyShade } from "./canopyShade";
+import { LightShafts } from "./lightShafts";
 import { WaterfallField } from "./waterfalls";
 import { WaterSurfaces } from "./waterSurface";
 
@@ -21,6 +23,9 @@ export interface World {
   water: WaterSurfaces;
   /** NBB-165: the waterfalls. */
   waterfalls: WaterfallField;
+  /** NBB-169: the canopy's shade and the shafts of light. */
+  canopy: CanopyShade;
+  lightShafts: LightShafts;
 }
 
 /** The game world: the infinite forest (NBB-129) with its day and night cycle (NBB-130). */
@@ -49,6 +54,10 @@ export function createWorld(engine: Engine, physics: HavokPlugin, seed: number):
     () => scene.activeCamera?.globalPosition ?? startAt,
   );
   chunks.loadAround(startAt);
+  // NBB-169 (FL4-A, FL5-A): the canopy's shade and the shafts of light, around the camera.
+  const cameraAt = () => scene.activeCamera?.globalPosition ?? startAt;
+  const canopy = new CanopyShade(scene, atmosphere, chunks, cameraAt);
+  const lightShafts = new LightShafts(scene, { terrain, chunks, clock, atmosphere, at: cameraAt });
 
-  return { scene, terrain, chunks, clock, atmosphere, water, waterfalls };
+  return { scene, terrain, chunks, clock, atmosphere, water, waterfalls, canopy, lightShafts };
 }

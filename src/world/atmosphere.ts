@@ -47,6 +47,16 @@ export class Atmosphere {
   redness = 0;
   /** NBB-159 (CI9): the menu's lighter, bluish fog, 0 (as usual) to 1. */
   menuFog = 0;
+  /**
+   * NBB-169 (FL4-A): how closed the canopy is over the camera, 0 (open sky) to 1 (dense forest):
+   * it takes away part of the daylight (set by the CanopyShade).
+   */
+  canopy = 0;
+
+  /** FL5-A: which way the sunlight comes (the sun's direction, downward). */
+  get sunDirection(): Vector3 {
+    return this.sun.direction;
+  }
 
   constructor(scene: Scene, clock: DayClock) {
     this.scene = scene;
@@ -76,6 +86,10 @@ export class Atmosphere {
     const lastNight = CONFIG.objective.lastNight;
     const red = Color3.Lerp(dusk, toColor(lastNight.fog), this.redness);
     const tinted = Color3.Lerp(red, toColor(CONFIG.cinematic.fogColor), this.menuFog);
+    // FL4-A: under a closed canopy the daylight is dimmer, the fog too.
+    const shade = CONFIG.canopy;
+    const shaded = this.canopy * daylight;
+    tinted.scaleInPlace(1 - shaded * shade.fogShade);
     this.scene.fogColor = tinted;
     this.scene.clearColor = Color4.FromColor3(tinted);
 
@@ -93,7 +107,8 @@ export class Atmosphere {
     // Soft light from the sky.
     const { dayAmbient, nightAmbient } = settings;
     this.ambient.intensity =
-      nightAmbient.intensity + (dayAmbient.intensity - nightAmbient.intensity) * daylight;
+      (nightAmbient.intensity + (dayAmbient.intensity - nightAmbient.intensity) * daylight) *
+      (1 - shaded * shade.ambientShade);
     this.ambient.diffuse = Color3.Lerp(
       Color3.Lerp(toColor(nightAmbient.color), toColor(lastNight.ambient), this.redness),
       toColor(dayAmbient.color),
@@ -104,7 +119,7 @@ export class Atmosphere {
     // The sun crosses the sky during the day; warmer and lower at dawn and dusk.
     const angle = this.clock.sunProgress * Math.PI;
     this.sun.direction = new Vector3(-Math.cos(angle), -Math.max(Math.sin(angle), 0.2), 0.35);
-    this.sun.intensity = settings.sunIntensity * daylight;
+    this.sun.intensity = settings.sunIntensity * daylight * (1 - this.canopy * shade.sunShade);
     this.sun.diffuse = Color3.Lerp(
       toColor(settings.sunColor),
       toColor(settings.duskSunColor),

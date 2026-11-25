@@ -31,7 +31,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 - **RF-01** O mundo é infinito e gerado a partir de uma **semente** (M11-C). A mesma semente gera sempre o mesmo mundo.
 - **RF-02** O terreno tem relevo suave (colinas e vales), sem cavernas. Rios e lagos desde a NBB-164 (RF-71).
 - **RF-03** Tipos de chão: **terra**, **musgo**, **folhas secas** e **galhos secos** (manchas espalhadas). O tipo de chão muda o ruído (RF-11).
-- **RF-04** Vegetação: 3 espécies de árvore (pinheiro, carvalho, árvore morta), arbustos, pedras e galhos soltos. A densidade varia por região (clareiras e mata fechada).
+- **RF-04** Vegetação: 3 espécies de árvore (pinheiro, carvalho, árvore morta), arbustos, pedras e galhos soltos. A densidade varia por região (clareiras e mata fechada). Bétula desde a NBB-163; árvores maiores desde a NBB-169 (RF-73).
 - **RF-05** Ciclo de dia e noite (M5-B): **dia de 10 min e noite de 6 min**, com 1 min de entardecer e 1 min de amanhecer dentro desses tempos (G4). O jogo começa de manhã.
 - **RF-06** Neblina densa sempre. Visibilidade (G11): cerca de **40 m de dia** e **15 m à noite** (sem luz).
 - **RF-70** **Biomas** (NBB-163; BI1, BI2-A, BM1 a BM12): o mundo se divide em manchas de 400 a 800 m, sorteadas pela semente, com mistura de 40 m nas fronteiras. O começo (200 m) é sempre pinheiral, e em volta das cabanas o chão é firme. Cada bioma muda a forma de jogar:
@@ -56,6 +56,12 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   - A queda é uma cortina de água clara com listras descendo, com espuma no pé e névoa subindo; as partículas só rodam a menos de 60 m.
   - O **rugido** é ouvido até 40 m. A menos de 15 m de uma cachoeira, todo ruído alcança **metade** da distância (os passos do jogador, as pedras, os tiros), e o jogador ouve os passos da criatura pela metade também.
   - O **mapa** marca cada cachoeira com três traços, nos quadrados explorados.
+- **RF-73** **Árvores imponentes e luz da floresta** (NBB-169; FL0-A a FL9-B):
+  - As árvores adultas são ~2× maiores: pinheiro 16–28 m, carvalho 12–20 m, bétula 16–26 m, árvore morta 9–15 m, com troncos mais grossos (e colisão também). A folhagem só começa acima de ~35% da altura, nunca abaixo de 5,5 m: o jogador enxerga por baixo, entre os troncos. Os pinheiros têm alguns tocos de galhos secos embaixo.
+  - Um quarto das árvores é jovem, do tamanho e forma de antes.
+  - **Sombra da copa:** quanto mais árvores em volta (12 m), menos luz do dia chega: até 70% menos sol, 40% menos luz do céu e a neblina 25% mais escura na floresta fechada; nas clareiras, no campo e no pântano, quase nada. A mudança é suave ao andar.
+  - **Feixes de luz:** de dia, nos vãos da copa em volta do jogador (até 24, a menos de 38 m), inclinados com o sol, dourados no amanhecer e no entardecer, sumindo na neblina e de perto.
+  - O machado dá as mesmas madeiras; a árvore alta cai mais devagar (1,5 s × √(altura ÷ 11 m)).
 
 ## Furtividade
 

@@ -355,6 +355,47 @@ export const CONFIG = {
     volume: { enter: 0.9, exit: 0.45, swim: 0.5, underwater: 0.6 },
   },
   /**
+   * NBB-169 (FL4-A): the canopy's shade. The trees within `radius` m of the camera (a young one
+   * counts `youngWeight`) close the canopy; `fullTrees` of them close it all. Closed, it takes
+   * these shares away from the sun, the sky's light and the fog's brightness, by day; the change
+   * eases over `easeSeconds`.
+   */
+  canopy: {
+    radius: 12,
+    fullTrees: 9,
+    youngWeight: 0.4,
+    sunShade: 0.7,
+    ambientShade: 0.4,
+    fogShade: 0.25,
+    easeSeconds: 2.5,
+    everySeconds: 0.3,
+  },
+  /**
+   * NBB-169 (FL5-A): the shafts of sunlight through the canopy's gaps. Around the camera, the
+   * ground is split in `cell` m squares; some (`chance`) hold a shaft, where no trunk stands
+   * within `gap` m and at least `minTrees` trees stand within `around` m (a canopy above). At
+   * most `count` of them, the nearest, within `reach` m; each `height` m long and `width` m wide,
+   * leaning with the sun up to `maxLean` radians; `alpha` is their strength in full daylight.
+   */
+  lightShafts: {
+    cell: 7,
+    chance: 0.55,
+    gap: 2,
+    around: 9,
+    minTrees: 3,
+    count: 24,
+    reach: 38,
+    height: 24,
+    width: [1.2, 2.6],
+    maxLean: 0.75,
+    alpha: 0.3,
+    color: { r: 1, g: 0.96, b: 0.85 },
+    warmColor: { r: 1, g: 0.72, b: 0.42 },
+    /** Seen closer than this, a shaft fades away (so it never fills the view). */
+    nearFade: 4,
+    refreshMeters: 4,
+  },
+  /**
    * NBB-165: the waterfalls in the world. Particles only within `particleDistance` m (CC3-A);
    * the roar (CC4-A, CC10-1) heard up to `hearingDistance` m, from at most `roarCount` of them;
    * within `maskDistance` m, noise carries `maskFactor` of its reach (CC5-A). The curtain is

@@ -972,6 +972,13 @@ async function start(): Promise<void> {
             return "Sem água a até 3 km";
           },
           water: () => ({ chunks: world.water.count }),
+          /** NBB-169: how closed the canopy is here, and the shafts of light standing now. */
+          forestLight: () => ({
+            canopy: Math.round(world.atmosphere.canopy * 100) / 100,
+            here:
+              Math.round(world.canopy.closedAt(player.position.x, player.position.z) * 100) / 100,
+            ...world.lightShafts.debugState,
+          }),
           /**
            * NBB-165: to the nearest waterfall within 3 km, below it at the pool's far side and
            * facing it (`above`: at its lip instead); returns where it is and how tall.

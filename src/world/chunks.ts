@@ -324,6 +324,35 @@ export class ChunkManager {
    * NBB-144 (MC1-A): the trees and big rocks the axe can reach from (x, z), nearest first, with
    * the radius of their trunk or body.
    */
+  /**
+   * NBB-169 (FL4-A, FL5-A): the standing trees within `radius` meters of (x, z), with whether
+   * each is a young one (see isYoungTree), for the canopy's shade and the light shafts.
+   */
+  treesNear(x: number, z: number, radius: number): { x: number; z: number; young: boolean }[] {
+    const { chunkSize } = CONFIG.world;
+    const found: { x: number; z: number; young: boolean }[] = [];
+    const reach = Math.ceil(radius / chunkSize);
+    const cx = Math.floor(x / chunkSize);
+    const cz = Math.floor(z / chunkSize);
+    for (let dz = -reach; dz <= reach; dz++) {
+      for (let dx = -reach; dx <= reach; dx++) {
+        for (const placement of this.chunks.get(chunkKey(cx + dx, cz + dz))?.placements ?? []) {
+          if (placement.removed || !isTree(placement.kind)) {
+            continue;
+          }
+          if (Math.hypot(placement.x - x, placement.z - z) <= radius) {
+            found.push({
+              x: placement.x,
+              z: placement.z,
+              young: this.library.isYoungVariant(placement.variant),
+            });
+          }
+        }
+      }
+    }
+    return found;
+  }
+
   choppablesNear(x: number, z: number, radius: number): Choppable[] {
     const { chunkSize, blockingRockSize } = CONFIG.world;
     const cx = Math.floor(x / chunkSize);

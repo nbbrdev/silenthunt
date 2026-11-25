@@ -10,6 +10,7 @@ import { groundTuft } from "../models/nature/groundTuft";
 import { oak } from "../models/nature/oak";
 import { pine } from "../models/nature/pine";
 import { rock } from "../models/nature/rock";
+import { isYoungTree } from "../models/nature/treeAge";
 import type { ModelGenerator } from "../models/types";
 
 export type VegetationKind =
@@ -130,6 +131,11 @@ export class VegetationLibrary {
       }
     }
     return meshes;
+  }
+
+  /** NBB-169 (FL3-A): whether a tree's variation is a young one. */
+  isYoungVariant(variant: number): boolean {
+    return isYoungTree(variantSeed(variant));
   }
 
   variantCount(kind: VegetationKind): number {
