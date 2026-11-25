@@ -251,6 +251,54 @@ export const CONFIG = {
       stepSharpness: 0.3,
     },
   },
+  /**
+   * NBB-164 (AG1-A, BI5): the water simulated over the land. The world is computed in square
+   * regions with a margin shared with the neighbors (so rivers can carry on across); each cell of
+   * the grid drains to its lowest neighbor; where much water gathers is a river, where it pools
+   * is a lake.
+   */
+  water: {
+    /** Rivers: about this far apart (the noise's scale, meters), winding by up to `riverWarp`. */
+    riverSpacing: 750,
+    riverWarp: 220,
+    /** Half the river's width, from narrow to wide along it (meters), and its depth. */
+    riverHalfWidth: [3, 7] as const,
+    riverDepth: 2.2,
+    /** AG9-A: shallow fords where a noise of this scale rises above the line (~every 80–150 m). */
+    fordSpacing: 60,
+    fordAbove: 0.66,
+    fordDepth: 0.5,
+    /** Lakes: basins where a noise of this scale rises above the line; deeper away from shore. */
+    lakeSpacing: 260,
+    lakeAbove: 0.74,
+    lakeDepth: 3.5,
+    lakeRamp: 10,
+    /** AG2-A: in the marsh, many more lakes and shallow ones. */
+    marshLakeAbove: 0.58,
+    marshLakeDepth: 0.8,
+    /** The water's surface lies this far below the land's broad shape (meters). */
+    below: 0.8,
+    /** The low bank along the water: this wide, this high above the water. */
+    bankWidth: 10,
+    bankRise: 0.3,
+    /** AG10-A: no water this close to the start or a cabin; it fades in over `clearBlend`. */
+    clearStart: 200,
+    clearCabins: 40,
+    clearBlend: 30,
+  },
+  /** NBB-164 (BI6-B, AG8-A): the water's surface, drawn with Babylon's water material. */
+  waterSurface: {
+    /** Grid of the surface sheet (meters). */
+    cell: 2,
+    /** AG8-A: the reflection's image (pixels). */
+    reflectionSize: 512,
+    windForce: -4,
+    bumpHeight: 0.25,
+    waveLength: 0.08,
+    /** Dark, cold water; how much of that color shows over the reflection. */
+    color: { r: 0.05, g: 0.08, b: 0.09 },
+    colorBlend: 0.45,
+  },
   /** Day and night cycle (RF-05, G4) and its light and fog (NBB-130). */
   dayNight: {
     /** G4: the day lasts 10 min, including 1 min of dawn at the start and 1 min of dusk at the end. */
@@ -1471,6 +1519,8 @@ export const CONFIG = {
     rockRelief: 2,
     groundRelief: 2.5,
     furRelief: 1.2,
+    /** NBB-164: the water's ripples. */
+    waterRelief: 2,
     /** Size in meters that one repeat of the fur texture covers on an animal. */
     furTileMeters: 0.25,
   },

@@ -72,6 +72,12 @@ import { attachFpsCounter } from "./ui/fpsCounter";
 import "./style.css";
 
 async function start(): Promise<void> {
+  // NBB-164 (AG1-A): the simulated water seen from above (development only).
+  if (import.meta.env.DEV && new URLSearchParams(window.location.search).has("hidrologia")) {
+    const { showHydrologyPreview } = await import("./world/hydrologyPreview");
+    showHydrologyPreview();
+    return;
+  }
   const canvas = document.getElementById("game-canvas");
   const fpsElement = document.getElementById("fps-counter");
   if (!(canvas instanceof HTMLCanvasElement) || !fpsElement) {
@@ -905,6 +911,35 @@ async function start(): Promise<void> {
           /** Puts the player at (x, z) on the ground (to visit an animal or a place). */
           teleport: (x: number, z: number) =>
             player.respawn(new Vector3(x, world.terrain.heightAt(x, z), z)),
+          /**
+           * NBB-164: to the nearest deep water's shore (`kind` "lago" or "rio"), facing the water;
+           * returns where and how deep.
+           */
+          goToWater: () => {
+            const { x, z } = player.position;
+            for (let ring = 20; ring <= 3000; ring += 20) {
+              for (let angle = 0; angle < Math.PI * 2; angle += 20 / ring) {
+                const wx = x + Math.cos(angle) * ring;
+                const wz = z + Math.sin(angle) * ring;
+                const water = world.terrain.waterAt(wx, wz);
+                if (water.depth < 1.5) {
+                  continue;
+                }
+                // Walk back toward the start until dry land, then stand there facing the water.
+                for (let back = 1; back < 40; back++) {
+                  const bx = wx - Math.cos(angle) * back;
+                  const bz = wz - Math.sin(angle) * back;
+                  if (world.terrain.waterAt(bx, bz).depth === 0) {
+                    player.respawn(new Vector3(bx, world.terrain.heightAt(bx, bz) + 0.3, bz));
+                    player.view.yaw = Math.atan2(wx - bx, wz - bz);
+                    return { x: Math.round(bx), z: Math.round(bz), depth: water.depth };
+                  }
+                }
+              }
+            }
+            return "Sem água a até 3 km";
+          },
+          water: () => ({ chunks: world.water.count }),
           /** NBB-163 (BM8): the biome where the player stands, and its weights there. */
           biome: () => {
             const { x, z } = player.position;

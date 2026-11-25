@@ -559,6 +559,24 @@ Pedido do usuário: novos biomas, animais (hostis e pacíficos), lagos, rios e c
 | BM12 | Revisão do usuário (2026-11-24): detalhes decididos por Claude aprovados ("1 a 7 - Ok"): regras misturadas na fronteira pela proporção dos biomas; barulho de água da lama também no pouso; no campo, de pé, ×1,5 com ou sem tocha, e "dentro do capim" a até 1 m de uma touceira; na serra, subida medida 1 m à frente, correndo morro acima também 70% e fôlego de corrida, passos da criatura ouvidos até 17,5 m, ruído do jogador (passos e pulo) a 70%; juncos com as regras da moita; legenda do mapa a partir de dois biomas vistos; nomes PINHEIRAL, BOSQUE, PÂNTANO, CAMPO ABERTO, SERRA. |
 | BM13 | Revisão do usuário (2026-11-24): detalhes dos passos aprovados ("1 a 5 - Ok"): cada passo com 0,45 s a partir do pico e pico em −2 dB; ruído do chão lama ×1,2 e capim ×1,1, volume lama 0,9 e capim 0,8; o campo inteiro é chão de capim, o pântano fora das trilhas é lama; manchas de galhos em todos os biomas; lama mais escura e capim mais claro. Regra registrada como RF-70 no docs/03. |
 
+## NBB-164: Relevo, lagos e rios (2026-11-24)
+
+| Código | Decisão |
+| -- | -- |
+| AG1-A | O teste da água simulada (BI5) calcula regiões de ~2 km com margem sobreposta às vizinhas; antes de ir para o jogo, Claude gera **imagens vistas de cima** (relevo, rios, lagos) para o usuário julgar. Rios quebrando nas bordas ou estranhos: vale a geração por ruído. |
+| AG2-A | Água moderada: um rio a cada 600–1.000 m, lagos nas partes baixas, o pântano com muitos lagos rasos. |
+| AG3-B | Nado **com mergulho**: uma tecla desce e o Espaço sobe, com uma barra de ar de ~20 s embaixo d'água e afogamento depois. |
+| AG4-A | Entrar na água funda **apaga a tocha**; nadando não se acende nem se usa armas e ferramentas; o inventário não se perde. |
+| AG5-A | A criatura **não entra na água funda**: espera e ronda a margem e desiste depois de um tempo. |
+| AG6-B | Cervos e coelhos contornam a água funda e **bebem na margem**, com animação. |
+| AG7-A | Sons do nado (entrar e sair, braçadas, fôlego recuperado) entram aqui, com rodada de candidatos. |
+| AG8-A | Reflexo do céu, da neblina, do chão e das árvores a até ~60 m, numa imagem de 512 px; se o FPS cair na medição do marco, só o céu e a neblina. |
+| AG9-A | Os rios têm **trechos rasos** a cada 80–150 m para atravessar a pé. |
+| AG10-A | Sem água a menos de 40 m das cabanas e nos 200 m em volta do começo. |
+| AG11-A | O mapa desenha a água explorada em azul-acinzentado. |
+| AG12-A | O teste da água simulada (regiões de 2 km com 512 m de margem) **não passou**: na faixa da borda as regiões vizinhas só concordaram sobre a água em 14% e 74%, e os rios quebravam ao cruzar; o relevo de ruído também enchia o mapa de lagos sem "cavar a saída" das bacias. Fica a **geração por ruído** (BI5): rios como vales sinuosos cavados no relevo, contínuos em todo o mundo; lagos em bacias escolhidas e cavadas; o pântano com muitos lagos rasos. Nova imagem vista de cima (`/?hidrologia`) para aprovação antes de ir para o jogo. |
+| AG13 | Desenho da água por ruído aprovado pelo usuário (imagem de 4 × 4 km) e os valores propostos por Claude ("1 a 6 - Ok"): rios a cada ~750 m, sinuosos, de 6 a 14 m de largura e 2,2 m de fundura; vaus de 0,5 m de tempos em tempos; lagos de até 3,5 m, fundos a 10 m da margem; no pântano muitas lagoas de 0,8 m; superfície 0,8 m abaixo do formato geral do chão, com margem baixa de 10 m; água em ~6,6% do mundo. Limites aceitos: às vezes um rio fecha um anel e ele não nasce nem desce de verdade. |
+
 ## M6: Features novas (2026-11-23)
 
 | Código | Decisão |

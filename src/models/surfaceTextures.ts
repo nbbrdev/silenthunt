@@ -12,7 +12,7 @@ export interface SurfaceTextures {
   normal: Texture;
 }
 
-export type SurfaceKind = "bark" | "rock" | "ground" | "fur";
+export type SurfaceKind = "bark" | "rock" | "ground" | "fur" | "water";
 
 const SIZE = 512;
 const surfacesByScene = new WeakMap<Scene, Map<SurfaceKind, SurfaceTextures>>();
@@ -41,6 +41,9 @@ export function getSurfaceTextures(scene: Scene, kind: SurfaceKind): SurfaceText
   } else if (kind === "fur") {
     paintFur(image.data);
     relief = CONFIG.surfaces.furRelief;
+  } else if (kind === "water") {
+    paintRipples(image.data);
+    relief = CONFIG.surfaces.waterRelief;
   } else {
     paintGroundBase(image.data);
     relief = CONFIG.surfaces.groundRelief;
@@ -132,6 +135,19 @@ function fractalNoise(seed: number, cellsX: number, cellsY: number, octaves: num
 
 function smooth(t: number): number {
   return t * t * (3 - 2 * t);
+}
+
+/**
+ * NBB-164: small ripples for the water's surface (its relief becomes the waves' normal map): soft
+ * bumps of a few sizes, a little stretched along one direction, like wind on a pond.
+ */
+function paintRipples(data: Uint8ClampedArray): void {
+  const big = fractalNoise(9101, 6, 4, 3);
+  const small = fractalNoise(9102, 16, 12, 2);
+  for (let i = 0; i < SIZE * SIZE; i++) {
+    const value = (big[i] ?? 0) * 0.6 + (small[i] ?? 0) * 0.4;
+    setGray(data, i, Math.round(value * 255));
+  }
 }
 
 function setGray(data: Uint8ClampedArray, index: number, value: number): void {

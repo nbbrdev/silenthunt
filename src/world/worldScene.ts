@@ -7,6 +7,7 @@ import { Atmosphere } from "./atmosphere";
 import { ChunkManager } from "./chunks";
 import { Terrain } from "./terrain";
 import { VegetationLibrary } from "./vegetation";
+import { WaterSurfaces } from "./waterSurface";
 
 export interface World {
   scene: Scene;
@@ -15,6 +16,8 @@ export interface World {
   clock: DayClock;
   /** NBB-156: its light and fog (the last night turns them red). */
   atmosphere: Atmosphere;
+  /** NBB-164: the water's surface. */
+  water: WaterSurfaces;
 }
 
 /** The game world: the infinite forest (NBB-129) with its day and night cycle (NBB-130). */
@@ -31,8 +34,10 @@ export function createWorld(engine: Engine, physics: HavokPlugin, seed: number):
   const terrain = new Terrain(seed);
   const library = new VegetationLibrary(scene);
   const chunks = new ChunkManager(scene, terrain, library, getGroundMaterial(scene));
+  // NBB-164: the rivers' and lakes' surface, built with each chunk (so before the first ones).
+  const water = new WaterSurfaces(scene, terrain, chunks, library);
   const { spawn } = CONFIG.player;
   chunks.loadAround(new Vector3(spawn.x, 0, spawn.z));
 
-  return { scene, terrain, chunks, clock, atmosphere };
+  return { scene, terrain, chunks, clock, atmosphere, water };
 }

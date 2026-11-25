@@ -2,6 +2,7 @@ import { CONFIG } from "../config";
 import { biomeAt, biomeWeights, type Biome, type BiomeWeights } from "./biomes";
 import { cabinsNear } from "./cabinSites";
 import { fractalNoise } from "./noise";
+import { WaterField } from "./water";
 
 /** Ground types of RF-03. The noise system (NBB-131) asks which one is under the player. */
 export type GroundType = "dirt" | "moss" | "leaves" | "twigs" | "mud" | "grass";
@@ -12,16 +13,40 @@ export type GroundType = "dirt" | "moss" | "leaves" | "twigs" | "mud" | "grass";
  */
 export class Terrain {
   readonly seed: number;
+  /** NBB-164 (AG12-A): the rivers and lakes, carved into the land. */
+  readonly water: WaterField;
 
   constructor(seed: number) {
     this.seed = seed;
+    this.water = new WaterField(
+      seed,
+      (x, z) => this.hillsAt(x, z, 1),
+      (x, z) => this.biomeWeightsAt(x, z).marsh,
+    );
   }
 
   /**
    * Ground height in meters at (x, z) (MW1: gentle hills, RF-02). Around a cabin the ground is
-   * flat (ES1), blending back into the hills a few meters away.
+   * flat (ES1), blending back into the hills a few meters away. NBB-164: rivers and lakes carve
+   * their beds and banks into it.
    */
   heightAt(x: number, z: number): number {
+    return this.water.carve(x, z, this.landAt(x, z));
+  }
+
+  /**
+   * NBB-164: the water at (x, z): its surface height and how deep it is there (0 on dry land).
+   */
+  waterAt(x: number, z: number): { level: number; depth: number } {
+    const shape = this.water.shapeAt(x, z);
+    if (!shape || shape.edge >= 0) {
+      return { level: -Infinity, depth: 0 };
+    }
+    return { level: shape.level, depth: Math.max(0, shape.level - this.heightAt(x, z)) };
+  }
+
+  /** The land before the water carves it: the hills, flattened around the cabins. */
+  private landAt(x: number, z: number): number {
     let height = this.hillsAt(x, z);
     const { flatRadius, blendRadius } = CONFIG.cabins;
     for (const site of cabinsNear(x, z, this.seed)) {
@@ -51,10 +76,10 @@ export class Terrain {
    * field is gentler still; the marsh lies low and almost flat; the ridge rises up to ~25 m higher
    * in steps with steep faces. At a border the shapes blend with the biomes.
    */
-  private hillsAt(x: number, z: number): number {
+  private hillsAt(x: number, z: number, octaves = 4): number {
     const { hillHeight, hillSpacing } = CONFIG.world;
     const hills =
-      (fractalNoise(x / hillSpacing, z / hillSpacing, this.seed, 4) - 0.5) * 2 * hillHeight;
+      (fractalNoise(x / hillSpacing, z / hillSpacing, this.seed, octaves) - 0.5) * 2 * hillHeight;
     const w = this.biomeWeightsAt(x, z);
     const relief = CONFIG.biomes.relief;
     let height = hills * (w.pineForest + w.broadleaf);

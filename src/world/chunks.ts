@@ -122,6 +122,11 @@ export class ChunkManager {
   readonly onChunkLoaded = new Observable<ChunkInfo>();
   readonly onChunkUnloaded = new Observable<ChunkInfo>();
 
+  /** NBB-164 (AG8-A): a loaded chunk's ground mesh (reflected by the water), if loaded. */
+  terrainMeshOf(key: string): Mesh | undefined {
+    return this.chunks.get(key)?.terrainMesh;
+  }
+
   /** The chunks loaded right now. */
   loadedChunks(): ChunkInfo[] {
     return [...this.chunks.values()].map(({ key, cx, cz }) => ({ key, cx, cz }));

@@ -119,6 +119,19 @@ export class VegetationLibrary {
     return GENERATORS[kind].create(this.scene, variantSeed(variant)).root;
   }
 
+  /** NBB-164 (AG8-A): the trees' meshes, all their copies (the water reflects them). */
+  treeMeshes(): Mesh[] {
+    const meshes: Mesh[] = [];
+    for (const [kind, list] of this.variants) {
+      if (isTree(kind)) {
+        for (const entry of list) {
+          meshes.push(...entry.meshes);
+        }
+      }
+    }
+    return meshes;
+  }
+
   variantCount(kind: VegetationKind): number {
     return this.variants.get(kind)?.length ?? 0;
   }
