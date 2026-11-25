@@ -18,7 +18,7 @@ Versões aprovadas no G8. Como o jogo não é publicado (T7), a tag só marca o 
 | M5 · Polimento | 19–20/11 | Som, música, menus, equilíbrio, bugs, instruções | `v1.0.0` |
 | M6 · Pós-entrega | sem prazo (PZ1) | Features novas do usuário depois da entrega (FN0-A, 2026-11-23) | `v1.1.0` |
 | M7 · Acabamento | sem prazo (PZ1) | Deixar o jogo mais profissional, uma melhoria por vez (CI0-A, 2026-11-24) | `v1.2.0` |
-| M8 · Mundo vivo | sem prazo (PZ1) | Biomas, água, cachoeiras e novos animais para enriquecer o mundo (BI0-A, 2026-11-24) | `v1.3.0` |
+| M8 · Mundo vivo | sem prazo (PZ1) | Biomas, água, cachoeiras, árvores imponentes e novos animais para enriquecer o mundo (BI0-A, 2026-11-24; FL0-A, 2026-11-25) | `v1.3.0` |
 
 ## Issues por marco
 
@@ -93,6 +93,7 @@ Pedido do usuário em 2026-11-24: enriquecer o mundo e o ambiente (BI0-A). Cada 
 44. **Animais pacíficos:** raposa, aves, peixes e sapos (BI7). [UX]
 45. **Animais hostis:** lobo, urso e javali, de dia e no entardecer (BI8-A). [Frontend]
 46. **Ambiente de cada bioma:** sons, neblina e partículas; medição de FPS no fim do marco (BI9-A, BI10-B). [UX]
+47. **Árvores imponentes e luz da floresta:** árvores ~2× maiores com o tronco limpo embaixo, algumas jovens, a copa escurecendo a luz e feixes de sol nos vãos. Pedido do usuário em 2026-11-25, feita antes da 44 (FL0-A a FL7-A). [UX]
 
 ## Ordem de corte
 

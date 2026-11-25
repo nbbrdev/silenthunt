@@ -598,6 +598,23 @@ Pedido do usuário: novos biomas, animais (hostis e pacíficos), lagos, rios e c
 | CC10-1 | Som da queda: "Ambiance_Waterfall_Small_Close_Loop_02_Stereo", Nox_Sound (Freesound 698306, CC0), em loop. |
 | CC11 | Revisão do usuário (2026-11-25): aprovadas as cachoeiras no jogo e a contagem corrigida da CC8 (a primeira imagem juntava por engano quedas de degraus vizinhos): 88 em 16 km² (~5 por km²), quase todas de 3,2 a 3,6 m, ~25 mais baixas na borda da serra, só duas acima de 5 m. Detalhes decididos por Claude aprovados ("1 a 7 - Ok"): só os rios caem (os lagos da serra mantêm a superfície suave); cortina 2 m mais larga que a beira, com as laterais e a parte plana acima da beira sumindo aos poucos; rugido só nas três mais perto, volume 0,8 no grupo do ambiente; o abafamento vale para todo ruído a menos de 15 m, também no medidor; quedas do mesmo degrau se juntam a até 6 m e com até 0,75 m de diferença; três traços `#3f5f70` no mapa; comandos de teste `goToWaterfall` e `fallProfile`. Regra registrada como RF-72 no docs/03. |
 
+## NBB-169: Árvores imponentes e luz da floresta (2026-11-25)
+
+Pedido do usuário: árvores mais imponentes, maiores e mais altas, sem a folhagem tapar a visão, com a copa tapando a luz do sol e deixando passar feixes de luz.
+
+| Código | Decisão |
+| -- | -- |
+| FL0-A | Issue nova, a **47 (NBB-169)**, no M8 · Mundo vivo, feita antes da 44 (animais pacíficos). |
+| FL1-A | Árvores **~2× maiores**: pinheiro 16–28 m, carvalho 12–20 m, bétula 16–26 m, árvore morta 9–15 m; troncos mais grossos na mesma proporção, colisão incluída. |
+| FL2-A | **Tronco limpo embaixo:** a folhagem começa acima de ~35% da altura e não desce até os olhos; nos pinheiros, alguns tocos de galhos secos no tronco baixo. |
+| FL3-A | ~25% das árvores continuam no tamanho de hoje, como **árvores jovens**. |
+| FL4-A | **Sombra simulada:** a luz do dia diminui conforme a densidade de árvores no lugar (floresta fechada mais escura; clareira, campo e pântano mais claros), com transição suave. |
+| FL5-A | **Feixes de luz** desenhados por código nos vãos das copas em volta do jogador, inclinados na direção do sol, só de dia (dourados no amanhecer e no entardecer), entrando na neblina; poucas dezenas, de planos cruzados. |
+| FL6-A | O machado dá as mesmas madeiras; a árvore alta cai mais devagar; o resto igual. |
+| FL7-A | Cada árvore dentro dos 1.500 triângulos; revisão na galeria, depois capturas no jogo (dia, entardecer, noite, neblina); medição de FPS na máquina do usuário no fim. O filme do menu é revisto com as árvores maiores. |
+| FL8-A | Árvores adultas aprovadas na galeria, com os detalhes de Claude: folhagem nunca abaixo de 5,5 m; jovens são as variações 2 e 6 de cada árvore; pinheiro adulto com 36–41 galhos, um pouco mais longos e menos caídos, e 3–6 tocos secos; carvalho adulto com o tronco até 42% da altura, dividindo-se no alto, e 10–13 cartões de folha por ponta; cartões de folha de no máximo 3,2 m (carvalho) e 2,6 m (bétula); bétula adulta com 8–11 por ponta; colisão de tronco até 0,9 m de raio; a árvore derrubada cai em 1,5 s × √(altura ÷ 11 m); comando `seed(n)` na galeria. |
+| FL9-B | Três variações antigas acima dos 1.500 triângulos (carvalho 6 com 1.636; árvores mortas 1 e 6 com 1.536 e 1.690), achadas ao contar todas as variações do mundo, **ficam como estão**. |
+
 ## M6: Features novas (2026-11-23)
 
 | Código | Decisão |

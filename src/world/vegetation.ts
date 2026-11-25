@@ -252,7 +252,8 @@ function measureTrunkRadius(mesh: Mesh): number {
       radius = Math.max(radius, Math.sqrt(x * x + z * z));
     }
   }
-  return Math.min(Math.max(radius, 0.08), 0.6);
+  // NBB-169 (FL1-A): the grown trees' trunks are thicker (up to ~0.7 m).
+  return Math.min(Math.max(radius, 0.08), 0.9);
 }
 
 function measureSize(mesh: Mesh): number {

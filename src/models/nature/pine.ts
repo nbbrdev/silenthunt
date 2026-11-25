@@ -7,13 +7,15 @@ import { paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
 import { plantModel } from "../plant";
 import type { GeneratedModel, ModelGenerator } from "../types";
+import { crownFloor, isYoungTree } from "./treeAge";
 
 /** Golden angle: spreads branches evenly around the trunk, like real conifers. */
 const GOLDEN_ANGLE = 2.39996;
 
 /**
  * Pine (W1, revised with the user's references): straight trunk with spiraling side branches
- * that droop more at the bottom, covered in needle cards, narrowing to a pointed top.
+ * that droop more at the bottom, covered in needle cards, narrowing to a pointed top. NBB-169: a
+ * grown one is twice as tall, its branches high above a clear trunk with a few dry stubs.
  */
 export const pine: ModelGenerator = {
   id: "pine",
@@ -21,7 +23,11 @@ export const pine: ModelGenerator = {
   create(scene: Scene, seed: number): GeneratedModel {
     const random = createRandom(seed);
     const settings = CONFIG.models.pine;
-    const height = randomInRange(random, settings.height);
+    // FL1-A, FL3-A: grown trees are about twice as tall; a quarter stay young.
+    const young = isYoungTree(seed);
+    const height = randomInRange(random, young ? settings.youngHeight : settings.height);
+    // FL2-A: a grown pine's branches start high, the trunk clear below them.
+    const firstBranch = young ? 0.18 : crownFloor(height, young) / height;
 
     const trunkPath: Vector3[] = [];
     for (let i = 0; i < 5; i++) {
@@ -39,13 +45,16 @@ export const pine: ModelGenerator = {
     ];
 
     const cards = new CardBuilder();
-    const branchCount = randomInt(random, settings.branches);
+    const branchCount = randomInt(random, young ? settings.branches : settings.grownBranches);
+    const reach = young ? 0.32 : settings.grownReach;
     for (let i = 0; i < branchCount; i++) {
-      const t = 0.18 + (i / branchCount) * 0.78 + randomRange(random, -0.02, 0.02);
+      const t =
+        firstBranch + (i / branchCount) * (0.96 - firstBranch) + randomRange(random, -0.02, 0.02);
       const azimuth = i * GOLDEN_ANGLE + randomRange(random, -0.3, 0.3);
-      const length = (1 - t) * height * 0.32 + 0.35;
-      // Low branches droop, high ones point slightly up.
-      const droop = -0.35 + t * 0.5;
+      const length = (1 - t) * height * reach + 0.35;
+      // Low branches droop, high ones point slightly up (a grown pine's droop less, so they stay
+      // well above the eyes).
+      const droop = young ? -0.35 + t * 0.5 : -0.12 + t * 0.35;
       const direction = new Vector3(Math.cos(azimuth), droop, Math.sin(azimuth)).normalize();
       const start = pointAt(trunkPath, t);
       const middle = start.add(direction.scale(length * 0.5));
@@ -77,6 +86,34 @@ export const pine: ModelGenerator = {
           normal,
           directionAt(branchPath, along),
         );
+      }
+    }
+
+    // FL2-A: on a grown pine, a few short dry stubs where the lower branches fell off.
+    if (!young) {
+      const stubCount = randomInt(random, settings.stubs);
+      for (let i = 0; i < stubCount; i++) {
+        const t = randomRange(random, 0.1, firstBranch - 0.04);
+        const azimuth = random() * Math.PI * 2;
+        const length = randomRange(random, 0.4, 1.1);
+        const direction = new Vector3(
+          Math.cos(azimuth),
+          randomRange(random, -0.25, 0.15),
+          Math.sin(azimuth),
+        ).normalize();
+        const start = pointAt(trunkPath, t);
+        const radius = randomRange(random, 0.035, 0.07);
+        segments.push({
+          path: [
+            start,
+            start.add(direction.scale(length * 0.5)),
+            start.add(direction.scale(length)),
+          ],
+          radiusStart: radius,
+          radiusEnd: radius * 0.4,
+          depth: 3,
+          isTip: false,
+        });
       }
     }
 

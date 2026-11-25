@@ -1023,8 +1023,12 @@ export const CONFIG = {
     stones: 3,
     /** BM1 (NBB-163): a boulder of the ridge gives more stones. */
     boulderStones: 5,
-    /** MC1-A: the tree tips over in this long, then disappears. */
+    /**
+     * MC1-A: the tree tips over in this long, then disappears. FL6-A (NBB-169): that is for one
+     * `fallReference` m tall; a taller one takes longer (with the root of its height).
+     */
     fallSeconds: 1.5,
+    fallReference: 11,
     /** Height of the stump left behind (meters). */
     stumpHeight: 0.35,
   },
@@ -1633,12 +1637,43 @@ export const CONFIG = {
   },
   /** Size ranges of the procedural models, [min, max] (W1). Lengths in meters. */
   models: {
-    /** Conifer: straight trunk, drooping side branches covered in needle cards. */
-    pine: { height: [8, 14], branches: [26, 34], needleCardsPerBranch: [6, 9] },
-    /** Broadleaf: trunk forks into limbs (recursive), leaf cards at the outer twigs. */
-    oak: { height: [6, 10], depth: 3, leafCardsPerTwig: [8, 12] },
+    /**
+     * NBB-169 (FL1-A to FL3-A): the trees are about twice as tall; their foliage starts above
+     * `crownStart` of the height and never below `crownFloor` m, so the view stays clear under
+     * it. A quarter of them are young, of the old size (`youngHeight`) and shape.
+     */
+    trees: { crownStart: 0.35, crownFloor: 5.5 },
+    /** Conifer: straight trunk, drooping side branches covered in needle cards; FL2-A: a few dry stubs low on the trunk. */
+    pine: {
+      height: [16, 28],
+      youngHeight: [8, 14],
+      branches: [26, 34],
+      needleCardsPerBranch: [6, 9],
+      stubs: [3, 6],
+      /** A grown pine's fuller crown: more branches, a little longer. */
+      grownBranches: [36, 41],
+      grownReach: 0.36,
+    },
+    /** Broadleaf: trunk forks into limbs (recursive), leaf cards at the outer twigs (no bigger than `leafMax` m). */
+    oak: {
+      height: [12, 20],
+      youngHeight: [6, 10],
+      depth: 3,
+      leafCardsPerTwig: [8, 12],
+      leafMax: 3.2,
+      /** A grown oak: a longer trunk that forks near its top, and a fuller crown. */
+      grownTrunk: 0.42,
+      grownForkAt: [0.85, 1],
+      grownLeafCards: [10, 13],
+    },
     /** Gnarled bare tree with root flares; sometimes a second trunk from the base. */
-    deadTree: { height: [5, 9], depth: 3, roots: [4, 6], secondTrunkChance: 0.35 },
+    deadTree: {
+      height: [9, 15],
+      youngHeight: [5, 9],
+      depth: 3,
+      roots: [4, 6],
+      secondTrunkChance: 0.35,
+    },
     /** Dome of leaf cards around a few twigs. */
     /** MI2-A (NBB-154): tall enough to hide a crouching player's eyes (1.0 m); it was 0.6–1.2. */
     bush: { height: [1.1, 1.6], leafCards: [35, 55] },
@@ -1648,7 +1683,15 @@ export const CONFIG = {
     /** 2–3 crossed grass cards. */
     groundTuft: { height: [0.2, 0.5], cards: [2, 3] },
     /** BM4-A (NBB-163): slender white trunk that keeps going up (a leader), a light crown. */
-    birch: { height: [9, 15], depth: 3, leafCardsPerTwig: [6, 10] },
+    birch: {
+      height: [16, 26],
+      youngHeight: [9, 15],
+      depth: 3,
+      leafCardsPerTwig: [6, 10],
+      leafMax: 2.6,
+      /** A grown birch's fuller crown. */
+      grownLeafCards: [8, 11],
+    },
     /** Marsh reeds: tall crossed cards, taller than a crouching player's eyes (1.0 m). */
     reeds: { height: [1.2, 1.8], cards: [4, 6] },
     /** The field's tall grass: up to a crouching player's eyes. */

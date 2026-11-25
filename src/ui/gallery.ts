@@ -297,6 +297,13 @@ export function createGalleryScene(engine: Engine): Scene {
         state.lightMode = mode;
         applyLightMode();
       },
+      /** Builds the model again with this seed (as the seed box does). */
+      seed: (value: number) => {
+        state.seed = value;
+        seedInput.text = String(value);
+        showModel();
+        return trianglesText.text;
+      },
       /** Shows the model with this id (as its button does). */
       show: (id: string) => {
         const generator = MODEL_REGISTRY.find((entry) => entry.id === id);

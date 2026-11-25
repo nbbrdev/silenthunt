@@ -7,6 +7,7 @@ import { paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
 import { plantModel } from "../plant";
 import type { GeneratedModel, ModelGenerator } from "../types";
+import { crownFloor, isYoungTree } from "./treeAge";
 
 /**
  * Oak (W1, revised with the user's references): a trunk that forks into limbs, recursively, with
@@ -18,20 +19,24 @@ export const oak: ModelGenerator = {
   create(scene: Scene, seed: number): GeneratedModel {
     const random = createRandom(seed);
     const settings = CONFIG.models.oak;
-    const height = randomInRange(random, settings.height);
+    // FL1-A, FL3-A: grown trees are about twice as tall; a quarter stay young.
+    const young = isYoungTree(seed);
+    const height = randomInRange(random, young ? settings.youngHeight : settings.height);
+    const floor = crownFloor(height, young);
 
     const segments = growBranches(
       random,
       Vector3.Zero(),
       new Vector3(randomRange(random, -0.08, 0.08), 1, randomRange(random, -0.08, 0.08)),
-      height * 0.38,
+      // FL2-A: a grown oak's trunk is longer and forks near its top, so the crown stays high.
+      height * (young ? 0.38 : settings.grownTrunk),
       height * 0.05,
       {
         maxDepth: settings.depth,
         children: [2, 3],
         spread: [0.35, 0.8],
         lengthFactor: [0.62, 0.82],
-        childStart: [0.6, 1],
+        childStart: young ? [0.6, 1] : settings.grownForkAt,
         upward: 0.3,
         twist: 0.12,
         pathPoints: 4,
@@ -52,13 +57,20 @@ export const oak: ModelGenerator = {
       if (segment.depth < settings.depth - 1) {
         continue;
       }
-      const count = segment.isTip ? randomInt(random, settings.leafCardsPerTwig) : 4;
+      const perTwig = young ? settings.leafCardsPerTwig : settings.grownLeafCards;
+      const count = segment.isTip ? randomInt(random, perTwig) : 4;
       for (let i = 0; i < count; i++) {
-        const size = height * randomRange(random, 0.17, 0.25);
+        const size = Math.min(height * randomRange(random, 0.17, 0.25), settings.leafMax);
         const center = pointAt(segment.path, randomRange(random, 0.35, 1)).add(
           randomDirection(random).scale(size * 0.35),
         );
-        cards.addCard(center, size, size, randomDirection(random), randomDirection(random));
+        const normal = randomDirection(random);
+        const up = randomDirection(random);
+        // FL2-A: no leaves hang down into the view.
+        if (center.y - size / 2 < floor) {
+          continue;
+        }
+        cards.addCard(center, size, size, normal, up);
         crownCenter.addInPlace(center);
         crownPoints++;
       }

@@ -6,6 +6,7 @@ import { paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
 import { plantModel } from "../plant";
 import type { GeneratedModel, ModelGenerator } from "../types";
+import { isYoungTree } from "./treeAge";
 
 /**
  * Dead tree (W1, revised with the user's references): gnarled, twisting bare branches that
@@ -18,7 +19,11 @@ export const deadTree: ModelGenerator = {
   create(scene: Scene, seed: number): GeneratedModel {
     const random = createRandom(seed);
     const settings = CONFIG.models.deadTree;
-    const height = randomInRange(random, settings.height);
+    // FL1-A, FL3-A: grown trees are about twice as tall; a quarter stay young.
+    const height = randomInRange(
+      random,
+      isYoungTree(seed) ? settings.youngHeight : settings.height,
+    );
     const rules = {
       maxDepth: settings.depth,
       children: [2, 3],

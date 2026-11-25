@@ -7,6 +7,7 @@ import { paint, toColor } from "../lowPoly";
 import { getModelMaterials } from "../materials";
 import { plantModel } from "../plant";
 import type { GeneratedModel, ModelGenerator } from "../types";
+import { crownFloor, isYoungTree } from "./treeAge";
 
 /**
  * Birch (BM4-A, NBB-163): a slender white trunk that keeps going up, with short dark marks across
@@ -19,7 +20,10 @@ export const birch: ModelGenerator = {
   create(scene: Scene, seed: number): GeneratedModel {
     const random = createRandom(seed);
     const settings = CONFIG.models.birch;
-    const height = randomInRange(random, settings.height);
+    // FL1-A, FL3-A: grown trees are about twice as tall; a quarter stay young.
+    const young = isYoungTree(seed);
+    const height = randomInRange(random, young ? settings.youngHeight : settings.height);
+    const floor = crownFloor(height, young);
 
     const segments = growBranches(
       random,
@@ -58,14 +62,20 @@ export const birch: ModelGenerator = {
       if (segment.depth < settings.depth - 1) {
         continue;
       }
-      const count = segment.isTip ? randomInt(random, settings.leafCardsPerTwig) : 3;
+      const perTwig = young ? settings.leafCardsPerTwig : settings.grownLeafCards;
+      const count = segment.isTip ? randomInt(random, perTwig) : 3;
       for (let i = 0; i < count; i++) {
-        const size = height * randomRange(random, 0.13, 0.19);
+        const size = Math.min(height * randomRange(random, 0.13, 0.19), settings.leafMax);
         const center = pointAt(segment.path, randomRange(random, 0.3, 1)).add(
           randomDirection(random).scale(size * 0.3),
         );
+        const normal = randomDirection(random);
+        // FL2-A: no leaves hang down into the view.
+        if (center.y - size / 2 < floor) {
+          continue;
+        }
         // Leaves hang: the card's top points up, so the drawn twigs droop down it.
-        cards.addCard(center, size, size, randomDirection(random), Vector3.Up());
+        cards.addCard(center, size, size, normal, Vector3.Up());
         crownCenter.addInPlace(center);
         crownPoints++;
       }

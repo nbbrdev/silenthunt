@@ -17,6 +17,8 @@ interface Falling {
   pivot: TransformNode;
   axis: Vector3;
   seconds: number;
+  /** FL6-A (NBB-169): how long it takes to come down (a tall tree takes longer). */
+  duration: number;
 }
 
 /**
@@ -100,7 +102,7 @@ export class ChoppingSystem {
         continue;
       }
       tree.seconds += seconds;
-      const t = tree.seconds / CONFIG.axe.fallSeconds;
+      const t = tree.seconds / tree.duration;
       // It falls slowly at first, then faster, like a real tree; then it is gone.
       const angle = Math.min(1, t) ** 2 * (Math.PI / 2 - 0.05);
       tree.pivot.rotationQuaternion = Quaternion.RotationAxis(tree.axis, angle);
@@ -167,7 +169,12 @@ export class ChoppingSystem {
     // Turning about this axis tips the top of the tree toward `away`.
     const axis = Vector3.Cross(Vector3.Up(), away).normalize();
     pivot.rotationQuaternion = Quaternion.Identity();
-    this.falling.push({ pivot, axis, seconds: 0 });
+    // FL6-A: a falling tree takes longer the taller it is (like a pendulum, with the root of its
+    // height): `fallSeconds` for one `fallReference` m tall.
+    const { min, max } = pivot.getHierarchyBoundingVectors(true);
+    const { fallSeconds, fallReference } = CONFIG.axe;
+    const duration = fallSeconds * Math.sqrt(Math.max(1, max.y - min.y) / fallReference);
+    this.falling.push({ pivot, axis, seconds: 0, duration });
     this.sounds?.play("treeFall", new Vector3(target.x, target.y + 2, target.z));
   }
 
