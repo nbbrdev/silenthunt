@@ -580,6 +580,7 @@ Pedido do usuário: novos biomas, animais (hostis e pacíficos), lagos, rios e c
 | AG15-A | Entrar na água: "splash_1", genel (Freesound 482953, CC0). |
 | AG16-A | Braçadas: "POOL SWIMMING R-L", tbsounddesigns (530158, CC0), em loop. |
 | AG17-A | Som de fundo embaixo d'água: "Underwater Ambience", Fission9 (504641, CC0). |
+| AG18 | Revisão do usuário (2026-11-25): detalhes decididos por Claude aprovados ("1 a 9 - Ok"): barra de ar azul-clara logo acima da barra de vida (não há barra de fôlego na tela), visível embaixo d'água e até o ar encher; dano de queda da BM1, que tinha ficado de fora da NBB-163: acima de 4 m, 12 de vida por metro a mais; nada nasce na água, só juncos até 0,4 m; animais evitam água de mais de 0,4 m, 30% de chance de ir beber a cada virada, a 1,2 m/s, e nenhum nasce na água; os 40 s da criatura valem também na última noite, e ela contorna a margem virando sempre para o mesmo lado; passos na água rasa com o alcance do andar atual ×1,5; afogamento aplicado de 10 em 10; nado de 1,3 m até 1,05 m, para não piscar na margem; comandos de teste `swim`, `goToWater(fundura)` e `pitch`. O commit `9a251c6` saiu com a mensagem do anterior; a `main` não aceita force push, e o usuário escolheu deixar assim. Regra registrada como RF-71 no docs/03. |
 
 ## M6: Features novas (2026-11-23)
 
