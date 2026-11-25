@@ -616,6 +616,24 @@ Pedido do usuário: árvores mais imponentes, maiores e mais altas, sem a folhag
 | FL9-B | Três variações antigas acima dos 1.500 triângulos (carvalho 6 com 1.636; árvores mortas 1 e 6 com 1.536 e 1.690), achadas ao contar todas as variações do mundo, **ficam como estão**. |
 | FL10 | Revisão do usuário (2026-11-25): sombra da copa e feixes aprovados, com os detalhes de Claude ("1 a 4 - Ok"): a sombra conta as árvores a até 12 m (9 adultas fecham a copa, uma jovem vale 0,4), copa fechada tira 70% do sol, 40% da luz do céu e escurece a neblina em 25%, em ~2,5 s, só de dia; até 24 feixes a menos de 38 m, em pontos sorteados pela semente (55% dos quadrados de 7 m), só em vãos (nenhum tronco a 2 m, ao menos 3 adultas a 9 m), 24 m de altura, 1,2–2,6 m de largura, até ~43° de inclinação, força 0,3, somem a menos de ~4 m; sombra e feixes seguem a câmera (também no filme do menu); comando `forestLight()`. A medição de FPS na máquina do usuário fica para o fim do marco (BI10-B). Regra registrada como RF-73 no docs/03. |
 
+## Pedidos de 2026-11-25: chão, placa e água (NBB-170 a NBB-172)
+
+Pedido do usuário: mais detalhes no chão (um gramado mais vivo), um poste com placa que aponta a cabana mais próxima e uma textura de água que mostre o fluxo nos rios e lagos.
+
+| Código | Decisão |
+| -- | -- |
+| PD0-A | Três issues no M8 · Mundo vivo, nesta ordem, antes da 44 (animais): **48 · Detalhes no chão (NBB-170)**, **49 · Poste com placa (NBB-171)**, **50 · Água com correnteza (NBB-172)**. |
+| SL1-A | Chão e cobertura juntos: a textura do chão ganha variação de cor em manchas grandes e uma segunda textura de perto; por cima, detalhes gerados por código por bioma: grama viva em tufos mais cheios e de tons variados, samambaias (pinheiral e bosque), folhas caídas em montinhos (bosque), cogumelos perto de troncos e árvores mortas, flores pequenas e raras (campo), pedrinhas (serra); só até ~35 m. |
+| SL2-A | Chão bem coberto perto do jogador sem esconder o caminho: ~3× os tufos de hoje, mais densos no bosque e no campo, mais ralos na serra; a grama balança com o vento. |
+| SL3-A | Só visual: as plantas novas não escondem nem fazem barulho (a moita e o capim alto continuam os esconderijos). |
+| PL1-A | O poste aponta a **cabana mais próxima** dele, qualquer uma (comum ou do rádio). |
+| PL2-A | Raros, sorteados pela semente, ~1 a cada 300 a 500 m, a pelo menos 60 m de uma cabana; nenhum no pinheiral do começo. |
+| PL3-A | Poste de madeira velho e inclinado com uma placa em seta, escrito à mão (por código) **"Cabana"**, a seta apontando a cabana de verdade; revisão na galeria. |
+| PL4-A | E lê a placa ("Cabana a uns 300 m a nordeste") e marca a direção no mapa como destino da bússola, até chegar. |
+| AF1-A | Uma camada de correnteza por cima da água de hoje: nos rios, linhas de espuma e ondinhas andando do lado mais alto para o mais baixo, mais rápidas perto das cachoeiras; nos lagos, quase parada; o reflexo continua por baixo. |
+| AF2-A | A textura das ondinhas redesenhada em código, com mais detalhe e duas escalas; a cor fica a de hoje. |
+| AF3-B | A correnteza também **empurra quem nada no rio**, devagar, a favor dela, e mais forte perto das cachoeiras. |
+
 ## M6: Features novas (2026-11-23)
 
 | Código | Decisão |

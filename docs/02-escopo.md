@@ -94,6 +94,9 @@ Pedido do usuário em 2026-11-24: enriquecer o mundo e o ambiente (BI0-A). Cada 
 45. **Animais hostis:** lobo, urso e javali, de dia e no entardecer (BI8-A). [Frontend]
 46. **Ambiente de cada bioma:** sons, neblina e partículas; medição de FPS no fim do marco (BI9-A, BI10-B). [UX]
 47. **Árvores imponentes e luz da floresta:** árvores ~2× maiores com o tronco limpo embaixo, algumas jovens, a copa escurecendo a luz e feixes de sol nos vãos. Pedido do usuário em 2026-11-25, feita antes da 44 (FL0-A a FL7-A). [UX]
+48. **Detalhes no chão:** textura do chão com mais variação e cobertura por bioma (grama viva, samambaias, folhas caídas, cogumelos, flores, pedrinhas). Pedido do usuário em 2026-11-25, feita antes da 44 (PD0-A, SL1-A a SL3-A). [UX]
+49. **Poste com placa:** postes raros apontando a cabana mais próxima; E lê e marca a direção no mapa (PL1-A a PL4-A). [UX]
+50. **Água com correnteza:** correnteza visível nos rios, textura da água melhor e a correnteza empurrando quem nada (AF1-A, AF2-A, AF3-B). [Frontend]
 
 ## Ordem de corte
 
