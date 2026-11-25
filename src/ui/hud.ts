@@ -82,6 +82,50 @@ function createHungerBar(ui: AdvancedDynamicTexture, scene: Scene, hunger: Playe
 }
 
 /**
+ * NBB-164 (AG14): the air bar, pale blue, just above the health bar and the same size. It shows
+ * only while the eyes are underwater (and until the air fills up again).
+ */
+export function createAirBar(
+  ui: AdvancedDynamicTexture,
+  scene: Scene,
+  air: () => { fraction: number; underwater: boolean },
+): void {
+  const { healthBarWidthPx, airBarColor } = CONFIG.hud;
+
+  const frame = new Rectangle("airBar");
+  frame.width = `${healthBarWidthPx}px`;
+  frame.height = "4px";
+  frame.left = "36px";
+  frame.top = "-46px";
+  frame.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  frame.verticalAlignment = Control.VERTICAL_ALIGNMENT_BOTTOM;
+  frame.thickness = 0;
+  frame.alpha = 0;
+  ui.addControl(frame);
+
+  const track = new Rectangle("airBarTrack");
+  track.background = "white";
+  track.alpha = 0.12;
+  track.thickness = 0;
+  frame.addControl(track);
+
+  const fill = new Rectangle("airBarFill");
+  fill.horizontalAlignment = Control.HORIZONTAL_ALIGNMENT_LEFT;
+  fill.background = airBarColor;
+  fill.alpha = 0.85;
+  fill.thickness = 0;
+  frame.addControl(fill);
+
+  scene.onBeforeRenderObservable.add(() => {
+    const seconds = frameSeconds(scene);
+    const { fraction, underwater } = air();
+    fill.width = `${Math.round(fraction * healthBarWidthPx)}px`;
+    const target = underwater || fraction < 1 ? 1 : 0;
+    frame.alpha += Math.max(-seconds * 2, Math.min(seconds * 4, target - frame.alpha));
+  });
+}
+
+/**
  * Health bar (VD1-C): thin, at the bottom left, in the noise meter's style. It only shows while
  * health is not full and fades out a few seconds after it fills up again.
  */

@@ -29,7 +29,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
 ## Mundo
 
 - **RF-01** O mundo é infinito e gerado a partir de uma **semente** (M11-C). A mesma semente gera sempre o mesmo mundo.
-- **RF-02** O terreno tem relevo suave (colinas e vales), sem cavernas nem água profunda.
+- **RF-02** O terreno tem relevo suave (colinas e vales), sem cavernas. Rios e lagos desde a NBB-164 (RF-71).
 - **RF-03** Tipos de chão: **terra**, **musgo**, **folhas secas** e **galhos secos** (manchas espalhadas). O tipo de chão muda o ruído (RF-11).
 - **RF-04** Vegetação: 3 espécies de árvore (pinheiro, carvalho, árvore morta), arbustos, pedras e galhos soltos. A densidade varia por região (clareiras e mata fechada).
 - **RF-05** Ciclo de dia e noite (M5-B): **dia de 10 min e noite de 6 min**, com 1 min de entardecer e 1 min de amanhecer dentro desses tempos (G4). O jogo começa de manhã.
@@ -41,6 +41,16 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   - **Campo aberto** (~15%): poucas árvores, capim alto e muitas pedras soltas. De pé, o jogador é visto 50% mais longe; agachado no capim alto, só a menos de 15 m.
   - **Serra rochosa** (~15%): morros até ~25 m mais altos em degraus, paredões e pedras grandes (para o machado). Subir encosta de mais de 15° deixa a 70% da velocidade e cansa como correr. O vento encobre os passos: os do jogador e os da criatura chegam a 70% do alcance.
   - Chãos novos: **lama** (pântano) e **capim** (campo), com passos próprios. O mapa pinta cada bioma, e o nome dele aparece ao entrar.
+  - **Quedas altas ferem** (BM1): cair de mais de 4 m tira 12 de vida por metro a mais; água de 1,5 m ou mais amortece a queda.
+- **RF-71** **Água e nado** (NBB-164; AG1-A a AG17-A): rios e lagos cavados no relevo, sorteados pela semente (ruído, AG12-A): rios de 6 a 14 m de largura e ~2 m de fundura, com vaus rasos; lagos de até 3,5 m; no pântano, lagos rasos e mais frequentes. O começo (200 m) e as cabanas (40 m) ficam secos. A superfície reflete as árvores e o céu (material de água do Babylon).
+  - **Água rasa** (de 0,3 a 1,3 m acima dos pés): anda a 60% da velocidade, e os passos soam como na lama, com alcance 50% maior.
+  - **Nadar** (a partir de 1,3 m): 1,6 m/s, ou 2,4 m/s com Shift (gasta fôlego como correr; nadar devagar gasta metade, boiar parado um quarto). Sem fôlego, afunda. **C** segurado mergulha e **Espaço** sobe; embaixo d'água nada para onde olha a 1,4 m/s.
+  - **Ar**: 20 s embaixo d'água, numa barra azul-clara acima da barra de vida (só aparece embaixo d'água e até encher de novo); enche em 2 s na superfície. Sem ar, o afogamento tira 10 de vida por segundo. Voltar depois de 3 s ou mais embaixo d'água faz o jogador puxar o ar.
+  - **Embaixo d'água**: neblina verde-azulada de ~6 m (mais escura à noite), efeitos e ambiente abafados a 40% e um som de fundo próprio.
+  - A **tocha** apaga com a água no peito (1,2 m) e não acende com a água acima da cintura (1 m): "Não dá para acender na água". Nadando, armas e ferramentas não funcionam.
+  - **Ruído**: 8 m por braçada na superfície, nenhum embaixo d'água, 15 m ao cair na água funda.
+  - A **criatura** não entra onde a água passa de 1 m: contorna pela margem e, com o jogador fora do alcance na água funda, desiste em 40 s; se ele estiver ao alcance, golpeia. **Animais** contornam a água funda e, pastando a menos de 15 m dela, às vezes vão à margem beber por 4 a 8 s. Nenhum animal nasce na água.
+  - O **mapa** pinta a água de azul-acinzentado, com "Água" na legenda.
 
 ## Furtividade
 

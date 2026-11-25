@@ -77,6 +77,10 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
   /** PR2: how far the player was when first seen in this alert. */
   private seenAt = Infinity;
   private currentAnimation: AnimationGroup | undefined;
+  /** AG6-B: on its way to drink at the shore (`target`), then drinking until `until`. */
+  private drink: { target: FlatVector; until: number; drinking: boolean } | undefined;
+  /** AG6-B: which way it goes round deep water (1 or -1). */
+  private shoreSide = 1;
 
   constructor(
     kind: PreyKind,
@@ -243,6 +247,7 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
     const settings = CONFIG.prey;
     this.currentState = state;
     this.stateTime = 0;
+    this.drink = undefined;
     switch (state) {
       case "graze":
         this.nextTurn = randomInRange(this.random, settings.turnEvery);
@@ -310,9 +315,23 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
       this.enter("alert");
       return;
     }
+    if (this.drink) {
+      this.updateDrink(seconds);
+      return;
+    }
     if (this.stateTime >= this.nextTurn) {
       this.targetHeading = this.heading + (this.random() - 0.5) * 2;
       this.nextTurn = this.stateTime + randomInRange(this.random, settings.turnEvery);
+      // AG6-B: now and then, with water close by, it goes to drink.
+      if (this.random() < settings.water.drinkChance) {
+        const shore = this.nearestShore();
+        if (shore) {
+          this.drink = { target: shore, until: 0, drinking: false };
+          // The running animation slowed to the walk (it looks right at the fleeing speed).
+          this.play("Correr", settings.water.walkSpeed / settings.fleeSpeed[this.kind]);
+          return;
+        }
+      }
     }
     if (this.kind === "rabbit" && this.stateTime >= this.nextHop) {
       this.hopLeft = settings.hopSeconds;
@@ -328,6 +347,78 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
       }
     }
     this.turnToward(this.targetHeading, settings.turnRate, seconds);
+  }
+
+  /** AG6-B: walks to the shore, then drinks there (the grazing animation, facing the water). */
+  private updateDrink(seconds: number): void {
+    const drink = this.drink;
+    if (!drink) {
+      return;
+    }
+    const water = CONFIG.prey.water;
+    const here = this.position();
+    const toShore = { x: drink.target.x - here.x, z: drink.target.z - here.z };
+    const distance = Math.hypot(toShore.x, toShore.z);
+    if (!drink.drinking) {
+      if (distance > 0.3 && this.stateTime < this.nextTurn + 15) {
+        const forward = { x: Math.sin(this.heading), z: Math.cos(this.heading) };
+        const wanted = normalized(toShore.x, toShore.z, forward);
+        const direction = this.move(wanted, Math.min(distance, water.walkSpeed * seconds));
+        this.turnToward(Math.atan2(direction.x, direction.z), 3, seconds);
+        return;
+      }
+      drink.drinking = true;
+      drink.until = this.stateTime + randomInRange(this.random, water.drinkSeconds);
+      this.play("Pastar", 1);
+    }
+    // Facing the water: the deeper side, a step ahead.
+    this.turnToward(this.waterHeading(here), 2, seconds);
+    if (this.stateTime >= drink.until) {
+      this.drink = undefined;
+      this.nextTurn = this.stateTime + randomInRange(this.random, CONFIG.prey.turnEvery);
+    }
+  }
+
+  /**
+   * AG6-B: the nearest dry spot at the water's edge within `drinkDistance`, looking around in a
+   * few directions (undefined: no water near).
+   */
+  private nearestShore(): FlatVector | undefined {
+    const { terrain } = this.senses;
+    const here = this.position();
+    const reach = CONFIG.prey.water.drinkDistance;
+    for (let distance = 1; distance <= reach; distance += 1) {
+      for (let i = 0; i < 12; i++) {
+        const angle = (i / 12) * Math.PI * 2;
+        const x = here.x + Math.sin(angle) * distance;
+        const z = here.z + Math.cos(angle) * distance;
+        if (terrain.waterAt(x, z).depth > 0) {
+          // One step back from the water.
+          const back = Math.max(0, distance - 1);
+          return { x: here.x + Math.sin(angle) * back, z: here.z + Math.cos(angle) * back };
+        }
+      }
+    }
+    return undefined;
+  }
+
+  /** Which way the water is from the shore spot (the first of a few directions that is wet). */
+  private waterHeading(here: FlatVector): number {
+    for (let i = 0; i < 12; i++) {
+      const angle = (i / 12) * Math.PI * 2;
+      if (
+        this.senses.terrain.waterAt(here.x + Math.sin(angle) * 1.5, here.z + Math.cos(angle) * 1.5)
+          .depth > 0
+      ) {
+        return angle;
+      }
+    }
+    return this.heading;
+  }
+
+  /** AG6-B: water deeper than it goes into. */
+  private isDeep(x: number, z: number): boolean {
+    return this.senses.terrain.waterAt(x, z).depth > CONFIG.prey.water.maxDepth;
   }
 
   /**
@@ -394,7 +485,26 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
     const radius = CONFIG.prey.bodyRadius[this.kind];
     const here = this.position();
     const obstacles = this.senses.chunks.obstaclesNear(here.x, here.z, radius + 3);
-    const direction = avoidObstacles(here, wanted, obstacles, radius, 2);
+    let direction = avoidObstacles(here, wanted, obstacles, radius, 2);
+    // AG6-B: deep water ahead: it turns along the shore (always the same way round).
+    const ahead = 1.5;
+    if (this.isDeep(here.x + direction.x * ahead, here.z + direction.z * ahead)) {
+      let turned: FlatVector | undefined;
+      for (const side of [this.shoreSide, -this.shoreSide]) {
+        for (let turn = 0.4; turn <= 2.8 && !turned; turn += 0.4) {
+          const angle = Math.atan2(direction.x, direction.z) + turn * side;
+          const tried = { x: Math.sin(angle), z: Math.cos(angle) };
+          if (!this.isDeep(here.x + tried.x * ahead, here.z + tried.z * ahead)) {
+            turned = tried;
+            this.shoreSide = side;
+          }
+        }
+      }
+      if (!turned) {
+        return direction;
+      }
+      direction = turned;
+    }
     const moved = pushOutOfObstacles(
       { x: here.x + direction.x * step, z: here.z + direction.z * step },
       obstacles,

@@ -223,7 +223,7 @@ export class BuildingMode {
   }
 
   private update(seconds: number): void {
-    const controls = this.player.controlsEnabled;
+    const controls = this.player.handsFree;
     if (controls && this.input.wasPressed("KeyB")) {
       this.toggle();
     }

@@ -33,6 +33,8 @@ import { MenuCinema } from "./ui/menuCinema";
 import { StoneThrowSystem } from "./systems/stones";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
+import { SwimmingSystem } from "./systems/swimming";
+import { fogConditions } from "./world/atmosphere";
 import { CabinManager } from "./world/cabins";
 import { BIOME_NAMES, type Biome } from "./world/biomes";
 import { BiomeEffects } from "./systems/biomeEffects";
@@ -66,7 +68,7 @@ import { NoiseSystem } from "./systems/noise";
 import { VisibilitySystem } from "./systems/visibility";
 import { createDamageEffects } from "./ui/damageEffects";
 import { DeathScreen } from "./ui/deathScreen";
-import { createHud } from "./ui/hud";
+import { createAirBar, createHud } from "./ui/hud";
 import { createWorld } from "./world/worldScene";
 import { attachFpsCounter } from "./ui/fpsCounter";
 import "./style.css";
@@ -338,6 +340,16 @@ async function start(): Promise<void> {
       effects.play("hurtBreath");
     });
     hunger.onGrowl.add(() => effects.play("stomach"));
+    // NBB-164 (AG14 to AG17): swimming, diving and drowning; a long fall hurts (BM1).
+    player.waterAt = (x, z) => world.terrain.waterAt(x, z);
+    const swimming = new SwimmingSystem(scene, { player, health, torch, noise, effects, options });
+    audio
+      .then((audio) => swimming.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons da água não carregados:", error));
+    createAirBar(hud, scene, () => ({
+      fraction: player.air / CONFIG.swimming.airSeconds,
+      underwater: player.underwater,
+    }));
     inventoryScreen.onToggled.add((open) => effects.play(open ? "bagOpen" : "bagClose"));
     crafting.onMade.add(() => effects.play("craft"));
     hiding.onSniffed.add(() => presence.sniffNow());
@@ -506,6 +518,7 @@ async function start(): Promise<void> {
         campfires.list.map(({ at, fuel }) => ({ x: at[0] ?? 0, z: at[2] ?? 0, lit: fuel > 0 })),
       beds: () => beds.saved.beds.map(({ x, z }) => ({ x, z })),
       knownCabins: () => objective.knownCabins,
+      isWater: (x, z) => world.terrain.waterAt(x, z).depth > 0,
       canOpen: (): boolean =>
         menus.isPlaying &&
         !health.isDead &&
@@ -915,15 +928,20 @@ async function start(): Promise<void> {
            * NBB-164: to the nearest deep water's shore (`kind` "lago" or "rio"), facing the water;
            * returns where and how deep.
            */
-          goToWater: () => {
+          goToWater: (into = 0) => {
             const { x, z } = player.position;
             for (let ring = 20; ring <= 3000; ring += 20) {
               for (let angle = 0; angle < Math.PI * 2; angle += 20 / ring) {
                 const wx = x + Math.cos(angle) * ring;
                 const wz = z + Math.sin(angle) * ring;
                 const water = world.terrain.waterAt(wx, wz);
-                if (water.depth < 1.5) {
+                if (water.depth < Math.max(1.5, into)) {
                   continue;
+                }
+                if (into > 0) {
+                  // Into water at least `into` deep, on its bed (underwater).
+                  player.respawn(new Vector3(wx, world.terrain.heightAt(wx, wz) + 0.05, wz));
+                  return { x: Math.round(wx), z: Math.round(wz), depth: water.depth };
                 }
                 // Walk back toward the start until dry land, then stand there facing the water.
                 for (let back = 1; back < 40; back++) {
@@ -931,7 +949,7 @@ async function start(): Promise<void> {
                   const bz = wz - Math.sin(angle) * back;
                   if (world.terrain.waterAt(bx, bz).depth === 0) {
                     player.respawn(new Vector3(bx, world.terrain.heightAt(bx, bz) + 0.3, bz));
-                    player.view.yaw = Math.atan2(wx - bx, wz - bz);
+                    player.view = { yaw: Math.atan2(wx - bx, wz - bz), pitch: 0 };
                     return { x: Math.round(bx), z: Math.round(bz), depth: water.depth };
                   }
                 }
@@ -940,6 +958,26 @@ async function start(): Promise<void> {
             return "Sem água a até 3 km";
           },
           water: () => ({ chunks: world.water.count }),
+          /** NBB-164 (AG14): the player in the water: state, depth, air, stamina. */
+          swim: (air?: number) => {
+            if (air !== undefined) {
+              player.air = air;
+            }
+            return {
+              state: player.waterState,
+              underwater: player.underwater,
+              aboveFeet: Math.round(player.waterAboveFeet * 100) / 100,
+              air: Math.round(player.air * 10) / 10,
+              stamina: Math.round(player.stamina),
+              health: Math.round(health.value),
+              torchLit: torch.isLit,
+              fogUnderwater: fogConditions.underwater,
+            };
+          },
+          /** Looks up or down (radians; positive looks down). */
+          pitch: (pitch: number) => {
+            player.view = { yaw: player.view.yaw, pitch };
+          },
           /** NBB-163 (BM8): the biome where the player stands, and its weights there. */
           biome: () => {
             const { x, z } = player.position;

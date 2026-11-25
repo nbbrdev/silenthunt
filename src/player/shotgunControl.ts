@@ -178,7 +178,7 @@ export class ShotgunControl {
   private update(input: Input, seconds: number): void {
     const settings = CONFIG.shotgun;
     const holding = this.equipment.current === "shotgun";
-    const canAct = holding && this.player.controlsEnabled;
+    const canAct = holding && this.player.handsFree;
     this.cooldown = Math.max(0, this.cooldown - seconds);
     this.recoilLeft = Math.max(0, this.recoilLeft - seconds);
 

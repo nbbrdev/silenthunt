@@ -99,7 +99,7 @@ export class PlacingSystem {
 
     scene.onBeforeRenderObservable.add(() => {
       this.update();
-      if (this.spot && player.controlsEnabled && input.wasPressed("Mouse0")) {
+      if (this.spot && player.handsFree && input.wasPressed("Mouse0")) {
         this.placeNow();
       }
     });
@@ -131,7 +131,7 @@ export class PlacingSystem {
 
   private update(): void {
     const held = this.world.equipment.current;
-    const active = (held === "campfire" || held === "bed") && this.player.controlsEnabled;
+    const active = (held === "campfire" || held === "bed") && this.player.handsFree;
     this.ghosts.campfire.setEnabled(active && held === "campfire");
     this.ghosts.bed.setEnabled(active && held === "bed");
     this.hint.isVisible = active;

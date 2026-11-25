@@ -67,8 +67,7 @@ export class ChoppingSystem {
     this.interactions = world.interactions;
     scene.onBeforeRenderObservable.add(() => {
       const seconds = frameSeconds(scene);
-      const swing =
-        equipment.current === "axe" && player.controlsEnabled && input.wasPressed("Mouse0");
+      const swing = equipment.current === "axe" && player.handsFree && input.wasPressed("Mouse0");
       if (swing) {
         this.swing();
       }

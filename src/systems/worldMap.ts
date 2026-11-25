@@ -39,6 +39,8 @@ export interface MapParts {
   knownCabins: () => { x: number; z: number }[];
   /** Whether M may open the map now (not in menus, dead, a note, the victory, the inventory). */
   canOpen: () => boolean;
+  /** NBB-164 (AG14): whether there is water at a point (lakes and rivers show on the map). */
+  isWater: (x: number, z: number) => boolean;
 }
 
 interface Point {
@@ -68,6 +70,8 @@ export class WorldMap {
   private untilReveal = 0;
   /** BM5-A: the biome of each explored square (filled as they are drawn). */
   private readonly cellBiomes = new Map<string, Biome>();
+  /** AG14: which quarters of each explored square are water (4 bits; it never changes). */
+  private readonly cellWater = new Map<string, number>();
   /** FX14: the map opened or closed (the paper is heard). */
   readonly onToggled = new Observable<boolean>();
   /** The trees of each chunk drawn (refreshed each time the map opens: some may be felled). */
@@ -329,24 +333,49 @@ export class WorldMap {
     return biome;
   }
 
-  /** BM8: a small legend of the biomes seen so far, at the bottom left of the sheet. */
+  /** AG14: the quarters of an explored square that are water, as bits (remembered). */
+  private waterOf(key: string, ix: number, iz: number): number {
+    let bits = this.cellWater.get(key);
+    if (bits === undefined) {
+      const { cellSize } = CONFIG.map;
+      bits = 0;
+      for (let q = 0; q < 4; q++) {
+        const x = (ix + 0.25 + 0.5 * (q % 2)) * cellSize;
+        const z = (iz + 0.25 + 0.5 * Math.floor(q / 2)) * cellSize;
+        if (this.p.isWater(x, z)) {
+          bits |= 1 << q;
+        }
+      }
+      this.cellWater.set(key, bits);
+    }
+    return bits;
+  }
+
+  /** BM8: a small legend of the biomes (and the water, AG14) seen so far, at the bottom left. */
   private drawLegend(context: CanvasRenderingContext2D): void {
     const { biomeColors, colors, height } = CONFIG.map;
     const seen = BIOMES.filter((biome) => [...this.cellBiomes.values()].includes(biome));
-    if (seen.length < 2) {
+    const rows: { color: string; name: string }[] = seen.map((biome) => ({
+      color: biomeColors[biome],
+      name: BIOME_NAMES[biome],
+    }));
+    if ([...this.cellWater.values()].some((bits) => bits !== 0)) {
+      rows.push({ color: colors.water, name: "Água" });
+    }
+    if (rows.length < 2) {
       return;
     }
     context.font = "13px 'Crimson Pro', serif";
     context.textBaseline = "middle";
-    seen.forEach((biome, index) => {
-      const y = height - 14 - (seen.length - 1 - index) * 18;
-      context.fillStyle = biomeColors[biome];
+    rows.forEach((row, index) => {
+      const y = height - 14 - (rows.length - 1 - index) * 18;
+      context.fillStyle = row.color;
       context.fillRect(10, y - 6, 14, 12);
       context.strokeStyle = colors.ink;
       context.lineWidth = 1;
       context.strokeRect(10, y - 6, 14, 12);
       context.fillStyle = colors.ink;
-      context.fillText(BIOME_NAMES[biome], 30, y);
+      context.fillText(row.name, 30, y);
     });
   }
 
@@ -374,6 +403,19 @@ export class WorldMap {
       ) {
         context.fillStyle = settings.biomeColors[this.biomeOf(key, ix, iz)];
         context.fillRect(corner.px, corner.py, cellPixels + 0.6, cellPixels + 0.6);
+        // AG14: its watery quarters in blue-gray (north is up: the upper half is +Z).
+        const water = this.waterOf(key, ix, iz);
+        if (water !== 0) {
+          context.fillStyle = colors.water;
+          const half = cellPixels / 2;
+          for (let q = 0; q < 4; q++) {
+            if (water & (1 << q)) {
+              const qx = corner.px + (q % 2) * half;
+              const qy = corner.py + (1 - Math.floor(q / 2)) * half;
+              context.fillRect(qx, qy, half + 0.6, half + 0.6);
+            }
+          }
+        }
       }
     }
     this.drawLegend(context);

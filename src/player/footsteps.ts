@@ -128,12 +128,20 @@ export class Footsteps {
     sound.play();
   }
 
+  /** NBB-164 (AG14): wading, the steps sound like the mud's splashes. */
   private groundType(): GroundType {
+    if (this.player.waterState === "wading") {
+      return "mud";
+    }
     const feet = this.player.feet;
     return this.terrain.groundTypeAt(feet.x, feet.z);
   }
 
   private onGround(baseRadius: number): number {
+    if (this.player.waterState === "wading") {
+      // AG14: the walking reach, louder by half (not the mud's own multiplier).
+      return baseRadius * CONFIG.swimming.wadeNoise;
+    }
     const radius =
       movementNoise(baseRadius, this.groundType()) * (this.biome?.stepNoiseFactor ?? 1);
     // BM8: in the marsh's mud each step splashes as loud as a snapping branch.

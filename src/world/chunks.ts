@@ -583,6 +583,11 @@ export class ChunkManager {
       if (cabins.some((site) => Math.hypot(x - site.x, z - site.z) < clear)) {
         return undefined;
       }
+      // NBB-164: nothing grows or lies in the water, but reeds in its shallows.
+      const depth = this.terrain.waterAt(x, z).depth;
+      if (depth > (kind === "reeds" ? CONFIG.water.reedsDepth : 0)) {
+        return undefined;
+      }
       const placement: Placement = {
         kind,
         variant: randomInt(random, [0, this.library.variantCount(kind) - 1]),

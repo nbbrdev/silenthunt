@@ -124,7 +124,7 @@ export class BowControl {
   private update(input: Input, seconds: number): void {
     const settings = CONFIG.bow;
     const holdingBow = this.equipment.current === "bow";
-    const canAct = holdingBow && this.player.controlsEnabled;
+    const canAct = holdingBow && this.player.handsFree;
     const arrowsLeft = this.arrowCount;
 
     // AR2: drawing with the left button, shooting on release.

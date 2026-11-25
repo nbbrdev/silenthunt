@@ -76,7 +76,8 @@ export class PreyManager {
     let index = 0;
     const place = (kind: PreyKind, x: number, z: number): Animal | undefined => {
       const id = `${chunk.key}:${index++}`;
-      if (this.killed.has(id)) {
+      // NBB-164: none in the water (the ids of the others stay the same).
+      if (this.killed.has(id) || this.senses.terrain.waterAt(x, z).depth > 0) {
         return undefined;
       }
       const animal = this.take(kind);

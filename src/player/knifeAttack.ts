@@ -52,7 +52,7 @@ export class KnifeAttack {
       if (
         this.enabled &&
         input.wasPressed("Mouse0") &&
-        this.player.controlsEnabled &&
+        this.player.handsFree &&
         this.cooldown <= 0
       ) {
         this.attack();

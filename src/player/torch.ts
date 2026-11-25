@@ -106,7 +106,21 @@ export class PlayerTorch {
     }
   }
 
+  /** NBB-164 (AG4-A): whether the torch may be lit here (not with the water above the waist). */
+  canLight: () => boolean = () => true;
+
+  /** NBB-164 (AG4-A): the water puts it out (it keeps the time it had left). */
+  putOut(): void {
+    if (this.lit) {
+      this.setLit(false);
+    }
+  }
+
   private toggle(): void {
+    if (!this.lit && !this.canLight()) {
+      this.say("Não dá para acender na água");
+      return;
+    }
     if (!this.lit && this.secondsLeft <= 0) {
       // TC1-A: no torch in hand (or it burnt out): take one from the inventory.
       if (!this.inventory.remove("torch", 1)) {

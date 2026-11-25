@@ -28,7 +28,7 @@ export function fogVisibility(daylight: number): number {
  * BM1 (NBB-163): the place's own fog. The marsh's is denser: visibility is multiplied by `scale`
  * (1 = as usual), for the player's eyes and the creature's alike. Set each frame by BiomeEffects.
  */
-export const fogConditions = { scale: 1 };
+export const fogConditions = { scale: 1, underwater: false };
 
 type RGB = { readonly r: number; readonly g: number; readonly b: number };
 
@@ -81,6 +81,14 @@ export class Atmosphere {
 
     // G11: visibility in meters becomes fog density.
     this.scene.fogDensity = FOG_REACH / fogVisibility(daylight);
+    // NBB-164 (AG14): under the water, a close green-blue murk (darker at night).
+    if (fogConditions.underwater) {
+      const { underwaterFog, underwaterVisibility } = CONFIG.swimming;
+      const murk = toColor(underwaterFog).scale(0.35 + 0.65 * daylight);
+      this.scene.fogColor = murk;
+      this.scene.clearColor = Color4.FromColor3(murk);
+      this.scene.fogDensity = FOG_REACH / underwaterVisibility;
+    }
 
     // Soft light from the sky.
     const { dayAmbient, nightAmbient } = settings;

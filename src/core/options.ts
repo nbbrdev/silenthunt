@@ -45,11 +45,17 @@ export function saveOptions(options: GameOptions): void {
   }
 }
 
+/**
+ * NBB-164 (AG14): underwater, the effects and the ambience are muffled to this share (1 = as
+ * usual). Set by the swimming system, which calls `applyVolumes` again.
+ */
+export const muffle = { share: 1 };
+
 /** Sets the volumes of the audio engine and its groups from the options. */
 export function applyVolumes(options: GameOptions, audio: GameAudio): void {
   const { masterVolume, groups } = CONFIG.audio;
   audio.engine.volume = masterVolume * options.master;
-  audio.effects.volume = groups.effects * options.effects;
-  audio.ambience.volume = groups.ambience * options.ambience;
+  audio.effects.volume = groups.effects * options.effects * muffle.share;
+  audio.ambience.volume = groups.ambience * options.ambience * muffle.share;
   audio.music.volume = groups.music * options.music;
 }

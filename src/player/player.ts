@@ -50,7 +50,33 @@ export class Player {
   /** True while standing on the ground (not jumping or falling). */
   grounded = true;
 
+  /** NBB-164: the water at a point (surface height, depth); set by the game (none by default). */
+  waterAt: (x: number, z: number) => { level: number; depth: number } = () => ({
+    level: -Infinity,
+    depth: 0,
+  });
+  /** NBB-164 (AG3-B): on dry ground, wading (slowed) or swimming. */
+  waterState: "dry" | "wading" | "swimming" = "dry";
+  /** NBB-164: the eyes are under the water. */
+  underwater = false;
+  /** NBB-164 (AG14): how far the water rises above the feet (0 on dry ground). */
+  waterAboveFeet = 0;
+  /** NBB-164 (AG14): seconds of air left underwater. */
+  air: number = CONFIG.swimming.airSeconds;
+  /** NBB-164: how long the eyes have been underwater (0 above it). */
+  underwaterSeconds = 0;
+  /** AG14: fired with the damage of drowning, a little every frame. */
+  readonly onHurt = new Observable<number>();
+  /** BM1 (NBB-163): fired with the damage of a long fall, on landing. */
+  readonly onHardLanding = new Observable<number>();
+  /** Fired when the water state changes (to splash in or out). */
+  readonly onWaterChanged = new Observable<"dry" | "wading" | "swimming">();
+  /** Fired when the eyes come up, with how long they were under. */
+  readonly onSurfaced = new Observable<number>();
+
   private airborneSeconds = 0;
+  /** BM1: the highest point of the current jump or fall (for its damage). */
+  private airborneTop = 0;
 
   private readonly controller: PhysicsCharacterController;
   private readonly gravity = new Vector3(0, CONFIG.physics.gravity, 0);
@@ -175,12 +201,19 @@ export class Player {
     }
 
     const controls = this.controlsEnabled;
+    this.updateWater(dt);
     if (controls) {
       this.updateLook();
-      if (this.input.wasPressed("KeyC")) {
+      // In deep water C dives instead (AG3-B).
+      if (this.input.wasPressed("KeyC") && this.waterState !== "swimming") {
         this.setCrouched(!this.crouched);
       }
     }
+    if (this.waterState === "swimming") {
+      this.swim(dt, controls);
+      return;
+    }
+    this.swimMoving = false;
 
     // Movement input in the player's own frame: x = right, z = forward.
     const axis = (positive: string, negative: string) =>
@@ -202,7 +235,10 @@ export class Player {
     this.stamina = updateStamina(this.stamina, isRunning || ground.tiring, dt);
 
     const { walkSpeed, runSpeed, crouchSpeed } = CONFIG.player;
-    const speed = (this.crouched ? crouchSpeed : isRunning ? runSpeed : walkSpeed) * ground.speed;
+    // AG14: wading through shallow water slows the walk.
+    const wading = this.waterState === "wading" ? CONFIG.swimming.wadeSpeed : 1;
+    const speed =
+      (this.crouched ? crouchSpeed : isRunning ? runSpeed : walkSpeed) * ground.speed * wading;
     const desiredVelocity = direction.scale(speed);
 
     const support = this.controller.checkSupport(dt, DOWN);
@@ -214,14 +250,141 @@ export class Player {
     this.updateCamera(dt);
   }
 
+  /**
+   * NBB-164 (AG3-B, AG14): how deep the player stands in water (dry, wading or swimming), and
+   * the air: it runs out with the eyes under the water and comes back at the surface.
+   */
+  private updateWater(dt: number): void {
+    const settings = CONFIG.swimming;
+    const center = this.controller.getPosition();
+    const feetY = center.y - this.capsuleHeight / 2;
+    const water = this.waterAt(center.x, center.z);
+    const above = Math.max(0, water.level - feetY);
+    this.waterAboveFeet = above;
+    // Swimming holds on a little shallower than it starts, so it does not flicker at the edge.
+    const swimming =
+      above >= settings.swimDepth ||
+      (this.waterState === "swimming" && above >= settings.swimDepth - 0.25);
+    const state = swimming ? "swimming" : above > settings.wadeDepth ? "wading" : "dry";
+    if (state !== this.waterState) {
+      this.waterState = state;
+      if (state === "swimming") {
+        if (this.crouched) {
+          this.setCrouched(false);
+        }
+        // Falling into deep water is no landing: no fall damage.
+        this.airborneSeconds = 0;
+        this.rising = false;
+      }
+      this.onWaterChanged.notifyObservers(state);
+    }
+
+    const under = feetY + this.eyeHeight < water.level - 0.05;
+    if (under) {
+      this.underwaterSeconds += dt;
+      this.air = Math.max(0, this.air - dt);
+      if (this.air <= 0) {
+        this.onHurt.notifyObservers(settings.drownDamage * dt);
+      }
+    } else {
+      if (this.underwater) {
+        this.onSurfaced.notifyObservers(this.underwaterSeconds);
+      }
+      this.underwaterSeconds = 0;
+      this.air = Math.min(
+        settings.airSeconds,
+        this.air + (settings.airSeconds / settings.refillSeconds) * dt,
+      );
+    }
+    this.underwater = under;
+  }
+
+  /**
+   * AG3-B, AG14: swimming. At the surface the player floats with the eyes just above the water;
+   * WASD swims (Shift faster); C held dives, Space comes up; underwater the player swims where
+   * they look. It all tires; with no stamina left the player sinks.
+   */
+  private swim(dt: number, controls: boolean): void {
+    const settings = CONFIG.swimming;
+    const center = this.controller.getPosition();
+    const eyes = center.y - this.capsuleHeight / 2 + this.eyeHeight;
+    const floatAt = this.waterAt(center.x, center.z).level + settings.floatEyes;
+    const axis = (positive: string, negative: string) =>
+      controls ? Number(this.input.isDown(positive)) - Number(this.input.isDown(negative)) : 0;
+    const move = new Vector3(axis("KeyD", "KeyA"), 0, axis("KeyW", "KeyS"));
+    const moving = move.lengthSquared() > 0;
+    if (moving) {
+      move.normalize();
+    }
+    const wantsSprint =
+      controls && (this.input.isDown("ShiftLeft") || this.input.isDown("ShiftRight"));
+    const sprinting = wantsSprint && moving && !this.underwater && canRun(this.stamina);
+    const cost = sprinting ? 1 : moving ? settings.slowCost : settings.floatCost;
+    this.stamina = Math.max(0, this.stamina - CONFIG.player.stamina.runCostPerSecond * cost * dt);
+
+    let velocity: Vector3;
+    if (this.underwater && moving) {
+      // Underwater, where the eyes look (up and down too).
+      const look = Quaternion.FromEulerAngles(this.pitch, this.yaw, 0);
+      velocity = move.applyRotationQuaternion(look).scale(settings.underwaterSpeed);
+    } else {
+      const facing = Quaternion.FromEulerAngles(0, this.yaw, 0);
+      velocity = move
+        .applyRotationQuaternion(facing)
+        .scale(sprinting ? settings.sprintSpeed : settings.swimSpeed);
+    }
+    const toFloat = floatAt - eyes;
+    const vertical = settings.verticalSpeed;
+    if (this.stamina <= 0) {
+      velocity.y = -settings.sinkSpeed;
+    } else if (controls && this.input.isDown("KeyC")) {
+      velocity.y = -vertical;
+    } else if (controls && this.input.isDown("Space")) {
+      velocity.y = Math.min(vertical, toFloat * 4);
+    } else if (!this.underwater || !moving) {
+      // Floating back to the surface (slowly when underwater and still).
+      velocity.y = Math.max(-vertical, Math.min(this.underwater ? 0.3 : vertical, toFloat * 2));
+    }
+    // Never above the floating height.
+    velocity.y = Math.min(velocity.y, toFloat * 4);
+    this.controller.setVelocity(velocity);
+    const support = this.controller.checkSupport(dt, DOWN);
+    this.controller.integrate(dt, support, Vector3.Zero());
+    this.grounded = false;
+    this.gait = "still";
+    this.swimMoving = moving;
+    this.updateCamera(dt);
+  }
+
+  /** NBB-164: swimming and moving (the strokes are heard). */
+  swimMoving = false;
+
+  /** NBB-164 (AG4-A): the hands may use weapons and tools (in control, and not swimming). */
+  get handsFree(): boolean {
+    return this.controlsEnabled && this.waterState !== "swimming";
+  }
+
   /** Works out the gait and detects landings (both used by the footstep noise, NBB-131). */
   private updateGait(isRunning: boolean, dt: number): void {
+    const feetY = this.feet.y;
     if (!this.grounded) {
+      if (this.airborneSeconds === 0) {
+        this.airborneTop = feetY;
+      }
       this.airborneSeconds += dt;
+      this.airborneTop = Math.max(this.airborneTop, feetY);
     } else {
       // A tiny hop over a bump is not a landing: only real jumps and falls count.
       if (this.airborneSeconds > 0.25) {
         this.onLanded.notifyObservers();
+        // BM1 (NBB-163): a long fall hurts.
+        const { safeDrop, damagePerMeter } = CONFIG.player.fall;
+        const drop = this.airborneTop - feetY;
+        // AG14: deep water breaks the fall.
+        const soft = this.waterAboveFeet >= CONFIG.swimming.softLandingDepth;
+        if (drop > safeDrop && !soft) {
+          this.onHardLanding.notifyObservers((drop - safeDrop) * damagePerMeter);
+        }
       }
       this.airborneSeconds = 0;
     }

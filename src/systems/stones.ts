@@ -146,7 +146,7 @@ export class StoneThrowSystem {
 
     scene.onBeforeRenderObservable.add(() => {
       const input = parts.input;
-      const canAct = this.player.controlsEnabled && !isPaused();
+      const canAct = this.player.handsFree && !isPaused();
       if (input.wasPressed("KeyG") && canAct) {
         this.startAiming();
       }

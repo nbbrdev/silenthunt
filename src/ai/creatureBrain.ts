@@ -111,6 +111,10 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
   private strikeTime = -1;
   /** CN5-A: how long a wall has kept it from the player during this attack. */
   private walledSeconds = 0;
+  /** AG5-A: how long deep water has kept it from the player during this attack. */
+  private wateredSeconds = 0;
+  /** AG5-A: which way it goes round the water (1 or -1). */
+  private shoreSide = 1;
 
   /**
    * NBB-145 (CN5-A): true if a wall or a closed door stands between two points, seen from above
@@ -418,6 +422,7 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     this.held = false;
     this.strikeTime = -1;
     this.walledSeconds = 0;
+    this.wateredSeconds = 0;
     this.hitLanded = false;
     this.onStateChanged.notifyObservers(state);
     switch (state) {
@@ -700,6 +705,14 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
         this.enter("retreat");
         return;
       }
+      // AG5-A: the player out in deep water, out of reach: it circles the shore, then gives up
+      // (even the last night).
+      const watered = this.isDeep(x, z) && this.distanceToPlayer() > settings.strikeDistance;
+      this.wateredSeconds = watered ? this.wateredSeconds + seconds : 0;
+      if (this.wateredSeconds > settings.water.giveUpSeconds) {
+        this.enter("retreat");
+        return;
+      }
       if (walled || this.distanceToPlayer() > settings.strikeDistance) {
         // CR3a: the run is the "Recuar" gallop.
         this.walk({ x, z }, settings.speed.attack, "Recuar", seconds);
@@ -822,10 +835,19 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
     }
     const camera = this.senses.player.camera;
     const forward = camera.getDirection(Vector3.Forward());
-    const behind = Math.atan2(-forward.x, -forward.z) + (this.random() - 0.5) * (Math.PI / 1.5);
     const player = this.senses.player.position;
-    const x = player.x + Math.sin(behind) * distance;
-    const z = player.z + Math.cos(behind) * distance;
+    let behind = 0;
+    let x = 0;
+    let z = 0;
+    // AG5-A: never in deep water (a few tries; the last one stays even if wet).
+    for (let attempt = 0; attempt < 8; attempt++) {
+      behind = Math.atan2(-forward.x, -forward.z) + (this.random() - 0.5) * (Math.PI / 1.5);
+      x = player.x + Math.sin(behind) * distance;
+      z = player.z + Math.cos(behind) * distance;
+      if (!this.isDeep(x, z)) {
+        break;
+      }
+    }
     body.position.set(x, this.senses.terrain.heightAt(x, z), z);
     this.heading = behind + Math.PI;
     body.rotation.y = this.heading;
@@ -861,6 +883,16 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       settings.avoidDistance,
     );
     const step = Math.min(speed * seconds, this.distanceTo(destination));
+    // AG5-A: deep water stops it; it turns along the shore instead (always the same way round).
+    const ahead = 2;
+    if (this.isDeep(here.x + direction.x * ahead, here.z + direction.z * ahead)) {
+      const turned = this.alongShore(here, direction, ahead);
+      if (!turned) {
+        this.stand(animation, !faceMovement);
+        return;
+      }
+      direction = turned;
+    }
     const moved = pushOutOfObstacles(
       { x: here.x + direction.x * step, z: here.z + direction.z * step },
       obstacles,
@@ -874,6 +906,33 @@ export class CreatureBrainBehavior implements Behavior<TransformNode> {
       this.facePlayer(seconds);
     }
     this.play(animation, speed / (settings.animationSpeed[animation] * settings.scale));
+  }
+
+  /** AG5-A: water deeper than it goes into. */
+  private isDeep(x: number, z: number): boolean {
+    return this.senses.terrain.waterAt(x, z).depth > CONFIG.creature.water.maxDepth;
+  }
+
+  /**
+   * AG5-A: the first direction, turning away from `direction` a little more each try, that does
+   * not lead into deep water `ahead` meters on. It keeps turning the same way, so it goes round.
+   */
+  private alongShore(
+    here: FlatVector,
+    direction: FlatVector,
+    ahead: number,
+  ): FlatVector | undefined {
+    for (const side of [this.shoreSide, -this.shoreSide]) {
+      for (let turn = 0.4; turn <= 2.4; turn += 0.4) {
+        const angle = Math.atan2(direction.x, direction.z) + turn * side;
+        const tried = { x: Math.sin(angle), z: Math.cos(angle) };
+        if (!this.isDeep(here.x + tried.x * ahead, here.z + tried.z * ahead)) {
+          this.shoreSide = side;
+          return tried;
+        }
+      }
+    }
+    return undefined;
   }
 
   /** Stands still (the animation holds its pose), facing the player if `watch` is set. */

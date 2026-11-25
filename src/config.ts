@@ -47,6 +47,8 @@ export const CONFIG = {
     crouchEyeHeight: 1.0,
     /** Jump height in meters (J2). */
     jumpHeight: 0.6,
+    /** BM1 (NBB-163): falling more than `safeDrop` m hurts this much per meter beyond it. */
+    fall: { safeDrop: 4, damagePerMeter: 12 },
     /** Collision capsule: radius, and how far it reaches above the eyes. */
     capsuleRadius: 0.3,
     headroomAboveEyes: 0.1,
@@ -285,6 +287,55 @@ export const CONFIG = {
     clearStart: 200,
     clearCabins: 40,
     clearBlend: 30,
+    /** Nothing is placed in the water, but reeds where it is at most this deep. */
+    reedsDepth: 0.4,
+  },
+  /** NBB-164 (BI3-B, AG3-B, AG14): wading, swimming and diving. Meters, seconds. */
+  swimming: {
+    /** Water up to this above the feet slows the walk (wading); from `swimDepth` on, the player swims. */
+    wadeDepth: 0.3,
+    wadeSpeed: 0.6,
+    swimDepth: 1.3,
+    /** Surface swimming; Shift is faster and tires like running; swimming slowly tires half as much. */
+    swimSpeed: 1.6,
+    sprintSpeed: 2.4,
+    slowCost: 0.5,
+    /** Treading water still tires this much (a share of running's cost). */
+    floatCost: 0.25,
+    /** Diving (C held) and coming up (Space); underwater the player swims where they look. */
+    verticalSpeed: 1.2,
+    underwaterSpeed: 1.4,
+    /** At the surface the eyes float this far above the water. */
+    floatEyes: 0.15,
+    /** Out of stamina, the player sinks this fast. */
+    sinkSpeed: 0.5,
+    /** The air: seconds underwater; refills in `refillSeconds`; then drowning hurts this much per second. */
+    airSeconds: 20,
+    refillSeconds: 2,
+    drownDamage: 10,
+    /** AG4-A: the torch goes out with the water at the chest; it will not light above the waist. */
+    torchOutDepth: 1.2,
+    torchLightDepth: 1,
+    /** Noise: each stroke at the surface (every `strokeSeconds`), falling into deep water. */
+    strokeNoise: 8,
+    strokeSeconds: 0.9,
+    splashNoise: 15,
+    /** Wading steps are this much louder than walking. */
+    wadeNoise: 1.5,
+    /** No fall damage landing in water at least this deep. */
+    softLandingDepth: 1.5,
+    /** Underwater: green-blue fog, seeing this far; outside sounds muffled to this share. */
+    underwaterFog: { r: 0.05, g: 0.12, b: 0.11 },
+    underwaterVisibility: 6,
+    muffled: 0.4,
+    /** After this long underwater, coming up gasps (FX13's caught breath). */
+    gaspAfterSeconds: 3,
+    files: {
+      enter: "player/water-enter.mp3",
+      swim: "player/swim.mp3",
+      underwater: "ambience/underwater.mp3",
+    },
+    volume: { enter: 0.9, exit: 0.45, swim: 0.5, underwater: 0.6 },
   },
   /** NBB-164 (BI6-B, AG8-A): the water's surface, drawn with Babylon's water material. */
   waterSurface: {
@@ -499,6 +550,8 @@ export const CONFIG = {
       mark: "#8c2a1e",
       fireLit: "#d9762b",
       fireOut: "#7d766b",
+      /** NBB-164 (AG14): lakes and rivers. */
+      water: "#8fa3ad",
     },
     /**
      * BM5-A, BM8 (NBB-163): the explored paper's tone in each biome: dark green, ocher, gray-green,
@@ -590,6 +643,11 @@ export const CONFIG = {
     speed: { roam: 1.2, stalkMax: 3, attack: 6, retreat: 7, backOff: 1.5 },
     /** PS1-A, PS9-A (NBB-153): the attack is a chase, a little faster than the player's run (5.8), that gives up after this long. */
     chaseGiveUpSeconds: 25,
+    /**
+     * NBB-164 (AG5-A): it does not go into water deeper than this; kept from the player by the
+     * water, it circles the shore and gives up after `giveUpSeconds`.
+     */
+    water: { maxDepth: 1, giveUpSeconds: 40 },
     /**
      * Speed at which each animation's feet match the ground at scale 1 (the animation speeds up
      * with the body; a bigger creature takes longer strides, so these grow with `scale`).
@@ -1336,6 +1394,18 @@ export const CONFIG = {
     hopSpeed: 1.5,
     /** Obstacle avoidance while running (IA1). */
     bodyRadius: { rabbit: 0.15, deer: 0.35 },
+    /**
+     * NBB-164 (AG6-B): they keep out of water deeper than `maxDepth`. Grazing within
+     * `drinkDistance` of water, now and then (`drinkChance` at each turn) they walk to the shore
+     * and drink there for `drinkSeconds` (grazing).
+     */
+    water: {
+      maxDepth: 0.4,
+      drinkDistance: 15,
+      drinkChance: 0.3,
+      drinkSeconds: [4, 8],
+      walkSpeed: 1.2,
+    },
   },
   /** SO4: sound. The player's volume control comes with the options menu (NBB-150). */
   audio: {
@@ -1410,6 +1480,8 @@ export const CONFIG = {
     hungerBarColor: "#c8892a",
     hungerBarBelow: 50,
     hungerBarPulseBelow: 20,
+    /** NBB-164 (AG14): the air bar, just above the health bar, shown only underwater. */
+    airBarColor: "#8fc3d6",
     /** FO1-A: the provisional food counter (raw and cooked meat, leather) at the bottom right. */
     counterGapPx: 24,
     /** VD2: red flash on every hit, camera shake, and the slow dark-red pulse at low health. */
