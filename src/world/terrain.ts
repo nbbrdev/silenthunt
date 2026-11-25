@@ -20,8 +20,10 @@ export class Terrain {
     this.seed = seed;
     this.water = new WaterField(
       seed,
-      (x, z) => this.hillsAt(x, z, 1),
+      // CC1-A: the ridge's steps are sheer for the water, so a river falls there.
+      (x, z) => this.hillsAt(x, z, 1, true),
       (x, z) => this.biomeWeightsAt(x, z).marsh,
+      (x, z) => this.biomeWeightsAt(x, z).ridge,
     );
   }
 
@@ -76,7 +78,7 @@ export class Terrain {
    * field is gentler still; the marsh lies low and almost flat; the ridge rises up to ~25 m higher
    * in steps with steep faces. At a border the shapes blend with the biomes.
    */
-  private hillsAt(x: number, z: number, octaves = 4): number {
+  private hillsAt(x: number, z: number, octaves = 4, hardSteps = false): number {
     const { hillHeight, hillSpacing } = CONFIG.world;
     const hills =
       (fractalNoise(x / hillSpacing, z / hillSpacing, this.seed, octaves) - 0.5) * 2 * hillHeight;
@@ -86,19 +88,25 @@ export class Terrain {
     height += hills * relief.fieldHills * w.field;
     height += (hills * relief.marshHills + relief.marshDrop) * w.marsh;
     if (w.ridge > 0) {
-      height += (hills + this.ridgeAt(x, z)) * w.ridge;
+      height += (hills + this.ridgeAt(x, z, hardSteps)) * w.ridge;
     }
     return height;
   }
 
-  /** BM8: the ridge's extra height: broad rises cut into steps with steep faces. */
-  private ridgeAt(x: number, z: number): number {
+  /**
+   * BM8: the ridge's extra height: broad rises cut into steps with steep faces. NBB-165 (CC1-A):
+   * `hard` drops the faces to a sheer edge at their top, for the water: a river there falls.
+   */
+  private ridgeAt(x: number, z: number, hard = false): number {
     const { ridgeHeight, ridgeSpacing, stepHeight, stepSharpness } = CONFIG.biomes.relief;
     const rise = fractalNoise(x / ridgeSpacing, z / ridgeSpacing, this.seed + 9301, 3);
     const raw = (Math.max(0, rise - 0.3) / 0.7) * ridgeHeight;
     // Steps: most of each step is a gentle shelf, the last part a steep face.
     const step = Math.floor(raw / stepHeight);
     const within = raw / stepHeight - step;
+    if (hard) {
+      return step * stepHeight + within * stepHeight * 0.15;
+    }
     const face = Math.max(0, (within - (1 - stepSharpness)) / stepSharpness);
     return (step + face * face * (3 - 2 * face)) * stepHeight + within * stepHeight * 0.15;
   }

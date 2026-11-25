@@ -15,6 +15,22 @@ export interface WaterShape {
   depth: number;
   /** How far from the shore the bed takes to reach that depth (meters). */
   ramp: number;
+  kind: "river" | "lake";
+}
+
+/** NBB-165 (CC1-A): a waterfall, where a river drops down a step of the ridge. */
+export interface Waterfall {
+  /** The middle of its lip, across the river. */
+  x: number;
+  z: number;
+  /** The water's height above and below the drop. */
+  top: number;
+  bottom: number;
+  /** Which way it falls (a unit vector on the ground). */
+  dirX: number;
+  dirZ: number;
+  /** How wide the lip is (meters). */
+  width: number;
 }
 
 /**
@@ -29,19 +45,58 @@ export class WaterField {
   /** The land's broad shape (without small bumps), for the water's surface. */
   private readonly broadHeight: (x: number, z: number) => number;
   private readonly marshWeight: (x: number, z: number) => number;
+  /** NBB-165: the waterfalls found in each region (they never change). */
+  private readonly falls = new Map<string, Waterfall[]>();
+
+  /** NBB-165: how much of the ridge is at a point (waterfalls are only there). */
+  private readonly ridgeWeight: (x: number, z: number) => number;
 
   constructor(
     seed: number,
     broadHeight: (x: number, z: number) => number,
     marshWeight: (x: number, z: number) => number,
+    ridgeWeight: (x: number, z: number) => number,
   ) {
     this.seed = seed;
     this.broadHeight = broadHeight;
     this.marshWeight = marshWeight;
+    this.ridgeWeight = ridgeWeight;
   }
 
-  /** The water at (x, z), or undefined where there is none near. */
+  /**
+   * The water at (x, z), or undefined where there is none near. NBB-165 (CC2-A): at the foot of
+   * each waterfall, a round pool, deeper than the river.
+   */
   shapeAt(x: number, z: number): WaterShape | undefined {
+    const base = this.baseShapeAt(x, z);
+    const { poolRadius, poolDepth, poolRamp } = CONFIG.water.falls;
+    const reach = poolRadius + CONFIG.water.bankWidth;
+    let shape = base;
+    for (const fall of this.fallsNear(x, z, reach + poolRadius)) {
+      // Only below the lip: above it the river and its banks stay as they are.
+      if ((x - fall.x) * fall.dirX + (z - fall.z) * fall.dirZ < 0) {
+        continue;
+      }
+      const edge = Math.hypot(x - this.poolX(fall), z - this.poolZ(fall)) - poolRadius;
+      if (edge > reach - poolRadius || edge >= (shape?.edge ?? Infinity)) {
+        continue;
+      }
+      shape = { level: fall.bottom, edge, depth: poolDepth, ramp: poolRamp, kind: "lake" };
+    }
+    return shape;
+  }
+
+  /** CC2-A: where a waterfall's pool is centered (touching the foot of the drop). */
+  poolX(fall: Waterfall): number {
+    return fall.x + fall.dirX * CONFIG.water.falls.poolRadius;
+  }
+
+  poolZ(fall: Waterfall): number {
+    return fall.z + fall.dirZ * CONFIG.water.falls.poolRadius;
+  }
+
+  /** The rivers and lakes alone, before the waterfalls' pools. */
+  private baseShapeAt(x: number, z: number): WaterShape | undefined {
     const settings = CONFIG.water;
     const clear = this.clearance(x, z);
     if (clear <= 0) {
@@ -78,8 +133,156 @@ export class WaterField {
     }
     const level = this.broadHeight(x, z) - settings.below;
     return riverEdge <= lakeEdge
-      ? { level, edge: riverEdge, depth: riverDepth, ramp: Math.min(halfWidth, 4) }
-      : { level, edge: lakeEdge, depth: lakeDepth, ramp: settings.lakeRamp };
+      ? { level, edge: riverEdge, depth: riverDepth, ramp: Math.min(halfWidth, 4), kind: "river" }
+      : { level, edge: lakeEdge, depth: lakeDepth, ramp: settings.lakeRamp, kind: "lake" };
+  }
+
+  /**
+   * NBB-165 (CC1-A): the waterfalls whose lip lies in the square region (ix, iz) of
+   * `falls.region` meters. A river's surface follows the land's broad shape, which on the ridge
+   * drops sheer at each step (see Terrain): where two neighboring points of a river differ by
+   * more than `falls.minDrop`, the river falls. Those points are gathered into one waterfall per
+   * crossing. A margin around the region keeps a waterfall on a border whole.
+   */
+  fallsInRegion(ix: number, iz: number): Waterfall[] {
+    const key = `${ix},${iz}`;
+    const cached = this.falls.get(key);
+    if (cached) {
+      return cached;
+    }
+    const { region, sample, minDrop, gather, margin } = CONFIG.water.falls;
+    const minX = ix * region;
+    const minZ = iz * region;
+    // Only the ridge has steps: a region without any of it has no waterfall (checked on a few
+    // points; the ridge's patches are hundreds of meters wide).
+    let ridge = false;
+    for (let j = 0; j <= 4 && !ridge; j++) {
+      for (let i = 0; i <= 4 && !ridge; i++) {
+        const px = minX - margin + ((region + margin * 2) * i) / 4;
+        const pz = minZ - margin + ((region + margin * 2) * j) / 4;
+        ridge = this.ridgeWeight(px, pz) > 0;
+      }
+    }
+    if (!ridge) {
+      this.falls.set(key, []);
+      return [];
+    }
+    const count = Math.ceil((region + margin * 2) / sample) + 1;
+    const levels: (number | undefined)[] = [];
+    for (let j = 0; j < count; j++) {
+      for (let i = 0; i < count; i++) {
+        const shape = this.baseShapeAt(minX - margin + i * sample, minZ - margin + j * sample);
+        // A lake across a step of the ridge falls too (its surface drops there like a river's).
+        levels.push(shape && shape.edge < 0 ? shape.level : undefined);
+      }
+    }
+    // Each step of the grid that crosses a drop, from the higher point to the lower one.
+    const crossings: {
+      x: number;
+      z: number;
+      top: number;
+      bottom: number;
+      dx: number;
+      dz: number;
+    }[] = [];
+    for (let j = 0; j < count; j++) {
+      for (let i = 0; i < count; i++) {
+        const here = levels[j * count + i];
+        if (here === undefined) {
+          continue;
+        }
+        for (const [di, dj] of [
+          [1, 0],
+          [0, 1],
+        ] as const) {
+          if (i + di >= count || j + dj >= count) {
+            continue;
+          }
+          const there = levels[(j + dj) * count + i + di];
+          if (there === undefined || Math.abs(here - there) < minDrop) {
+            continue;
+          }
+          const down = there < here ? 1 : -1;
+          crossings.push({
+            x: minX - margin + (i + di / 2) * sample,
+            z: minZ - margin + (j + dj / 2) * sample,
+            top: Math.max(here, there),
+            bottom: Math.min(here, there),
+            dx: di * down,
+            dz: dj * down,
+          });
+        }
+      }
+    }
+    // Gathered: the crossings near each other, down the same step (about the same heights), make
+    // one waterfall; the next step down, a few meters on, is another one.
+    const groups: (typeof crossings)[] = [];
+    for (const crossing of crossings) {
+      const group = groups.find((members) =>
+        members.some(
+          (m) =>
+            Math.hypot(m.x - crossing.x, m.z - crossing.z) <= gather &&
+            Math.abs(m.top - crossing.top) < minDrop / 2 &&
+            Math.abs(m.bottom - crossing.bottom) < minDrop / 2,
+        ),
+      );
+      if (group) {
+        group.push(crossing);
+      } else {
+        groups.push([crossing]);
+      }
+    }
+    const falls: Waterfall[] = [];
+    for (const group of groups) {
+      const x = group.reduce((sum, m) => sum + m.x, 0) / group.length;
+      const z = group.reduce((sum, m) => sum + m.z, 0) / group.length;
+      if (x < minX || x >= minX + region || z < minZ || z >= minZ + region) {
+        continue;
+      }
+      let dirX = group.reduce((sum, m) => sum + m.dx, 0);
+      let dirZ = group.reduce((sum, m) => sum + m.dz, 0);
+      const length = Math.hypot(dirX, dirZ) || 1;
+      dirX /= length;
+      dirZ /= length;
+      // Across the fall: the spread of the crossings sideways.
+      const side = group.map((m) => (m.x - x) * -dirZ + (m.z - z) * dirX);
+      const width = Math.max(...side) - Math.min(...side) + sample;
+      falls.push({
+        x,
+        z,
+        top: group.reduce((sum, m) => sum + m.top, 0) / group.length,
+        bottom: group.reduce((sum, m) => sum + m.bottom, 0) / group.length,
+        dirX,
+        dirZ,
+        width,
+      });
+    }
+    this.falls.set(key, falls);
+    return falls;
+  }
+
+  /** NBB-165: the waterfalls within `radius` meters of (x, z). */
+  fallsNear(x: number, z: number, radius: number): Waterfall[] {
+    const { region } = CONFIG.water.falls;
+    const found: Waterfall[] = [];
+    for (
+      let iz = Math.floor((z - radius) / region);
+      iz <= Math.floor((z + radius) / region);
+      iz++
+    ) {
+      for (
+        let ix = Math.floor((x - radius) / region);
+        ix <= Math.floor((x + radius) / region);
+        ix++
+      ) {
+        for (const fall of this.fallsInRegion(ix, iz)) {
+          if (Math.hypot(fall.x - x, fall.z - z) <= radius) {
+            found.push(fall);
+          }
+        }
+      }
+    }
+    return found;
   }
 
   /**

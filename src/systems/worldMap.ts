@@ -41,6 +41,8 @@ export interface MapParts {
   canOpen: () => boolean;
   /** NBB-164 (AG14): whether there is water at a point (lakes and rivers show on the map). */
   isWater: (x: number, z: number) => boolean;
+  /** NBB-165 (CC6-A): the waterfalls within `radius` meters of (x, z). */
+  waterfalls: (x: number, z: number, radius: number) => Point[];
 }
 
 interface Point {
@@ -435,6 +437,25 @@ export class WorldMap {
           context.arc(px, py, dot, 0, Math.PI * 2);
           context.fill();
         }
+      }
+    }
+
+    // NBB-165 (CC6-A): the waterfalls of the explored squares, as three short falling strokes.
+    const feet = this.p.player.feet;
+    const reach = (Math.hypot(width, height) / 2) * mpp;
+    context.strokeStyle = colors.waterfall;
+    context.lineWidth = 1.6;
+    for (const fall of this.p.waterfalls(feet.x, feet.z, reach)) {
+      const cell = `${Math.floor(fall.x / cellSize)},${Math.floor(fall.z / cellSize)}`;
+      if (!this.explored.has(cell)) {
+        continue;
+      }
+      const { px, py } = this.toPixels(fall.x, fall.z);
+      for (const offset of [-4, 0, 4]) {
+        context.beginPath();
+        context.moveTo(px + offset, py - 6);
+        context.quadraticCurveTo(px + offset + 2, py, px + offset, py + 6);
+        context.stroke();
       }
     }
 

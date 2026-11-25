@@ -110,6 +110,11 @@ export class WaterSurfaces {
         if (corners.some((key) => levels[key] === undefined)) {
           continue;
         }
+        // NBB-165: none across a waterfall's drop (the falling water is drawn there instead).
+        const heights = corners.map((key) => levels[key] ?? base);
+        if (Math.max(...heights) - Math.min(...heights) > CONFIG.water.falls.minDrop / 2) {
+          continue;
+        }
         const a = vertex(row, col);
         const b = vertex(row, col + 1);
         const c = vertex(row + 1, col);

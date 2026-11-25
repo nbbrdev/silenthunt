@@ -66,12 +66,36 @@ export function showHydrologyPreview(): void {
   context.putImageData(image, 0, 0);
   context.fillStyle = "white";
   context.fillRect(size / 2 - 1, size / 2 - 1, 3, 3);
+
+  // NBB-165 (CC7-A): the waterfalls, as red marks (bigger for the taller ones).
+  const fallsStarted = performance.now();
+  const { region } = CONFIG.water.falls;
+  const regions = SIZE_METERS / region;
+  const drops: number[] = [];
+  context.fillStyle = "#ff3b2f";
+  for (let iz = -regions / 2; iz < regions / 2; iz++) {
+    for (let ix = -regions / 2; ix < regions / 2; ix++) {
+      for (const fall of terrain.water.fallsInRegion(ix, iz)) {
+        const drop = fall.top - fall.bottom;
+        drops.push(Math.round(drop * 10) / 10);
+        const px = (fall.x + SIZE_METERS / 2) / CELL;
+        const py = (SIZE_METERS / 2 - fall.z) / CELL;
+        const half = drop > 6 ? 4 : 3;
+        context.fillRect(px - half, py - half, half * 2, half * 2);
+      }
+    }
+  }
+  const squareKm = (SIZE_METERS / 1000) ** 2;
   Object.assign(window, {
     silentHunt: {
       hydrology: {
         ready: true,
         seconds: (performance.now() - started) / 1000,
         waterShare: Math.round((wet / (size * size)) * 1000) / 1000,
+        falls: drops.length,
+        fallsPerKm2: Math.round((drops.length / squareKm) * 100) / 100,
+        drops: drops.sort((a, b) => a - b),
+        fallsSeconds: (performance.now() - fallsStarted) / 1000,
       },
     },
   });

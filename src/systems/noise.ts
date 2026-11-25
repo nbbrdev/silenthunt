@@ -16,12 +16,18 @@ export interface NoiseEvent {
  */
 export class NoiseSystem {
   readonly onNoise = new Observable<NoiseEvent>();
+  /**
+   * NBB-165 (CC5-A): how much of a noise made at a point carries (1 = all): next to a waterfall,
+   * its roar covers half. Set by the game.
+   */
+  dampen: (position: Vector3) => number = () => 1;
 
   emit(position: Vector3, radius: number, source: string): void {
-    if (radius <= 0) {
+    const reach = radius * this.dampen(position);
+    if (reach <= 0) {
       return;
     }
-    this.onNoise.notifyObservers({ position: position.clone(), radius, source });
+    this.onNoise.notifyObservers({ position: position.clone(), radius: reach, source });
   }
 }
 

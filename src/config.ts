@@ -289,6 +289,22 @@ export const CONFIG = {
     clearBlend: 30,
     /** Nothing is placed in the water, but reeds where it is at most this deep. */
     reedsDepth: 0.4,
+    /**
+     * NBB-165 (CC1-A): finding the waterfalls. Regions of `region` m are searched on a grid of
+     * `sample` m (with `margin` m more around them); a drop of the river's surface of at least
+     * `minDrop` m between two neighbors is a waterfall; drops within `gather` m are the same one.
+     */
+    falls: {
+      region: 128,
+      sample: 4,
+      minDrop: 1.5,
+      gather: 16,
+      margin: 24,
+      /** CC2-A: the pool at the foot (meters); its bed deepens over `poolRamp` from its rim. */
+      poolRadius: 6,
+      poolDepth: 3,
+      poolRamp: 3,
+    },
   },
   /** NBB-164 (BI3-B, AG3-B, AG14): wading, swimming and diving. Meters, seconds. */
   swimming: {
@@ -336,6 +352,22 @@ export const CONFIG = {
       underwater: "ambience/underwater.mp3",
     },
     volume: { enter: 0.9, exit: 0.45, swim: 0.5, underwater: 0.6 },
+  },
+  /**
+   * NBB-165: the waterfalls in the world. Particles only within `particleDistance` m (CC3-A);
+   * the roar (CC4-A, CC10-1) heard up to `hearingDistance` m, from at most `roarCount` of them;
+   * within `maskDistance` m, noise carries `maskFactor` of its reach (CC5-A). The curtain is
+   * `extraWidth` m wider than the river's lip, so its sides tuck into the banks.
+   */
+  waterfalls: {
+    particleDistance: 60,
+    sound: "ambience/waterfall.mp3",
+    volume: 0.8,
+    hearingDistance: 40,
+    roarCount: 3,
+    maskDistance: 15,
+    maskFactor: 0.5,
+    extraWidth: 2,
   },
   /** NBB-164 (BI6-B, AG8-A): the water's surface, drawn with Babylon's water material. */
   waterSurface: {
@@ -552,6 +584,8 @@ export const CONFIG = {
       fireOut: "#7d766b",
       /** NBB-164 (AG14): lakes and rivers. */
       water: "#8fa3ad",
+      /** NBB-165 (CC6-A): the waterfalls' strokes. */
+      waterfall: "#3f5f70",
     },
     /**
      * BM5-A, BM8 (NBB-163): the explored paper's tone in each biome: dark green, ocher, gray-green,
@@ -1623,6 +1657,25 @@ export const CONFIG = {
     boulder: { size: [2.2, 3.6] },
     /** A shallow puddle of mud, flat on the ground. */
     puddle: { radius: [0.8, 2] },
+    /**
+     * NBB-165 (CC3-A): the waterfall. The curtain starts `lipBack` m above the lip, flat, and
+     * curves out `throwBase + throwPerMeter × height` m as it falls; its streaks run down at
+     * `streakSpeed` (texture repeats per second). Foam at the foot and mist rising from it, so many
+     * particles per meter of width.
+     */
+    waterfall: {
+      lipBack: 2,
+      throwBase: 0.4,
+      throwPerMeter: 0.08,
+      spread: 0.15,
+      streakSpeed: 0.9,
+      tint: { r: 0.78, g: 0.84, b: 0.86 },
+      alpha: 0.75,
+      foamPerMeter: 14,
+      /** CC9-B: more mist, and less clear, so it shows. */
+      mistPerMeter: 3,
+      mistAlpha: 0.3,
+    },
   },
   /** Foliage sway (W3): sideways offset = strength × height² (meters), so the base stays still. */
   wind: {

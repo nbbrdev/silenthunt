@@ -582,6 +582,21 @@ Pedido do usuário: novos biomas, animais (hostis e pacíficos), lagos, rios e c
 | AG17-A | Som de fundo embaixo d'água: "Underwater Ambience", Fission9 (504641, CC0). |
 | AG18 | Revisão do usuário (2026-11-25): detalhes decididos por Claude aprovados ("1 a 9 - Ok"): barra de ar azul-clara logo acima da barra de vida (não há barra de fôlego na tela), visível embaixo d'água e até o ar encher; dano de queda da BM1, que tinha ficado de fora da NBB-163: acima de 4 m, 12 de vida por metro a mais; nada nasce na água, só juncos até 0,4 m; animais evitam água de mais de 0,4 m, 30% de chance de ir beber a cada virada, a 1,2 m/s, e nenhum nasce na água; os 40 s da criatura valem também na última noite, e ela contorna a margem virando sempre para o mesmo lado; passos na água rasa com o alcance do andar atual ×1,5; afogamento aplicado de 10 em 10; nado de 1,3 m até 1,05 m, para não piscar na margem; comandos de teste `swim`, `goToWater(fundura)` e `pitch`. O commit `9a251c6` saiu com a mensagem do anterior; a `main` não aceita force push, e o usuário escolheu deixar assim. Regra registrada como RF-71 no docs/03. |
 
+## NBB-165: Cachoeiras (2026-11-25)
+
+| Código | Decisão |
+| -- | -- |
+| CC1-A | Cachoeiras só onde um rio cruza um degrau da serra: a água, que hoje desce a face do degrau como uma rampa, vira uma queda de verdade (4 m, ou 8 m com dois degraus juntos). |
+| CC2-A | Um poço redondo ao pé de cada queda (~6 m de raio, ~3 m de fundura), onde dá para mergulhar; pular lá de cima não fere (AG14). |
+| CC3-A | Visual gerado por código: cortina de água curva com listras claras rolando para baixo, semitransparente; espuma branca no pé e névoa leve subindo, em partículas, só nas cachoeiras a menos de ~60 m. O material de água do Babylon continua nos poços e no rio. Revisão na galeria (dia, noite, neblina). |
+| CC4-A | Um loop 3D do rugido da queda, ouvido até ~40 m, do Freesound (CC0 ou CC-BY), escolhido pelo usuário entre candidatos. O murmúrio dos rios fica para a NBB-168. |
+| CC5-A | O rugido encobre o barulho: a menos de 15 m da queda, o ruído do jogador alcança metade da distância, e os passos da criatura chegam a ele pela metade também. |
+| CC6-A | Um pequeno símbolo de cachoeira no mapa, nos quadrados explorados. |
+| CC7-A | Antes do 3D, as cachoeiras aparecem marcadas na página `/?hidrologia`, com a contagem por km², para o usuário julgar a frequência. |
+| CC8-A | Frequência aprovada vendo a página (4 × 4 km): **todas as quedas ficam**, ~3,8 por km², só na serra; cada rio que a atravessa vira uma escadaria, uma queda por degrau a cada ~50 a 100 m (a maioria de 3,3 a 4,4 m, algumas de 5 a 10 m, poucas baixas na borda). O nível da água na serra cai seco no alto de cada degrau, em vez da rampa de antes. |
+| CC9-B | Primeira versão da cachoeira vista na galeria (dia, perto, noite, neblina): ajustar com a névoa mais visível e a espuma mais apagada na neblina. |
+| CC10-1 | Som da queda: "Ambiance_Waterfall_Small_Close_Loop_02_Stereo", Nox_Sound (Freesound 698306, CC0), em loop. |
+
 ## M6: Features novas (2026-11-23)
 
 | Código | Decisão |

@@ -7,6 +7,7 @@ import { Atmosphere } from "./atmosphere";
 import { ChunkManager } from "./chunks";
 import { Terrain } from "./terrain";
 import { VegetationLibrary } from "./vegetation";
+import { WaterfallField } from "./waterfalls";
 import { WaterSurfaces } from "./waterSurface";
 
 export interface World {
@@ -18,6 +19,8 @@ export interface World {
   atmosphere: Atmosphere;
   /** NBB-164: the water's surface. */
   water: WaterSurfaces;
+  /** NBB-165: the waterfalls. */
+  waterfalls: WaterfallField;
 }
 
 /** The game world: the infinite forest (NBB-129) with its day and night cycle (NBB-130). */
@@ -37,7 +40,15 @@ export function createWorld(engine: Engine, physics: HavokPlugin, seed: number):
   // NBB-164: the rivers' and lakes' surface, built with each chunk (so before the first ones).
   const water = new WaterSurfaces(scene, terrain, chunks, library);
   const { spawn } = CONFIG.player;
-  chunks.loadAround(new Vector3(spawn.x, 0, spawn.z));
+  // NBB-165: the waterfalls, also built with each chunk; heard and seen from the active camera.
+  const startAt = new Vector3(spawn.x, 0, spawn.z);
+  const waterfalls = new WaterfallField(
+    scene,
+    terrain,
+    chunks,
+    () => scene.activeCamera?.globalPosition ?? startAt,
+  );
+  chunks.loadAround(startAt);
 
-  return { scene, terrain, chunks, clock, atmosphere, water };
+  return { scene, terrain, chunks, clock, atmosphere, water, waterfalls };
 }

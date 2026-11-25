@@ -51,6 +51,11 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   - **Ruído**: 8 m por braçada na superfície, nenhum embaixo d'água, 15 m ao cair na água funda.
   - A **criatura** não entra onde a água passa de 1 m: contorna pela margem e, com o jogador fora do alcance na água funda, desiste em 40 s; se ele estiver ao alcance, golpeia. **Animais** contornam a água funda e, pastando a menos de 15 m dela, às vezes vão à margem beber por 4 a 8 s. Nenhum animal nasce na água.
   - O **mapa** pinta a água de azul-acinzentado, com "Água" na legenda.
+- **RF-72** **Cachoeiras** (NBB-165; CC1-A a CC10-1): na serra, onde um rio (ou um lago) cruza um degrau, a água cai seca do alto do degrau: cada rio que atravessa a serra vira uma escadaria de quedas, ~3,8 por km², quase todas de 3 a 4,5 m, algumas de 5 a 10 m.
+  - Ao pé de cada queda há um **poço** redondo (~6 m de raio, ~3 m de fundura); pular lá de cima não fere (RF-71).
+  - A queda é uma cortina de água clara com listras descendo, com espuma no pé e névoa subindo; as partículas só rodam a menos de 60 m.
+  - O **rugido** é ouvido até 40 m. A menos de 15 m de uma cachoeira, todo ruído alcança **metade** da distância (os passos do jogador, as pedras, os tiros), e o jogador ouve os passos da criatura pela metade também.
+  - O **mapa** marca cada cachoeira com três traços, nos quadrados explorados.
 
 ## Furtividade
 

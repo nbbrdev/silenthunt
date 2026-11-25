@@ -114,6 +114,8 @@ async function start(): Promise<void> {
       world.chunks.update(film.isActive ? film.focus : player.position),
     );
     const noise = new NoiseSystem();
+    // NBB-165 (CC5-A): next to a waterfall, its roar covers half of every noise.
+    noise.dampen = (position) => world.waterfalls.dampen(position);
     const footsteps = new Footsteps(scene, player, world.terrain, world.chunks, noise);
     // NBB-139: the arms on screen; the knife in the right hand, the torch in the left (MA1).
     const hands = new PlayerHands(scene, player);
@@ -136,7 +138,13 @@ async function start(): Promise<void> {
       health.update(seconds);
       hunger.update(seconds);
     });
-    const hud = createHud(scene, noise, () => footsteps.currentRadius(), health, hunger);
+    const hud = createHud(
+      scene,
+      noise,
+      () => footsteps.currentRadius() * noise.dampen(player.feet),
+      health,
+      hunger,
+    );
     createDamageEffects(hud, scene, health, player);
 
     // The creature (NBB-133) and its brain (NBB-134).
@@ -170,11 +178,16 @@ async function start(): Promise<void> {
     player.groundEffect = (direction) => biomeEffects.groundEffect(direction);
     footsteps.biome = biomeEffects;
     visibility.biomeSight = (distance) => biomeEffects.sightDistance(distance);
-    presence.hearingScale = () => biomeEffects.creatureHearingFactor;
+    // CC5-A: by a waterfall the player hears the creature's steps half as far, too.
+    presence.hearingScale = () =>
+      biomeEffects.creatureHearingFactor * world.waterfalls.dampen(player.feet);
     const audio = createGameAudio(player.camera);
     audio
       .then((audio) => presence.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons da criatura não carregados:", error));
+    audio
+      .then((audio) => world.waterfalls.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Som das cachoeiras não carregado:", error));
     // NBB-153: the chase as the player feels it (heartbeat, dark edges, shaking, panting).
     const chaseEffects = new ChaseEffects(scene, hud, player, creatureBrain, presence);
     audio
@@ -519,6 +532,7 @@ async function start(): Promise<void> {
       beds: () => beds.saved.beds.map(({ x, z }) => ({ x, z })),
       knownCabins: () => objective.knownCabins,
       isWater: (x, z) => world.terrain.waterAt(x, z).depth > 0,
+      waterfalls: (x, z, radius) => world.terrain.water.fallsNear(x, z, radius),
       canOpen: (): boolean =>
         menus.isPlaying &&
         !health.isDead &&
@@ -958,6 +972,65 @@ async function start(): Promise<void> {
             return "Sem água a até 3 km";
           },
           water: () => ({ chunks: world.water.count }),
+          /**
+           * NBB-165: to the nearest waterfall within 3 km, below it at the pool's far side and
+           * facing it (`above`: at its lip instead); returns where it is and how tall.
+           */
+          goToWaterfall: (above = false) => {
+            const { x, z } = player.position;
+            for (let radius = 200; radius <= 3000; radius += 400) {
+              const fall = world.waterfalls.near(x, z, radius)[0];
+              if (!fall) {
+                continue;
+              }
+              // Below: past the pool, facing the drop; above: on the bank beside the lip.
+              const back = above ? -1 : CONFIG.water.falls.poolRadius * 2 + 4;
+              const side = above ? fall.width / 2 + 4 : 0;
+              const px = fall.x + fall.dirX * back - fall.dirZ * side;
+              const pz = fall.z + fall.dirZ * back + fall.dirX * side;
+              player.respawn(new Vector3(px, world.terrain.heightAt(px, pz) + 0.3, pz));
+              player.view = {
+                yaw: Math.atan2(fall.x - px, fall.z - pz),
+                pitch: above ? 0.35 : -0.1,
+              };
+              return {
+                x: Math.round(fall.x),
+                z: Math.round(fall.z),
+                height: Math.round((fall.top - fall.bottom) * 10) / 10,
+                width: Math.round(fall.width),
+              };
+            }
+            return "Sem cachoeira a até 3 km";
+          },
+          /**
+           * NBB-165: the nearest waterfall's profile along its fall (every 2 m from 12 m above
+           * to 20 m below the lip): ground and water heights, relative to its top.
+           */
+          fallProfile: () => {
+            const { x, z } = player.position;
+            const fall = world.waterfalls.near(x, z, 3000)[0];
+            if (!fall) {
+              return "Sem cachoeira";
+            }
+            const rows: string[] = [];
+            for (let along = -12; along <= 20; along += 2) {
+              const px = fall.x + fall.dirX * along;
+              const pz = fall.z + fall.dirZ * along;
+              const water = world.terrain.waterAt(px, pz);
+              const ground = world.terrain.heightAt(px, pz) - fall.top;
+              const level = water.depth > 0 ? (water.level - fall.top).toFixed(1) : "-";
+              rows.push(`${along}: chão ${ground.toFixed(1)} água ${level}`);
+            }
+            return {
+              fall: {
+                top: Math.round(fall.top * 10) / 10,
+                bottom: Math.round(fall.bottom * 10) / 10,
+                dir: [fall.dirX, fall.dirZ].map((v) => Math.round(v * 100) / 100),
+                width: Math.round(fall.width),
+              },
+              rows,
+            };
+          },
           /** NBB-164 (AG14): the player in the water: state, depth, air, stamina. */
           swim: (air?: number) => {
             if (air !== undefined) {
