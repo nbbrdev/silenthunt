@@ -367,6 +367,23 @@ export const CONFIG = {
     volume: { enter: 0.9, exit: 0.45, swim: 0.5, underwater: 0.6 },
   },
   /**
+   * NBB-171 (PL1-A, PL2-A, PL4-A): the signposts. The world is split in `cell` m squares; a
+   * square holds one (`chance`) at a spot drawn from the seed, unless it is within `startClear`
+   * m of the start, `minCabinDistance` m of a cabin, in water, or no cabin is within
+   * `searchRadius` m. It points at the nearest cabin; E reads it within `readDistance` m.
+   */
+  signposts: {
+    cell: 400,
+    chance: 0.8,
+    startClear: 260,
+    minCabinDistance: 60,
+    searchRadius: 700,
+    readDistance: 2.4,
+    text: "Cabana",
+    /** The distance read on the sign is rounded to this (as the notes do). */
+    roundTo: 50,
+  },
+  /**
    * NBB-169 (FL4-A): the canopy's shade. The trees within `radius` m of the camera (a young one
    * counts `youngWeight`) close the canopy; `fullTrees` of them close it all. Closed, it takes
    * these shares away from the sun, the sky's light and the fog's brightness, by day; the change
@@ -1599,6 +1616,8 @@ export const CONFIG = {
     rock: { r: 0.4, g: 0.4, b: 0.38 },
     moss: { r: 0.22, g: 0.3, b: 0.16 },
     grass: { r: 0.28, g: 0.34, b: 0.19 },
+    /** NBB-171 (PL3-A): old weathered wood (the signpost). */
+    oldWood: { r: 0.36, g: 0.31, b: 0.25 },
     /** NBB-170 (SL1-A): the ground cover's colors. */
     freshGrass: { r: 0.3, g: 0.42, b: 0.17 },
     dryGrass: { r: 0.46, g: 0.43, b: 0.24 },
@@ -1787,6 +1806,8 @@ export const CONFIG = {
     boulder: { size: [2.2, 3.6] },
     /** A shallow puddle of mud, flat on the ground. */
     puddle: { radius: [0.8, 2] },
+    /** NBB-171 (PL3-A): the signpost: its height above the ground, the arrow's length, its lean. */
+    signpost: { height: 1.9, boardLength: 0.85, lean: 0.07 },
     /** NBB-170 (SL1-A): the ground cover. */
     lushGrass: { height: [0.3, 0.6], cards: [5, 7] },
     fern: { height: [0.45, 0.85], fronds: [6, 9] },

@@ -21,6 +21,7 @@ import { birch } from "./nature/birch";
 import { boulder, cliff, puddle } from "./nature/cliff";
 import { reeds, tallGrass } from "./nature/reeds";
 import { waterfall } from "./nature/waterfall";
+import { signpost } from "./structures/signpost";
 import { fern, flowers, leafPile, lushGrass, mushrooms, pebbles } from "./nature/groundCover";
 import { bush } from "./nature/bush";
 import { deadTree } from "./nature/deadTree";
@@ -49,6 +50,8 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   puddle,
   // CC3-A (NBB-165): the waterfall.
   waterfall,
+  // PL3-A (NBB-171): the signpost.
+  signpost,
   // SL1-A (NBB-170): the ground cover.
   lushGrass,
   fern,

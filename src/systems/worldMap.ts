@@ -193,6 +193,27 @@ export class WorldMap {
     };
   }
 
+  /**
+   * NBB-171 (PL4-A): a signpost read: its cabin becomes the destination (the compass shows it).
+   * A mark already there (within 3 m) is reused; with the marks full, the oldest one makes room.
+   */
+  markDestination(x: number, z: number): void {
+    const settings = CONFIG.map;
+    const near = this.marks.findIndex((mark) => Math.hypot(mark.x - x, mark.z - z) <= 3);
+    if (near >= 0) {
+      this.destination = near;
+      return;
+    }
+    if (this.marks.length >= settings.maxMarks) {
+      this.marks.shift();
+      if (this.destination !== undefined) {
+        this.destination = this.destination > 0 ? this.destination - 1 : undefined;
+      }
+    }
+    this.marks.push({ x, z });
+    this.destination = this.marks.length - 1;
+  }
+
   /** Development: puts a mark at (x, z), as a click would; `destination` makes it the destination. */
   debugMark(x: number, z: number, destination = false): void {
     this.marks.push({ x, z });

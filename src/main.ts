@@ -34,6 +34,7 @@ import { StoneThrowSystem } from "./systems/stones";
 import { ChaseEffects } from "./systems/chaseEffects";
 import { SoundEffects } from "./systems/soundEffects";
 import { SwimmingSystem } from "./systems/swimming";
+import { SignpostField } from "./world/signposts";
 import { fogConditions } from "./world/atmosphere";
 import { CabinManager } from "./world/cabins";
 import { BIOME_NAMES, type Biome } from "./world/biomes";
@@ -541,6 +542,14 @@ async function start(): Promise<void> {
         !inventoryScreen.isOpen,
     });
     compass.destination = () => worldMap.destinationPoint;
+    // NBB-171 (PL1-A to PL4-A): old signposts pointing at the nearest cabin; reading one marks it.
+    const signposts = new SignpostField(scene, {
+      terrain: world.terrain,
+      chunks: world.chunks,
+      player,
+      interactions,
+    });
+    signposts.onRead = (cabin) => worldMap.markDestination(cabin.x, cabin.z);
 
     // FX14: paper: a note read, the map opened or closed.
     notePanel.onRead.add(() => effects.play("note"));
@@ -972,6 +981,28 @@ async function start(): Promise<void> {
             return "Sem água a até 3 km";
           },
           water: () => ({ chunks: world.water.count }),
+          /**
+           * NBB-171: to the nearest signpost within 2 km, 2 m in front of its board, facing it;
+           * returns where it is and the cabin it points at.
+           */
+          goToSignpost: () => {
+            const { x, z } = player.position;
+            const site = signposts.near(x, z, 2000)[0];
+            if (!site) {
+              return "Sem placa a até 2 km";
+            }
+            // In front of the board's face (the arrow points along the post's +X).
+            const angle = Math.atan2(site.cabin.x - site.x, site.cabin.z - site.z);
+            const px = site.x + Math.sin(angle + Math.PI / 2) * 2;
+            const pz = site.z + Math.cos(angle + Math.PI / 2) * 2;
+            player.respawn(new Vector3(px, world.terrain.heightAt(px, pz) + 0.3, pz));
+            player.view = { yaw: Math.atan2(site.x - px, site.z - pz), pitch: 0 };
+            return {
+              x: Math.round(site.x),
+              z: Math.round(site.z),
+              cabin: [Math.round(site.cabin.x), Math.round(site.cabin.z)],
+            };
+          },
           /** NBB-169: how closed the canopy is here, and the shafts of light standing now. */
           forestLight: () => ({
             canopy: Math.round(world.atmosphere.canopy * 100) / 100,
