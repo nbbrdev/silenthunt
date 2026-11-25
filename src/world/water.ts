@@ -42,8 +42,12 @@ export interface Waterfall {
  */
 export class WaterField {
   private readonly seed: number;
-  /** The land's broad shape (without small bumps), for the water's surface. */
-  private readonly broadHeight: (x: number, z: number) => number;
+  /**
+   * The land's broad shape (without small bumps), for the water's surface. NBB-165 (CC1-A):
+   * `sheer` drops the ridge's steps sheer, for the rivers (they fall there); the lakes keep the
+   * gentle shape.
+   */
+  private readonly broadHeight: (x: number, z: number, sheer: boolean) => number;
   private readonly marshWeight: (x: number, z: number) => number;
   /** NBB-165: the waterfalls found in each region (they never change). */
   private readonly falls = new Map<string, Waterfall[]>();
@@ -53,7 +57,7 @@ export class WaterField {
 
   constructor(
     seed: number,
-    broadHeight: (x: number, z: number) => number,
+    broadHeight: (x: number, z: number, sheer: boolean) => number,
     marshWeight: (x: number, z: number) => number,
     ridgeWeight: (x: number, z: number) => number,
   ) {
@@ -131,8 +135,9 @@ export class WaterField {
     if (nearest > settings.bankWidth) {
       return undefined;
     }
-    const level = this.broadHeight(x, z) - settings.below;
-    return riverEdge <= lakeEdge
+    const isRiver = riverEdge <= lakeEdge;
+    const level = this.broadHeight(x, z, isRiver) - settings.below;
+    return isRiver
       ? { level, edge: riverEdge, depth: riverDepth, ramp: Math.min(halfWidth, 4), kind: "river" }
       : { level, edge: lakeEdge, depth: lakeDepth, ramp: settings.lakeRamp, kind: "lake" };
   }
@@ -172,8 +177,8 @@ export class WaterField {
     for (let j = 0; j < count; j++) {
       for (let i = 0; i < count; i++) {
         const shape = this.baseShapeAt(minX - margin + i * sample, minZ - margin + j * sample);
-        // A lake across a step of the ridge falls too (its surface drops there like a river's).
-        levels.push(shape && shape.edge < 0 ? shape.level : undefined);
+        // CC1-A: only the rivers fall (a lake keeps its gentle surface).
+        levels.push(shape && shape.edge < 0 && shape.kind === "river" ? shape.level : undefined);
       }
     }
     // Each step of the grid that crosses a drop, from the higher point to the lower one.
@@ -214,24 +219,36 @@ export class WaterField {
         }
       }
     }
-    // Gathered: the crossings near each other, down the same step (about the same heights), make
-    // one waterfall; the next step down, a few meters on, is another one.
-    const groups: (typeof crossings)[] = [];
-    for (const crossing of crossings) {
-      const group = groups.find((members) =>
-        members.some(
-          (m) =>
-            Math.hypot(m.x - crossing.x, m.z - crossing.z) <= gather &&
-            Math.abs(m.top - crossing.top) < minDrop / 2 &&
-            Math.abs(m.bottom - crossing.bottom) < minDrop / 2,
-        ),
-      );
-      if (group) {
-        group.push(crossing);
-      } else {
-        groups.push([crossing]);
+    // Gathered: crossings next to each other (within `gather` m) down the same step (about the
+    // same heights) join into one waterfall, in chains along its lip; the next step down, a few
+    // meters on, is another one. Each crossing starts alone and neighbors merge (union-find).
+    const parent = crossings.map((_, index) => index);
+    const root = (index: number): number => {
+      let at = index;
+      while (parent[at] !== at) {
+        at = parent[at] ?? at;
       }
-    }
+      return at;
+    };
+    crossings.forEach((a, i) => {
+      for (let j = i + 1; j < crossings.length; j++) {
+        const b = crossings[j];
+        if (
+          b &&
+          Math.hypot(a.x - b.x, a.z - b.z) <= gather &&
+          Math.abs(a.top - b.top) < minDrop / 2 &&
+          Math.abs(a.bottom - b.bottom) < minDrop / 2
+        ) {
+          parent[root(j)] = root(i);
+        }
+      }
+    });
+    const byRoot = new Map<number, typeof crossings>();
+    crossings.forEach((crossing, index) => {
+      const key = root(index);
+      byRoot.set(key, [...(byRoot.get(key) ?? []), crossing]);
+    });
+    const groups = [...byRoot.values()];
     const falls: Waterfall[] = [];
     for (const group of groups) {
       const x = group.reduce((sum, m) => sum + m.x, 0) / group.length;

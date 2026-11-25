@@ -292,13 +292,14 @@ export const CONFIG = {
     /**
      * NBB-165 (CC1-A): finding the waterfalls. Regions of `region` m are searched on a grid of
      * `sample` m (with `margin` m more around them); a drop of the river's surface of at least
-     * `minDrop` m between two neighbors is a waterfall; drops within `gather` m are the same one.
+     * `minDrop` m between two neighbors is a waterfall; drops in a chain, each within `gather` m of
+     * the next and about as high, are the same one.
      */
     falls: {
       region: 128,
       sample: 4,
       minDrop: 1.5,
-      gather: 16,
+      gather: 6,
       margin: 24,
       /** CC2-A: the pool at the foot (meters); its bed deepens over `poolRamp` from its rim. */
       poolRadius: 6,

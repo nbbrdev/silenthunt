@@ -20,8 +20,8 @@ export class Terrain {
     this.seed = seed;
     this.water = new WaterField(
       seed,
-      // CC1-A: the ridge's steps are sheer for the water, so a river falls there.
-      (x, z) => this.hillsAt(x, z, 1, true),
+      // CC1-A: the ridge's steps are sheer for the rivers, so they fall there.
+      (x, z, sheer) => this.hillsAt(x, z, 1, sheer),
       (x, z) => this.biomeWeightsAt(x, z).marsh,
       (x, z) => this.biomeWeightsAt(x, z).ridge,
     );
