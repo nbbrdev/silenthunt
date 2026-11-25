@@ -55,6 +55,8 @@ export class Player {
     level: -Infinity,
     depth: 0,
   });
+  /** NBB-172 (AF3-B): the river's current at a point (m/s, on the ground), if any; set by the game. */
+  currentAt: (x: number, z: number) => { x: number; z: number } | undefined = () => undefined;
   /** NBB-164 (AG3-B): on dry ground, wading (slowed) or swimming. */
   waterState: "dry" | "wading" | "swimming" = "dry";
   /** NBB-164: the eyes are under the water. */
@@ -347,6 +349,12 @@ export class Player {
     }
     // Never above the floating height.
     velocity.y = Math.min(velocity.y, toFloat * 4);
+    // NBB-172 (AF3-B): the river's current carries the swimmer along.
+    const current = this.currentAt(center.x, center.z);
+    if (current) {
+      velocity.x += current.x * settings.currentPush;
+      velocity.z += current.z * settings.currentPush;
+    }
     this.controller.setVelocity(velocity);
     const support = this.controller.checkSupport(dt, DOWN);
     this.controller.integrate(dt, support, Vector3.Zero());

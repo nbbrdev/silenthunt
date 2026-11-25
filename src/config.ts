@@ -302,6 +302,21 @@ export const CONFIG = {
     /** Nothing is placed in the water, but reeds where it is at most this deep. */
     reedsDepth: 0.4,
     /**
+     * NBB-172 (AF1-A, AF3-B): the rivers' current (m/s): `baseSpeed` on the flat, faster with the
+     * slope (×`slopeFactor`), ×`fallBoost` within `fallBoostDistance` m of a waterfall, at most
+     * `maxSpeed`. Downstream is found comparing the land `probe` m ahead and behind; the current
+     * fades in over `shoreFade` m from the bank.
+     */
+    flow: {
+      baseSpeed: 0.5,
+      slopeFactor: 8,
+      maxSpeed: 1.4,
+      fallBoost: 2,
+      fallBoostDistance: 20,
+      probe: 6,
+      shoreFade: 2,
+    },
+    /**
      * NBB-165 (CC1-A): finding the waterfalls. Regions of `region` m are searched on a grid of
      * `sample` m (with `margin` m more around them); a drop of the river's surface of at least
      * `minDrop` m between two neighbors is a waterfall; drops in a chain, each within `gather` m of
@@ -357,6 +372,8 @@ export const CONFIG = {
     underwaterFog: { r: 0.05, g: 0.12, b: 0.11 },
     underwaterVisibility: 6,
     muffled: 0.4,
+    /** NBB-172 (AF3-B): how much of the river's current carries a swimmer along. */
+    currentPush: 0.7,
     /** After this long underwater, coming up gasps (FX13's caught breath). */
     gaspAfterSeconds: 3,
     files: {
@@ -452,6 +469,19 @@ export const CONFIG = {
     /** Dark, cold water; how much of that color shows over the reflection. */
     color: { r: 0.05, g: 0.08, b: 0.09 },
     colorBlend: 0.45,
+    /**
+     * NBB-172 (AF1-A): the current's layer over the rivers: specks of foam (a texture `tileMeters`
+     * m wide) carried by the current in cycles of `periodSeconds`, each smeared back about
+     * `smearMeters` m into a streak, showing at most `opacity`, just above the water.
+     */
+    flowLayer: {
+      tileMeters: 3,
+      periodSeconds: 2.5,
+      smearMeters: 0.12,
+      opacity: 0.5,
+      foamColor: { r: 0.78, g: 0.84, b: 0.86 },
+      lift: 0.03,
+    },
   },
   /** Day and night cycle (RF-05, G4) and its light and fog (NBB-130). */
   dayNight: {

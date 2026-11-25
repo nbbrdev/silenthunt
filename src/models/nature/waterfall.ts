@@ -157,9 +157,9 @@ function createCurtain(scene: Scene, width: number, height: number): Mesh {
 
 /**
  * How lit the scene is now (0 to 1), from its sky and sun lights: the foam and mist are not lit
- * by themselves, so they follow it (pale by day, dim at night).
+ * by themselves, so they follow it (pale by day, dim at night). NBB-172: the river's foam too.
  */
-function sceneBrightness(scene: Scene): number {
+export function sceneBrightness(scene: Scene): number {
   let light = 0;
   for (const source of scene.lights) {
     if (!source.isEnabled()) {

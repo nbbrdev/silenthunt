@@ -356,6 +356,13 @@ async function start(): Promise<void> {
     hunger.onGrowl.add(() => effects.play("stomach"));
     // NBB-164 (AG14 to AG17): swimming, diving and drowning; a long fall hurts (BM1).
     player.waterAt = (x, z) => world.terrain.waterAt(x, z);
+    // NBB-172 (AF3-B): the river's current carries the swimmer.
+    player.currentAt = (x, z) => {
+      const flow = world.terrain.water.flowAt(x, z);
+      return (
+        flow && { x: flow.dirX * flow.speed * flow.share, z: flow.dirZ * flow.speed * flow.share }
+      );
+    };
     const swimming = new SwimmingSystem(scene, { player, health, torch, noise, effects, options });
     audio
       .then((audio) => swimming.loadSounds(audio))
@@ -948,6 +955,58 @@ async function start(): Promise<void> {
           teleport: (x: number, z: number) =>
             player.respawn(new Vector3(x, world.terrain.heightAt(x, z), z)),
           /**
+           * NBB-172: to the middle of the nearest river within 2 km (`into`: in it, swimming;
+           * otherwise on its bank), facing downstream; returns where and its current.
+           */
+          goToRiver: (into = false) => {
+            const { x, z } = player.position;
+            for (let ring = 20; ring <= 2000; ring += 20) {
+              for (let angle = 0; angle < Math.PI * 2; angle += 20 / ring) {
+                const rx = x + Math.cos(angle) * ring;
+                const rz = z + Math.sin(angle) * ring;
+                const flow = world.terrain.water.flowAt(rx, rz);
+                if (!flow || flow.share < 1 || world.terrain.waterAt(rx, rz).depth < 1.6) {
+                  continue;
+                }
+                // On the bank: across the current, until dry land.
+                let px = rx;
+                let pz = rz;
+                if (!into) {
+                  for (let step = 1; step < 20; step++) {
+                    px = rx - flow.dirZ * step;
+                    pz = rz + flow.dirX * step;
+                    if (world.terrain.waterAt(px, pz).depth === 0) {
+                      break;
+                    }
+                  }
+                }
+                const y = into
+                  ? world.terrain.waterAt(rx, rz).level - 1.4
+                  : world.terrain.heightAt(px, pz) + 0.3;
+                player.respawn(new Vector3(px, y, pz));
+                player.view = { yaw: Math.atan2(flow.dirX, flow.dirZ), pitch: into ? 0 : 0.2 };
+                return {
+                  x: Math.round(rx),
+                  z: Math.round(rz),
+                  speed: Math.round(flow.speed * 100) / 100,
+                };
+              }
+            }
+            return "Sem rio a até 2 km";
+          },
+          /** NBB-172: the current where the player is (none on land or in a lake). */
+          current: () => {
+            const flow = world.terrain.water.flowAt(player.position.x, player.position.z);
+            const round = (value: number) => Math.round(value * 100) / 100;
+            return flow
+              ? {
+                  dir: [round(flow.dirX), round(flow.dirZ)],
+                  speed: round(flow.speed),
+                  share: round(flow.share),
+                }
+              : "Sem correnteza";
+          },
+          /**
            * NBB-164: to the nearest deep water's shore (`kind` "lago" or "rio"), facing the water;
            * returns where and how deep.
            */
@@ -980,7 +1039,7 @@ async function start(): Promise<void> {
             }
             return "Sem água a até 3 km";
           },
-          water: () => ({ chunks: world.water.count }),
+          water: () => ({ chunks: world.water.count, flow: world.water.flowState }),
           /**
            * NBB-171: to the nearest signpost within 2 km, 2 m in front of its board, facing it;
            * returns where it is and the cabin it points at.

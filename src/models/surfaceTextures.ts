@@ -141,12 +141,45 @@ function smooth(t: number): number {
  * NBB-164: small ripples for the water's surface (its relief becomes the waves' normal map): soft
  * bumps of a few sizes, a little stretched along one direction, like wind on a pond.
  */
+/**
+ * NBB-172 (AF2-A): the water's ripples, at two sizes: long, gentle waves crossing each other and
+ * small sharp ripples over them, both bent by a slow noise so they never look like a grid. Whole
+ * waves across the texture, so it tiles without seams.
+ */
 function paintRipples(data: Uint8ClampedArray): void {
-  const big = fractalNoise(9101, 6, 4, 3);
-  const small = fractalNoise(9102, 16, 12, 2);
-  for (let i = 0; i < SIZE * SIZE; i++) {
-    const value = (big[i] ?? 0) * 0.6 + (small[i] ?? 0) * 0.4;
-    setGray(data, i, Math.round(value * 255));
+  const warp = fractalNoise(9103, 4, 4, 2);
+  const grain = fractalNoise(9102, 16, 12, 2);
+  const big: readonly [number, number][] = [
+    [3, 1],
+    [1, 4],
+    [-2, 3],
+  ];
+  const small: readonly [number, number][] = [
+    [13, 5],
+    [-9, 14],
+    [17, -6],
+    [6, 19],
+  ];
+  const turn = Math.PI * 2;
+  for (let y = 0; y < SIZE; y++) {
+    for (let x = 0; x < SIZE; x++) {
+      const i = y * SIZE + x;
+      const u = x / SIZE;
+      const v = y / SIZE;
+      const bend = (warp[i] ?? 0.5) * turn * 0.8;
+      let waves = 0;
+      for (const [kx, ky] of big) {
+        waves += Math.sin(turn * (kx * u + ky * v) + bend) / big.length;
+      }
+      let ripples = 0;
+      for (const [kx, ky] of small) {
+        // Sharp crests: the ripples' tops are narrow, their troughs wide.
+        ripples +=
+          (1 - Math.abs(Math.sin(turn * (kx * u + ky * v) + bend * 1.7))) ** 2 / small.length;
+      }
+      const value = 0.5 + waves * 0.3 + (ripples - 0.4) * 0.45 + ((grain[i] ?? 0.5) - 0.5) * 0.15;
+      setGray(data, i, Math.round(Math.min(1, Math.max(0, value)) * 255));
+    }
   }
 }
 

@@ -1,10 +1,18 @@
-import { Color3, Mesh, Vector2, VertexData, type Scene } from "@babylonjs/core";
+import {
+  Color3,
+  Mesh,
+  Vector2,
+  VertexData,
+  type Scene,
+  type ShaderMaterial,
+} from "@babylonjs/core";
 import { WaterMaterial } from "@babylonjs/materials";
 import { CONFIG } from "../config";
 import { getSurfaceTextures } from "../models/surfaceTextures";
 import type { ChunkInfo, ChunkManager } from "./chunks";
 import type { Terrain } from "./terrain";
 import type { VegetationLibrary } from "./vegetation";
+import { createFlowMaterial } from "./waterFlow";
 
 /**
  * The water's surface (NBB-164; BI6-B, AG8-A): for each loaded chunk, a sheet over its rivers and
@@ -20,6 +28,9 @@ export class WaterSurfaces {
   private readonly meshes = new Map<string, Mesh>();
   /** The ground meshes in the reflection, by chunk (taken out when their chunk unloads). */
   private readonly grounds = new Map<string, Mesh>();
+  /** NBB-172 (AF1-A): the current's layer, by chunk, and its material. */
+  private readonly flows = new Map<string, Mesh>();
+  private readonly flowMaterial: ShaderMaterial;
 
   constructor(scene: Scene, terrain: Terrain, chunks: ChunkManager, library: VegetationLibrary) {
     this.scene = scene;
@@ -36,6 +47,7 @@ export class WaterSurfaces {
     this.material.waterColor = toColor(settings.color);
     this.material.colorBlendFactor = settings.colorBlend;
     this.material.backFaceCulling = false;
+    this.flowMaterial = createFlowMaterial(scene);
     // The water reflects the ground and the trees (AG8-A).
     for (const mesh of library.treeMeshes()) {
       this.material.addToRenderList(mesh);
@@ -47,6 +59,12 @@ export class WaterSurfaces {
   /** Development: how many chunks have water now. */
   get count(): number {
     return this.meshes.size;
+  }
+
+  /** Development (NBB-172): how many chunks have a current's layer, and whether its shader is ready. */
+  get flowState(): { layers: number; ready: boolean } {
+    const any = [...this.flows.values()][0];
+    return { layers: this.flows.size, ready: any ? this.flowMaterial.isReady(any) : false };
   }
 
   private build(chunk: ChunkInfo): void {
@@ -139,6 +157,105 @@ export class WaterSurfaces {
     mesh.isPickable = false;
     mesh.freezeWorldMatrix();
     this.meshes.set(chunk.key, mesh);
+    this.buildFlow(chunk.key, levels, base, cells, originX, originZ);
+  }
+
+  /**
+   * NBB-172 (AF1-A): the current's layer over this chunk's rivers: the same grid as the water's
+   * sheet, a little above it, each corner carrying its current in its color (see waterFlow.ts).
+   */
+  private buildFlow(
+    key: string,
+    levels: readonly (number | undefined)[],
+    base: number,
+    cells: number,
+    originX: number,
+    originZ: number,
+  ): void {
+    const cell = CONFIG.waterSurface.cell;
+    const lift = CONFIG.waterSurface.flowLayer.lift;
+    const maxSpeed = CONFIG.water.flow.maxSpeed;
+    const flows = levels.map((level, index) => {
+      if (level === undefined) {
+        return undefined;
+      }
+      const col = index % (cells + 1);
+      const row = Math.floor(index / (cells + 1));
+      return this.terrain.water.flowAt(originX + col * cell, originZ + row * cell);
+    });
+    if (!flows.some((flow) => flow !== undefined)) {
+      return;
+    }
+    const positions: number[] = [];
+    const colors: number[] = [];
+    const indices: number[] = [];
+    const vertexOf = new Map<number, number>();
+    const vertex = (row: number, col: number): number => {
+      const index = row * (cells + 1) + col;
+      const existing = vertexOf.get(index);
+      if (existing !== undefined) {
+        return existing;
+      }
+      const id = positions.length / 3;
+      positions.push(
+        originX + col * cell,
+        (levels[index] ?? base) - base + lift,
+        originZ + row * cell,
+      );
+      const flow = flows[index];
+      if (flow) {
+        colors.push(
+          flow.dirX * 0.5 + 0.5,
+          flow.dirZ * 0.5 + 0.5,
+          Math.min(1, flow.speed / maxSpeed),
+          flow.share,
+        );
+      } else {
+        colors.push(0.5, 0.5, 0, 0);
+      }
+      vertexOf.set(index, id);
+      return id;
+    };
+    for (let row = 0; row < cells; row++) {
+      for (let col = 0; col < cells; col++) {
+        const corners = [
+          row * (cells + 1) + col,
+          row * (cells + 1) + col + 1,
+          (row + 1) * (cells + 1) + col,
+          (row + 1) * (cells + 1) + col + 1,
+        ];
+        if (corners.some((index) => levels[index] === undefined)) {
+          continue;
+        }
+        if (!corners.some((index) => flows[index] !== undefined)) {
+          continue;
+        }
+        const heights = corners.map((index) => levels[index] ?? base);
+        if (Math.max(...heights) - Math.min(...heights) > CONFIG.water.falls.minDrop / 2) {
+          continue;
+        }
+        const a = vertex(row, col);
+        const b = vertex(row, col + 1);
+        const c = vertex(row + 1, col);
+        const d = vertex(row + 1, col + 1);
+        indices.push(a, b, c, b, d, c);
+      }
+    }
+    if (indices.length === 0) {
+      return;
+    }
+    const mesh = new Mesh(`waterFlow-${key}`, this.scene);
+    const data = new VertexData();
+    data.positions = positions;
+    data.indices = indices;
+    data.colors = colors;
+    data.applyToMesh(mesh, false);
+    mesh.position.y = base;
+    mesh.material = this.flowMaterial;
+    mesh.isPickable = false;
+    mesh.hasVertexAlpha = true;
+    mesh.freezeWorldMatrix();
+    this.flows.set(key, mesh);
   }
 
   private remove(key: string): void {
@@ -152,6 +269,8 @@ export class WaterSurfaces {
       mesh.dispose();
       this.meshes.delete(key);
     }
+    this.flows.get(key)?.dispose();
+    this.flows.delete(key);
   }
 }
 

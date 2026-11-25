@@ -278,6 +278,47 @@ export class WaterField {
     return falls;
   }
 
+  /**
+   * NBB-172 (AF1-A, AF3-B): the river's current at (x, z): which way it runs (a unit vector on
+   * the ground), how fast (m/s) and how much of it shows (0 at the banks, 1 well inside). It runs
+   * along the river, toward where its surface is lower; steeper and next to a waterfall, faster.
+   * Lakes and the pools under the falls have none (undefined), nor does dry land.
+   */
+  flowAt(
+    x: number,
+    z: number,
+  ): { dirX: number; dirZ: number; speed: number; share: number } | undefined {
+    const shape = this.shapeAt(x, z);
+    if (!shape || shape.kind !== "river" || shape.edge >= 0) {
+      return undefined;
+    }
+    const settings = CONFIG.water.flow;
+    // Along the river: across the slope of the noise whose middle line is the river.
+    const gx = this.riverNoise(x + 1, z) - this.riverNoise(x - 1, z);
+    const gz = this.riverNoise(x, z + 1) - this.riverNoise(x, z - 1);
+    const length = Math.hypot(gx, gz);
+    if (length < 1e-6) {
+      return undefined;
+    }
+    let dirX = -gz / length;
+    let dirZ = gx / length;
+    // Downstream: the side where the land's broad shape (without the ridge's sheer steps) is lower.
+    const probe = settings.probe;
+    const ahead = this.broadHeight(x + dirX * probe, z + dirZ * probe, false);
+    const behind = this.broadHeight(x - dirX * probe, z - dirZ * probe, false);
+    if (ahead > behind) {
+      dirX = -dirX;
+      dirZ = -dirZ;
+    }
+    const slope = Math.abs(ahead - behind) / (probe * 2);
+    let speed = Math.min(settings.maxSpeed, settings.baseSpeed + slope * settings.slopeFactor);
+    if (this.fallsNear(x, z, settings.fallBoostDistance).length > 0) {
+      speed = Math.min(settings.maxSpeed, speed * settings.fallBoost);
+    }
+    const share = Math.min(1, -shape.edge / settings.shoreFade);
+    return { dirX, dirZ, speed, share };
+  }
+
   /** NBB-165: the waterfalls within `radius` meters of (x, z). */
   fallsNear(x: number, z: number, radius: number): Waterfall[] {
     const { region } = CONFIG.water.falls;
