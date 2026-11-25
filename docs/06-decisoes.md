@@ -633,6 +633,7 @@ Pedido do usuário: mais detalhes no chão (um gramado mais vivo), um poste com 
 | AF1-A | Uma camada de correnteza por cima da água de hoje: nos rios, linhas de espuma e ondinhas andando do lado mais alto para o mais baixo, mais rápidas perto das cachoeiras; nos lagos, quase parada; o reflexo continua por baixo. |
 | AF2-A | A textura das ondinhas redesenhada em código, com mais detalhe e duas escalas; a cor fica a de hoje. |
 | AF3-B | A correnteza também **empurra quem nada no rio**, devagar, a favor dela, e mais forte perto das cachoeiras. |
+| SL4 | Revisão do usuário (2026-11-25): chão da NBB-170 aprovado, com os detalhes de Claude ("1 a 5 - Ok"): claridade de 80% a 112% em manchas de ~18 m; mais verde ou mais seco até 20% em manchas de ~45 m, nunca mais vermelho; grãos de terra a cada 0,75 m, força 0,45; por pedaço de 64 m, grama viva 300/420/200/480/120, samambaias 40/55/10/0/5, folhas caídas 8/45/4/0/0, flores 0/8/4/45/4, pedrinhas 6/4/0/10/70 (pinheiral/bosque/pântano/campo/serra), cogumelos ao pé de 12% das árvores, os 150 tufos antigos mantidos; grama viva 0,3–0,6 m, samambaia 0,45–0,85 m; 10 a 28 triângulos nas plantas, 140 nas pedrinhas, 208 nos cogumelos; só visual. Regra registrada como RF-74 no docs/03. |
 
 ## M6: Features novas (2026-11-23)
 

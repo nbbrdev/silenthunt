@@ -62,6 +62,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   - **Sombra da copa:** quanto mais árvores em volta (12 m), menos luz do dia chega: até 70% menos sol, 40% menos luz do céu e a neblina 25% mais escura na floresta fechada; nas clareiras, no campo e no pântano, quase nada. A mudança é suave ao andar.
   - **Feixes de luz:** de dia, nos vãos da copa em volta do jogador (até 24, a menos de 38 m), inclinados com o sol, dourados no amanhecer e no entardecer, sumindo na neblina e de perto.
   - O machado dá as mesmas madeiras; a árvore alta cai mais devagar (1,5 s × √(altura ÷ 11 m)).
+- **RF-74** **Detalhes no chão** (NBB-170; SL1-A a SL4): o chão tem manchas grandes, mais claras e mais escuras, mais verdes e mais secas, e grãos de terra de perto. Por cima, a até 35 m, grama viva, samambaias (pinheiral e bosque), folhas caídas (bosque), flores (campo), pedrinhas (serra) e cogumelos ao pé de algumas árvores, cada bioma com sua quantidade. Só visual: não bloqueiam, não escondem e não fazem barulho.
 
 ## Furtividade
 
