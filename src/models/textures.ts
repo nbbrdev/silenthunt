@@ -34,6 +34,65 @@ export function getSoftDotTexture(scene: Scene): Texture {
   return texture;
 }
 
+const groundDetailByScene = new WeakMap<Scene, Texture>();
+
+/**
+ * NBB-170 (SL1-A): the ground's close-up detail, drawn by code, packed as Babylon's detail maps
+ * want it: red = brightness (0.5 leaves it as is), green and alpha = the relief's slope, blue =
+ * roughness. Fine grains of soil and tiny pebbles, each a small bump.
+ */
+export function getGroundDetailTexture(scene: Scene): Texture {
+  const existing = groundDetailByScene.get(scene);
+  if (existing) {
+    return existing;
+  }
+  const size = 256;
+  const random = createRandom(1717);
+  // A height field of grains, wrapping around, then its brightness and slopes.
+  const height = new Float32Array(size * size);
+  for (let i = 0; i < 900; i++) {
+    const cx = random() * size;
+    const cy = random() * size;
+    const radius = randomRange(random, 1.5, i < 120 ? 7 : 3.5);
+    const lift = randomRange(random, -0.6, 1);
+    for (let dy = -Math.ceil(radius); dy <= Math.ceil(radius); dy++) {
+      for (let dx = -Math.ceil(radius); dx <= Math.ceil(radius); dx++) {
+        const fall = 1 - Math.hypot(dx, dy) / radius;
+        if (fall <= 0) {
+          continue;
+        }
+        const x = (Math.floor(cx) + dx + size) % size;
+        const y = (Math.floor(cy) + dy + size) % size;
+        height[y * size + x] = (height[y * size + x] ?? 0) + lift * fall * fall;
+      }
+    }
+  }
+  const texture = new DynamicTexture("groundDetail", { width: size, height: size }, scene, true);
+  const context = texture.getContext();
+  const image = context.getImageData(0, 0, size, size);
+  const at = (x: number, y: number) =>
+    height[((y + size) % size) * size + ((x + size) % size)] ?? 0;
+  for (let y = 0; y < size; y++) {
+    for (let x = 0; x < size; x++) {
+      const h = at(x, y);
+      const slopeX = (at(x + 1, y) - at(x - 1, y)) * 0.5;
+      const slopeY = (at(x, y + 1) - at(x, y - 1)) * 0.5;
+      const index = (y * size + x) * 4;
+      const clamp = (value: number) => Math.max(0, Math.min(255, Math.round(value)));
+      image.data[index] = clamp(128 + h * 45);
+      image.data[index + 1] = clamp(128 + slopeY * 90);
+      image.data[index + 2] = 128;
+      image.data[index + 3] = clamp(128 + slopeX * 90);
+    }
+  }
+  context.putImageData(image, 0, 0);
+  texture.update();
+  texture.wrapU = Texture.WRAP_ADDRESSMODE;
+  texture.wrapV = Texture.WRAP_ADDRESSMODE;
+  groundDetailByScene.set(scene, texture);
+  return texture;
+}
+
 const birchBarkByScene = new WeakMap<Scene, Texture>();
 
 /**
@@ -85,7 +144,18 @@ export function getBirchBarkTexture(scene: Scene): Texture {
  * models, and these are generated like the meshes). They are grayscale with transparency; the
  * green comes from the vertex colors, so the palette stays in CONFIG.
  */
-export type FoliageKind = "broadleaf" | "needles" | "grass" | "reeds" | "tallGrass" | "birch";
+export type FoliageKind =
+  | "broadleaf"
+  | "needles"
+  | "grass"
+  | "reeds"
+  | "tallGrass"
+  | "birch"
+  // NBB-170 (SL1-A): the ground cover.
+  | "lushGrass"
+  | "fern"
+  | "leafLitter"
+  | "petals";
 
 const SIZE = 512;
 const texturesByScene = new WeakMap<Scene, Map<FoliageKind, Texture>>();
@@ -124,6 +194,14 @@ export function getFoliageTexture(scene: Scene, kind: FoliageKind): Texture {
     drawReeds(context);
   } else if (kind === "tallGrass") {
     drawTallGrass(context);
+  } else if (kind === "lushGrass") {
+    drawLushGrass(context);
+  } else if (kind === "fern") {
+    drawFernFrond(context);
+  } else if (kind === "leafLitter") {
+    drawLeafLitter(context);
+  } else if (kind === "petals") {
+    drawPetals(context);
   } else {
     drawGrassBlades(context);
   }
@@ -361,6 +439,100 @@ function drawTallGrass(context: ICanvasRenderingContext): void {
 }
 
 /** Grass blades growing up from the bottom edge (bottom of the canvas = ground). */
+/**
+ * NBB-170 (SL1-A): a lively, full clump of grass: many thin blades of different shades, some
+ * bending over, spread wide at the base.
+ */
+function drawLushGrass(context: ICanvasRenderingContext): void {
+  const random = createRandom(707);
+  for (let i = 0; i < 34; i++) {
+    const baseX = randomRange(random, 70, 442);
+    const height = randomRange(random, 200, 500);
+    const halfWidth = randomRange(random, 5, 10);
+    const bend = randomRange(random, -150, 150);
+    context.fillStyle = gray(randomRange(random, 140, 250));
+    context.beginPath();
+    context.moveTo(baseX - halfWidth, SIZE);
+    context.quadraticCurveTo(baseX + bend * 0.3, SIZE - height * 0.6, baseX + bend, SIZE - height);
+    context.quadraticCurveTo(
+      baseX + bend * 0.3 + halfWidth,
+      SIZE - height * 0.55,
+      baseX + halfWidth,
+      SIZE,
+    );
+    context.fill();
+  }
+}
+
+/**
+ * NBB-170 (SL1-A): one fern frond, from the bottom (its foot) to the top (its tip): a thin stem
+ * with leaflets on both sides, longest at the middle, shorter toward the tip.
+ */
+function drawFernFrond(context: ICanvasRenderingContext): void {
+  const random = createRandom(808);
+  const center = SIZE / 2;
+  context.strokeStyle = gray(150);
+  context.lineWidth = 6;
+  context.beginPath();
+  context.moveTo(center, SIZE);
+  context.quadraticCurveTo(center + 20, SIZE * 0.5, center - 10, 8);
+  context.stroke();
+  for (let t = 0.08; t < 0.97; t += 0.045) {
+    const y = SIZE * (1 - t);
+    const x = center + 20 * Math.sin(t * Math.PI) - 30 * t * t;
+    // Leaflets grow from the base, longest a third of the way up, then shrink to the tip.
+    const length = 190 * Math.sin(Math.min(1, t * 1.6) * Math.PI * 0.5) * (1.05 - t);
+    for (const side of [-1, 1]) {
+      drawLeaf(
+        context,
+        x,
+        y,
+        length,
+        length * 0.22,
+        // Out to its side and a little toward the tip (up the card).
+        -side * (Math.PI / 2 + randomRange(random, 0.15, 0.35)),
+        randomRange(random, 175, 240),
+      );
+    }
+  }
+}
+
+/** NBB-170 (SL1-A): fallen leaves scattered over a round patch, seen from above. */
+function drawLeafLitter(context: ICanvasRenderingContext): void {
+  const random = createRandom(909);
+  const center = SIZE / 2;
+  for (let i = 0; i < 46; i++) {
+    const angle = random() * Math.PI * 2;
+    const distance = Math.sqrt(random()) * 200;
+    const length = randomRange(random, 45, 80);
+    drawLeaf(
+      context,
+      center + Math.cos(angle) * distance,
+      center + Math.sin(angle) * distance,
+      length,
+      length * randomRange(random, 0.35, 0.5),
+      random() * Math.PI * 2,
+      randomRange(random, 130, 245),
+    );
+  }
+}
+
+/** NBB-170 (SL1-A): one small flower seen from above: five round petals and a darker heart. */
+function drawPetals(context: ICanvasRenderingContext): void {
+  const center = SIZE / 2;
+  for (let i = 0; i < 5; i++) {
+    const angle = (i / 5) * Math.PI * 2;
+    context.fillStyle = gray(235);
+    context.save();
+    context.translate(center + Math.cos(angle) * 120, center + Math.sin(angle) * 120);
+    context.rotate(angle);
+    fillEllipse(context, 0, 0, 115, 80);
+    context.restore();
+  }
+  context.fillStyle = gray(120);
+  fillEllipse(context, center, center, 70, 70);
+}
+
 function drawGrassBlades(context: ICanvasRenderingContext): void {
   const random = createRandom(303);
   for (let i = 0; i < 16; i++) {

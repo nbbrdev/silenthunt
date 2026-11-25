@@ -710,7 +710,49 @@ export class ChunkManager {
       }
     }
     this.placeBiomeExtras(random, randomPoint, place, nearSpawn, smallest, largest);
+    // NBB-170: the ground cover comes last, so everything above keeps its place (saved worlds).
+    this.placeGroundCover(random, randomPoint, place, placements);
     return placements;
+  }
+
+  /**
+   * NBB-170 (SL1-A, SL2-A): the ground cover of one chunk: lively grass, ferns, fallen leaves,
+   * flowers and pebbles by biome (each try kept by how much its biome wants it, mixed at a
+   * border), and mushrooms at the foot of some trees.
+   */
+  private placeGroundCover(
+    random: () => number,
+    randomPoint: () => { x: number; z: number },
+    place: (kind: VegetationKind, x: number, z: number, sink?: number) => Placement | undefined,
+    placements: readonly Placement[],
+  ): void {
+    const cover = CONFIG.world.groundCover;
+    const kinds = ["lushGrass", "fern", "leafPile", "flowers", "pebbles"] as const;
+    for (const kind of kinds) {
+      const counts = cover[kind];
+      const most = Math.max(...BIOMES.map((biome) => counts[biome]));
+      for (let i = 0; i < most; i++) {
+        const { x, z } = randomPoint();
+        const weights = this.terrain.biomeWeightsAt(x, z);
+        let wanted = 0;
+        for (const biome of BIOMES) {
+          wanted += weights[biome] * counts[biome];
+        }
+        if (random() * most < wanted) {
+          place(kind, x, z, kind === "pebbles" ? 0.02 : 0.03);
+        }
+      }
+    }
+    // Mushrooms by some of the trees, a little way from the trunk.
+    const trees = placements.filter((placement) => isTree(placement.kind));
+    for (const tree of trees) {
+      if (random() >= cover.mushroomChance) {
+        continue;
+      }
+      const angle = random() * Math.PI * 2;
+      const away = 0.6 + random() * 0.9;
+      place("mushrooms", tree.x + Math.cos(angle) * away, tree.z + Math.sin(angle) * away, 0.01);
+    }
   }
 
   /**
@@ -961,7 +1003,31 @@ function buildTerrainMesh(scene: Scene, terrain: Terrain, cx: number, cz: number
         g += own.g * weights[biome];
         b += own.b * weights[biome];
       }
-      colors.push(tint.r * r, tint.g * g, tint.b * b, 1);
+      // NBB-170 (SL1-A): broad patches, lighter and darker, greener and browner, so the floor
+      // never reads as one repeated texture.
+      const variation = CONFIG.surfaces.groundVariation;
+      const [darkest, lightest] = variation.brightness;
+      const light =
+        darkest +
+        (lightest - darkest) *
+          fractalNoise(
+            x / variation.brightSpacing,
+            z / variation.brightSpacing,
+            terrain.seed + 9701,
+            2,
+          );
+      const hue =
+        (fractalNoise(x / variation.hueSpacing, z / variation.hueSpacing, terrain.seed + 9702, 2) -
+          0.5) *
+        2 *
+        variation.hue;
+      colors.push(
+        // Greener one way (more green), drier the other (less blue), never redder.
+        tint.r * r * light * (1 - Math.max(0, hue) * 0.3),
+        tint.g * g * light * (1 + Math.max(0, hue) * 0.6),
+        tint.b * b * light * (1 - Math.abs(hue) * 0.4),
+        1,
+      );
     }
   }
   const stride = cells + 1;

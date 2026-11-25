@@ -9,7 +9,12 @@ import {
 } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { getSurfaceTextures, type SurfaceKind } from "./surfaceTextures";
-import { getBirchBarkTexture, getFoliageTexture, type FoliageKind } from "./textures";
+import {
+  getBirchBarkTexture,
+  getFoliageTexture,
+  getGroundDetailTexture,
+  type FoliageKind,
+} from "./textures";
 
 /**
  * Sways vertices sideways on the GPU (W3). The offset grows with the square of the vertex height
@@ -111,6 +116,10 @@ export function getModelMaterials(scene: Scene): ModelMaterials {
       reeds: createLeafMaterial(scene, "reeds"),
       tallGrass: createLeafMaterial(scene, "tallGrass"),
       birch: createLeafMaterial(scene, "birch"),
+      lushGrass: createLeafMaterial(scene, "lushGrass"),
+      fern: createLeafMaterial(scene, "fern"),
+      leafLitter: createLeafMaterial(scene, "leafLitter"),
+      petals: createLeafMaterial(scene, "petals"),
     },
   };
   materialsByScene.set(scene, materials);
@@ -152,6 +161,15 @@ export function getGroundMaterial(scene: Scene): StandardMaterial {
     return existing;
   }
   const material = createSurfaceMaterial("forestFloor", scene, "ground");
+  // NBB-170 (SL1-A): up close, fine grains of soil over the ground's own texture.
+  const variation = CONFIG.surfaces.groundVariation;
+  const detail = getGroundDetailTexture(scene);
+  detail.uScale = CONFIG.surfaces.groundTileMeters / variation.detailMeters;
+  detail.vScale = detail.uScale;
+  material.detailMap.texture = detail;
+  material.detailMap.isEnabled = true;
+  material.detailMap.diffuseBlendLevel = variation.detailStrength;
+  material.detailMap.bumpLevel = variation.detailStrength;
   groundByScene.set(scene, material);
   return material;
 }

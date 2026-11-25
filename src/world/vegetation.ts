@@ -10,6 +10,14 @@ import { groundTuft } from "../models/nature/groundTuft";
 import { oak } from "../models/nature/oak";
 import { pine } from "../models/nature/pine";
 import { rock } from "../models/nature/rock";
+import {
+  fern,
+  flowers,
+  leafPile,
+  lushGrass,
+  mushrooms,
+  pebbles,
+} from "../models/nature/groundCover";
 import { isYoungTree } from "../models/nature/treeAge";
 import type { ModelGenerator } from "../models/types";
 
@@ -26,7 +34,24 @@ export type VegetationKind =
   | "groundTuft"
   | "reeds"
   | "tallGrass"
-  | "puddle";
+  | "puddle"
+  // NBB-170 (SL1-A): the ground cover (only seen, never in the way).
+  | "lushGrass"
+  | "fern"
+  | "leafPile"
+  | "mushrooms"
+  | "flowers"
+  | "pebbles";
+
+/** NBB-170: the ground cover's kinds, drawn only near the player. */
+export const COVER_KINDS: readonly VegetationKind[] = [
+  "lushGrass",
+  "fern",
+  "leafPile",
+  "mushrooms",
+  "flowers",
+  "pebbles",
+];
 
 /** The kinds that are trees (the axe fells them; trunks block; the map draws them). */
 export type TreeKind = "pine" | "oak" | "deadTree" | "birch";
@@ -49,6 +74,12 @@ const GENERATORS: Record<VegetationKind, ModelGenerator> = {
   reeds,
   tallGrass,
   puddle,
+  lushGrass,
+  fern,
+  leafPile,
+  mushrooms,
+  flowers,
+  pebbles,
 };
 
 /** The seed of each variation of a model. */
@@ -237,9 +268,12 @@ export class VegetationLibrary {
 }
 
 function copyDistanceFor(kind: VegetationKind): number {
-  const { tree, medium, small } = CONFIG.world.copyDistance;
+  const { tree, medium, small, cover } = CONFIG.world.copyDistance;
   if (isTree(kind) || kind === "cliff" || kind === "boulder") {
     return tree;
+  }
+  if (COVER_KINDS.includes(kind)) {
+    return cover;
   }
   return kind === "bush" || kind === "rock" || kind === "reeds" || kind === "tallGrass"
     ? medium

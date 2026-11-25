@@ -127,7 +127,19 @@ export const CONFIG = {
      * Copies farther than this from the player are left out of the GPU lists (small things vanish
      * in the fog sooner). Without it, all 25 loaded chunks were drawn: ~2.8 million triangles.
      */
-    copyDistance: { tree: 90, medium: 70, small: 45 },
+    copyDistance: { tree: 90, medium: 70, small: 45, cover: 35 },
+    /**
+     * NBB-170 (SL1-A, SL2-A): the ground cover, per 64 m chunk, in each biome (mixed at a border);
+     * mushrooms grow by `mushroomChance` of the trees. Drawn only within `copyDistance.cover`.
+     */
+    groundCover: {
+      lushGrass: { pineForest: 300, broadleaf: 420, marsh: 200, field: 480, ridge: 120 },
+      fern: { pineForest: 40, broadleaf: 55, marsh: 10, field: 0, ridge: 5 },
+      leafPile: { pineForest: 8, broadleaf: 45, marsh: 4, field: 0, ridge: 0 },
+      flowers: { pineForest: 0, broadleaf: 8, marsh: 4, field: 45, ridge: 4 },
+      pebbles: { pineForest: 6, broadleaf: 4, marsh: 0, field: 10, ridge: 70 },
+      mushroomChance: 0.12,
+    },
     /** The lists of nearby copies are rebuilt after the player walks this far (meters). */
     copyRefreshDistance: 8,
     /** MW3-A: variations generated per model at startup, then repeated across the world. */
@@ -1587,6 +1599,26 @@ export const CONFIG = {
     rock: { r: 0.4, g: 0.4, b: 0.38 },
     moss: { r: 0.22, g: 0.3, b: 0.16 },
     grass: { r: 0.28, g: 0.34, b: 0.19 },
+    /** NBB-170 (SL1-A): the ground cover's colors. */
+    freshGrass: { r: 0.3, g: 0.42, b: 0.17 },
+    dryGrass: { r: 0.46, g: 0.43, b: 0.24 },
+    fern: { r: 0.22, g: 0.36, b: 0.16 },
+    litter: [
+      { r: 0.42, g: 0.27, b: 0.13 },
+      { r: 0.5, g: 0.38, b: 0.16 },
+      { r: 0.45, g: 0.2, b: 0.12 },
+    ],
+    mushroomCaps: [
+      { r: 0.45, g: 0.32, b: 0.2 },
+      { r: 0.7, g: 0.6, b: 0.45 },
+      { r: 0.55, g: 0.18, b: 0.12 },
+    ],
+    mushroomStem: { r: 0.78, g: 0.74, b: 0.66 },
+    petals: [
+      { r: 0.85, g: 0.84, b: 0.78 },
+      { r: 0.8, g: 0.7, b: 0.25 },
+      { r: 0.55, g: 0.45, b: 0.7 },
+    ],
     /** The creature (CR2, CR4): near-black dry skin, bleached deer skull, antlers, eyes (G15). */
     creatureSkin: { r: 0.1, g: 0.09, b: 0.085 },
     creatureBone: { r: 0.76, g: 0.72, b: 0.64 },
@@ -1666,6 +1698,19 @@ export const CONFIG = {
     barkTileMeters: 0.8,
     /** Size in meters that one repeat of the forest floor texture covers. */
     groundTileMeters: 3,
+    /**
+     * NBB-170 (SL1-A): broad patches over the ground: brightness from `brightness[0]` to `[1]` in
+     * patches of ~`brightSpacing` m, and greener or browner by up to `hue` in ~`hueSpacing` m ones.
+     * Up close, a second, fine texture of grains repeats every `detailMeters` m.
+     */
+    groundVariation: {
+      brightness: [0.8, 1.12],
+      brightSpacing: 18,
+      hueSpacing: 45,
+      hue: 0.2,
+      detailMeters: 0.75,
+      detailStrength: 0.45,
+    },
     /** Strength of the relief effect (normal map) per surface. */
     barkRelief: 3,
     rockRelief: 2,
@@ -1742,6 +1787,13 @@ export const CONFIG = {
     boulder: { size: [2.2, 3.6] },
     /** A shallow puddle of mud, flat on the ground. */
     puddle: { radius: [0.8, 2] },
+    /** NBB-170 (SL1-A): the ground cover. */
+    lushGrass: { height: [0.3, 0.6], cards: [5, 7] },
+    fern: { height: [0.45, 0.85], fronds: [6, 9] },
+    leafPile: { size: [0.3, 0.5], cards: [6, 10], spread: 0.6 },
+    mushrooms: { count: [2, 5], height: [0.05, 0.14] },
+    flowers: { stems: [4, 8], height: [0.15, 0.35] },
+    pebbles: { count: [4, 8], size: [0.05, 0.16] },
     /**
      * NBB-165 (CC3-A): the waterfall. The curtain starts `lipBack` m above the lip, flat, and
      * curves out `throwBase + throwPerMeter × height` m as it falls; its streaks run down at
