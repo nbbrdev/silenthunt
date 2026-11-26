@@ -71,6 +71,13 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   - **Peixes:** cardumes de 3 a 6 peixes cinza-oliva nos rios e lagos com mais de 1,2 m de fundura (~1 a cada 40 m), nadando devagar logo abaixo da superfície. Fogem quando o jogador chega a 4 m ou entra na água a menos de 12 m, deixando círculos na água. De vez em quando um peixe pula para fora com um respingo. A água é mais transparente no raso (o fundo e os peixes aparecem perto da margem) e escura no fundo (AV10-A+B). Sem pesca.
   - **Sapos:** grupos de 3 a 6 nas margens do pântano, coaxando em coro de dia e de noite. O coro **para de repente** quando o jogador ou a criatura chega a 15 m, e volta 8 s depois que se afastam. A 5 m, os sapos pulam na água e somem; voltam depois de 15–30 s, com o jogador longe. Não são caçáveis.
   - Aves, peixes e sapos só aparecem e se mexem a menos de 70 m do jogador.
+- **RF-78** **Animais hostis** (NBB-167; AH1-A a AH9): só de dia e no entardecer, raros, pensando a menos de 90 m do jogador.
+  - **Lobo** (matilha de 3 a 5, ~1 a cada 6 pedaços de campo): ao ver o jogador (até 45 m, o que a neblina e a luz deixarem), a matilha **uiva**, segue de longe cercando-o e ataca junta: cada lobo corre, **morde** (12), recua, **rosna** e volta. Corre a 6,5 m/s. Metade da matilha morta, o resto foge.
+  - **Javali** (1 a 3, ~1 a cada 3 pedaços de bosque): pasta; com o jogador a 10 m, um ruído que o alcance ou um golpe, **cava o chão e grunhe**; se o jogador continua a menos de 15 m, **investe** em linha reta a 7 m/s (20 de dano), passa direto, foge e descansa.
+  - **Urso** (1 a cada ~10 pedaços de serra): com o jogador a 18 m, **levanta e ruge**; se ele continua a menos de 12 m, fica perto depois de dois avisos ou o ataca, persegue a 6 m/s e dá **patadas** (40). Defende só o território (40 m da casa dele).
+  - **Caçar:** lobo morre com 1 tiro, 2 flechas ou 2 facadas (2 carnes, 1 gordura, 1 couro); javali com 1 tiro, 2 flechas ou 3 facadas (3 carnes, 2 gorduras, 1 couro); urso com 2 tiros, 4 flechas ou 6 facadas (6 carnes, 4 gorduras, 2 couros). Ferido, ataca.
+  - **Escapar:** água com mais de 1 m de fundura (nenhum entra), moita agachado e sem tocha (o lobo fareja a 2 m), fogueira acesa (não chegam a 8 m) e abrigo fechado; eles desistem depois de 20 s de perseguição.
+  - **Noite e criatura:** ao anoitecer, somem (os que estão perto correm para longe antes); fogem da criatura a 25 m, com um uivo, um rugido ou um guincho.
 
 ## Furtividade
 
