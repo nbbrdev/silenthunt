@@ -637,6 +637,21 @@ Pedido do usuário: mais detalhes no chão (um gramado mais vivo), um poste com 
 | PL5 | Revisão do usuário (2026-11-25): poste da NBB-171 aprovado, com os detalhes de Claude ("1 a 5 - Ok"): quadrados de 400 m, 80% com um poste, nenhum a menos de 260 m do começo, na água ou a menos de 60 m de uma cabana, só com cabana a até 700 m (~1 a cada 300 a 500 m); poste de 1,9 m inclinado até ~4°, seta de 0,85 m, 40 triângulos, letra em itálico da fonte do jogo com a tinta gasta; colisão fina (0,2 m); E a até 2,4 m, distância arredondada a 50 m, reusa marcação existente e, com as 12 cheias, a mais antiga dá lugar; comando `goToSignpost`. Regra registrada como RF-75 no docs/03. |
 | AF4 | Revisão do usuário (2026-11-26): correnteza da NBB-172 aprovada, com os detalhes de Claude ("1 a 6 - Ok"): o lado mais baixo medido 6 m à frente e atrás (nos topos de morro a água desce para os dois lados); 0,5 m/s no plano, × 8 a inclinação, o dobro a menos de 20 m de uma cachoeira, até 1,4 m/s, sumindo nos 2 m perto da margem, lagos e poços parados; espuma por mapa de fluxo (pontinhos de uma textura de 3 m, ciclos de 2,5 s, rastro de ~0,12 m, duas camadas, força 0,5, branco-azulada), no lugar das listras giradas da primeira versão, que se quebravam longe da origem; ondinhas com 3 ondas longas e 4 miúdas entortadas por ruído; o nadador levado a 70% da correnteza; comandos `goToRiver` e `current`. Regra registrada como RF-76 no docs/03. |
 
+## NBB-166: Animais pacíficos (2026-11-26)
+
+| Código | Decisão |
+| -- | -- |
+| AV1-A | **Raposa:** caça pequena e arisca, no ciclo do coelho, mas foge mais cedo e mais rápido; solitária, no pinheiral, no bosque e no campo; caçável com faca, arco ou espingarda; a carcaça dá 1 carne e 1 couro. |
+| AV2-A | **Aves:** bandos de 4 a 8 pousados no chão, em clareiras e no campo; levantam voo com barulho de asas e piados quando o jogador chega a 12 m ou a criatura a 25 m; ouvidas de longe, uma revoada é um aviso; assustá-las faz 15 m de ruído; voam e pousam de novo noutro lugar. |
+| AV3-A | As aves dormem à noite: não há bandos no chão de noite. |
+| AV4-A | **Peixes:** pequenos cardumes de sombras escuras nos rios e lagos fundos, vistos da margem e embaixo d'água; fogem quando o jogador entra na água ou chega a 4 m; só visuais, sem pesca. |
+| AV5-A | **Sapos:** no pântano, nas margens e nas poças, coaxando em coro de dia e à noite; o coro para de repente quando o jogador ou a criatura chega a ~15 m (um aviso); pulam na água quando o jogador chega perto; não caçáveis. |
+| AV6-A | Quantos: raposa rara (~1 a cada 8 pedaços de 64 m); um bando de aves a cada ~3 pedaços (clareiras do pinheiral e do bosque, campo); um cardume a cada ~40 m de rio ou lago fundo; grupos de 3 a 6 sapos nas margens do pântano; tudo só se move e pensa a menos de 70 m do jogador. |
+| AV7-A | Modelos gerados por código no estilo dos outros animais, cada um até 2.500 triângulos, revisados na galeria (dia, noite, neblina): raposa (andar, correr, alerta, morrer), ave (pousada, bicando, voando), peixe (ondulando), sapo (parado, pulando). |
+| AV8-A | Sons do Freesound (CC0 ou CC-BY), com candidatos para o usuário escolher: grito da raposa, revoada (asas e piados), coro de sapos em loop, "plop" do sapo pulando na água. |
+| AV9 | Escolhas do usuário (2026-11-26): modelos aprovados na galeria (raposa 1.786 triângulos, ave 716, sapo 768, peixe 244); sons, todos CC0: S1-A grito da raposa "red fox screeching" (craigsays), S2-A revoada "Pigeon flock fly away" (TRP), S3-B coro "B.C. Frogs" (arcanegarden), S4-A "Rock In Water Splash-Plop 3" (jc144940). |
+| AV10-A+B | Nos testes, os peixes escuros não apareciam: da margem a água mostrava só o reflexo, e embaixo d'água sumiam na água turva. Escolha do usuário (2026-11-26): **A + B**: peixes **cinza-oliva**; da margem, de vez em quando um peixe **pula** para fora da água com um respingo, e o pulo e a fuga deixam **círculos** na superfície; e a **água fica mais transparente no raso**, mostrando o fundo e os peixes perto da margem, com o fundo escuro e o reflexo de sempre no fundo. |
+
 ## M6: Features novas (2026-11-23)
 
 | Código | Decisão |
