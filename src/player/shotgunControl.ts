@@ -277,8 +277,8 @@ export class ShotgunControl {
       if (!body || !animal.isActive || animal.state === "dead") {
         continue;
       }
-      const height = animal.kind === "rabbit" ? 0.14 : 0.9;
-      const radius = animal.kind === "rabbit" ? 0.16 : 0.45;
+      const height = { rabbit: 0.14, fox: 0.3, deer: 0.9 }[animal.kind];
+      const radius = { rabbit: 0.16, fox: 0.25, deer: 0.45 }[animal.kind];
       // RF-34: one shot kills any prey.
       consider(body.add(new Vector3(0, height, 0)), radius, () => animal.kill());
     }

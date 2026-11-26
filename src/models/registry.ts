@@ -1,5 +1,7 @@
 import { deer } from "./animals/deer";
 import { rabbit } from "./animals/rabbit";
+import { fox } from "./animals/fox";
+import { bird, fish, frog } from "./animals/smallAnimals";
 import { remains } from "./animals/remains";
 import { meat } from "./items/meat";
 import { axe } from "./items/axe";
@@ -63,6 +65,11 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   creature,
   rabbit,
   deer,
+  // AV7-A (NBB-166): the peaceful animals.
+  fox,
+  bird,
+  fish,
+  frog,
   knife,
   bow,
   arrow,

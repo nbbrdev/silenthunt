@@ -17,8 +17,14 @@ import { getFurMaterial } from "./parts";
 
 const v = (x: number, y: number, z: number) => new Vector3(x, y, z);
 
-/** The rabbit's remains are the deer's, smaller. */
-const SCALE: Record<PreyKind, number> = { deer: 1, rabbit: 0.3 };
+/** The rabbit's and the fox's remains are the deer's, smaller. */
+const SCALE: Record<PreyKind, number> = { deer: 1, rabbit: 0.3, fox: 0.5 };
+
+const FUR: Record<PreyKind, "deerFur" | "rabbitFur" | "foxFur"> = {
+  deer: "deerFur",
+  rabbit: "rabbitFur",
+  fox: "foxFur",
+};
 
 export interface RemainsModel {
   root: TransformNode;
@@ -35,7 +41,7 @@ export interface RemainsModel {
 export function createRemainsModel(scene: Scene, kind: PreyKind, seed: number): RemainsModel {
   const random = createRandom(seed);
   const root = new TransformNode(`remains-${kind}`, scene);
-  const fur = toColor(kind === "deer" ? CONFIG.palette.deerFur : CONFIG.palette.rabbitFur);
+  const fur = toColor(CONFIG.palette[FUR[kind]]);
   const blood = toColor(CONFIG.palette.blood);
   const boneColor = toColor(CONFIG.palette.bone);
 

@@ -18,7 +18,8 @@ import type { ChunkManager } from "../world/chunks";
 import type { Terrain } from "../world/terrain";
 import { avoidObstacles, normalized, pushOutOfObstacles, type FlatVector } from "./steering";
 
-export type PreyKind = "rabbit" | "deer";
+/** AV1-A (NBB-166): the fox lives like the rabbit, but notices sooner and runs faster. */
+export type PreyKind = "rabbit" | "deer" | "fox";
 
 /** RF-31: graze → alert (heard or saw something: stops and looks) → flee → graze. */
 export type PreyState = "graze" | "alert" | "flee" | "dead";
@@ -165,13 +166,13 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
 
   /**
    * RF-33 / AR4: an arrow hits a deer: the first one wounds it (it runs, slower), the second one
-   * kills it. A rabbit dies at once.
+   * kills it. A rabbit or a fox dies at once.
    */
   wound(): void {
     if (this.currentState === "dead" || !this.active) {
       return;
     }
-    if (this.kind === "rabbit" || this.wounded) {
+    if (this.kind !== "deer" || this.wounded) {
       this.kill();
       return;
     }
@@ -333,10 +334,11 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
         }
       }
     }
-    if (this.kind === "rabbit" && this.stateTime >= this.nextHop) {
+    // The rabbit hops to a new spot; the fox trots a few steps (its run, slowed to the walk).
+    if (this.kind !== "deer" && this.stateTime >= this.nextHop) {
       this.hopLeft = settings.hopSeconds;
       this.nextHop = this.stateTime + randomInRange(this.random, settings.hopEvery);
-      this.play("Correr", 1);
+      this.play("Correr", this.kind === "fox" ? settings.hopSpeed / settings.fleeSpeed.fox : 1);
     }
     if (this.hopLeft > 0) {
       this.hopLeft -= seconds;

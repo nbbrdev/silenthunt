@@ -196,10 +196,12 @@ export class ArrowSystem {
       if (flatDistanceToSegment(body, from, to) > 3) {
         continue;
       }
-      if (animal.kind === "rabbit") {
+      if (animal.kind === "rabbit" || animal.kind === "fox") {
+        // AV1-A (NBB-166): one arrow kills a fox too; its body is a bigger ball than the rabbit's.
+        const fox = animal.kind === "fox";
         targets.push({
-          center: body.add(new Vector3(0, 0.14, 0)),
-          radius: 0.16,
+          center: body.add(new Vector3(0, fox ? 0.3 : 0.14, 0)),
+          radius: fox ? 0.25 : 0.16,
           hit: () => animal.kill(),
         });
       } else {

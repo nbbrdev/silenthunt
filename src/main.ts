@@ -22,6 +22,7 @@ import { DayCues } from "./systems/dayCues";
 import { DayMessage } from "./ui/dayMessage";
 import { uiSounds, type UiSound } from "./ui/uiSounds";
 import { PreySounds } from "./systems/preySounds";
+import { Wildlife } from "./ai/wildlife";
 import { CaughtSequence } from "./systems/caughtSequence";
 import { HidingSystem } from "./systems/hiding";
 import { ObjectiveSystem } from "./systems/objective";
@@ -253,6 +254,24 @@ async function start(): Promise<void> {
     audio
       .then((audio) => preySounds.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons dos animais não carregados:", error));
+    // NBB-166: the small animals (bird flocks, fish schools, frogs), only to see and hear.
+    const wildlife = new Wildlife(
+      {
+        scene,
+        player,
+        terrain: world.terrain,
+        chunks: world.chunks,
+        clock: world.clock,
+        noise,
+        creaturePosition: () => creatureModel.root.position,
+        // The fish are seen through the water's surface (its refraction).
+        showUnderWater: (mesh) => world.water.material.addToRenderList(mesh),
+      },
+      CONFIG.world.defaultSeed,
+    );
+    audio
+      .then((audio) => wildlife.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons dos bichos pequenos não carregados:", error));
     // NBB-139: the knife (RF-32, MA4).
     const knife = new KnifeAttack(scene, input, player, hands, noise, {
       prey: () => prey.animals(),
@@ -1191,6 +1210,41 @@ async function start(): Promise<void> {
               }
             }
             return "Não encontrado a até 5 km";
+          },
+          /** NBB-166: the small animals around (flocks, schools, frog groups) and the nearest. */
+          wildlife: () => wildlife.debugState(player.position.x, player.position.z),
+          /** NBB-166 (AV10-A+B): a fish of the nearest school leaps now. */
+          fishLeap: () => wildlife.fish.debugLeap(player.position.x, player.position.z),
+          /**
+           * NBB-166: `distance` meters from the nearest flock ("aves"), school ("peixes") or frog
+           * group ("sapos") among the loaded chunks, on dry ground, facing it.
+           */
+          goToWildlife: (kind: string, distance = 20) => {
+            const { x, z } = player.position;
+            const target =
+              kind === "aves"
+                ? wildlife.birds.nearest(x, z)
+                : kind === "peixes"
+                  ? wildlife.fish.nearest(x, z)
+                  : wildlife.frogs.nearest(x, z);
+            if (!target) {
+              return "Nenhum por perto (use goToBiome e espere os pedaços carregarem)";
+            }
+            for (let turn = 0; turn < 16; turn++) {
+              const angle = (turn / 16) * Math.PI * 2;
+              const px = target.x + Math.sin(angle) * distance;
+              const pz = target.z + Math.cos(angle) * distance;
+              if (world.terrain.waterAt(px, pz).depth === 0) {
+                player.respawn(new Vector3(px, world.terrain.heightAt(px, pz) + 0.3, pz));
+                // Looking down at them, from the eyes (~1.6 m up).
+                player.view = {
+                  yaw: Math.atan2(target.x - px, target.z - pz),
+                  pitch: Math.atan2(1.6, distance),
+                };
+                return { x: Math.round(target.x), z: Math.round(target.z) };
+              }
+            }
+            return "Sem chão seco em volta";
           },
           creatureStep: (seconds: number) => {
             creatureBrain.simulate(seconds);

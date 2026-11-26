@@ -2,6 +2,7 @@ import type { TransformNode } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { createRandom, hashPosition, randomInRange, randomInt } from "../core/random";
 import { deer } from "../models/animals/deer";
+import { fox } from "../models/animals/fox";
 import { rabbit } from "../models/animals/rabbit";
 import type { ChunkInfo } from "../world/chunks";
 import { PreyBrainBehavior, type PreyKind, type PreySenses } from "./preyBrain";
@@ -20,7 +21,7 @@ interface Animal {
 export class PreyManager {
   private readonly senses: PreySenses;
   private readonly seed: number;
-  private readonly pool: Record<PreyKind, Animal[]> = { rabbit: [], deer: [] };
+  private readonly pool: Record<PreyKind, Animal[]> = { rabbit: [], deer: [], fox: [] };
   private readonly byChunk = new Map<string, Animal[]>();
   private readonly killed = new Set<string>();
   private created = 0;
@@ -112,6 +113,15 @@ export class PreyManager {
         member.group = group;
       }
     }
+    // AV1-A, AV6-A (NBB-166): now and then a lone fox (drawn last, so the others keep their ids).
+    if (random() < settings.foxChance) {
+      const x = originX + random() * chunkSize;
+      const z = originZ + random() * chunkSize;
+      const biome = this.senses.terrain.biomeAt(x, z);
+      if ((settings.foxBiomes as readonly string[]).includes(biome)) {
+        place("fox", x, z);
+      }
+    }
     if (animals.length > 0) {
       this.byChunk.set(chunk.key, animals);
     }
@@ -131,7 +141,7 @@ export class PreyManager {
     if (reused) {
       return reused;
     }
-    const generator = kind === "rabbit" ? rabbit : deer;
+    const generator = { rabbit, deer, fox }[kind];
     const model = generator.create(this.senses.scene, this.seed);
     // Each animal has its own random timing, so a group does not move in lockstep.
     this.created++;

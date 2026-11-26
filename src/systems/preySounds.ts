@@ -27,14 +27,22 @@ export class PreySounds {
   private readonly ears: Node;
   private readonly lastState = new Map<PreyBrainBehavior, PreyState>();
   private voices:
-    { alarm: Voice; cry: Voice; thump: Voice; run: Record<PreyKind, Voice> } | undefined;
+    | {
+        alarm: Voice;
+        cry: Voice;
+        thump: Voice;
+        scream: Voice;
+        run: Record<PreyKind, Voice>;
+      }
+    | undefined;
   private sinceAlarm = Infinity;
   /** Development: how many of each sound have played. */
-  readonly played = { alarm: 0, cry: 0, deer: 0, rabbit: 0 };
+  readonly played = { alarm: 0, cry: 0, scream: 0, deer: 0, rabbit: 0, fox: 0 };
   /** Where each kind is in its running rhythm (index of the beat, seconds to the next one). */
   private readonly rhythm: Record<PreyKind, { beat: number; wait: number }> = {
     deer: { beat: 0, wait: 0 },
     rabbit: { beat: 0, wait: 0 },
+    fox: { beat: 0, wait: 0 },
   };
 
   constructor(scene: Scene, animals: () => PreyBrainBehavior[], ears: Node) {
@@ -71,14 +79,23 @@ export class PreySounds {
       return { emitter, sounds };
     };
     const { files, hearingDistance } = settings;
-    const [alarm, cry, deerRun, rabbitRun, thump] = await Promise.all([
+    const [alarm, cry, deerRun, rabbitRun, foxRun, thump, scream] = await Promise.all([
       voice("alarm", files.alarm, hearingDistance.alarm),
       voice("cry", files.cry, hearingDistance.cry),
       voice("deerRun", files.deerRun, hearingDistance.deerRun),
       voice("rabbitRun", files.rabbitRun, hearingDistance.rabbitRun),
+      // NBB-166: the fox runs on the same leaves as the rabbit, heard a little farther.
+      voice("foxRun", files.rabbitRun, hearingDistance.foxRun),
       voice("rabbitThump", files.rabbitThump, hearingDistance.rabbitThump),
+      voice("foxScream", files.foxScream, hearingDistance.foxScream),
     ]);
-    this.voices = { alarm, cry, thump, run: { deer: deerRun, rabbit: rabbitRun } };
+    this.voices = {
+      alarm,
+      cry,
+      thump,
+      scream,
+      run: { deer: deerRun, rabbit: rabbitRun, fox: foxRun },
+    };
   }
 
   private update(seconds: number): void {
@@ -128,6 +145,15 @@ export class PreySounds {
         this.play(voices.cry, body, settings.volume.rabbitCry, settings.rate.rabbitCry);
         this.played.cry++;
       }
+      // S1-A (NBB-166): a startled fox screams as it bolts, and cries when it dies.
+      if (animal.kind === "fox" && before === "graze" && (state === "alert" || state === "flee")) {
+        this.play(voices.scream, body, settings.volume.foxScream, 1);
+        this.played.scream++;
+      }
+      if (animal.kind === "fox" && state === "dead" && before !== undefined && before !== "dead") {
+        this.play(voices.cry, body, settings.volume.foxCry, settings.rate.foxCry);
+        this.played.cry++;
+      }
       if (state === "flee") {
         const d = body.position.subtract(ears).length();
         const nearest = nearestFleeing[animal.kind];
@@ -138,7 +164,7 @@ export class PreySounds {
     }
 
     // AN2-A: the nearest fleeing animal of each kind is heard running, in its own rhythm.
-    for (const kind of ["deer", "rabbit"] as const) {
+    for (const kind of ["deer", "rabbit", "fox"] as const) {
       const runner = nearestFleeing[kind]?.animal.attachedNode;
       const rhythm = this.rhythm[kind];
       if (!runner) {

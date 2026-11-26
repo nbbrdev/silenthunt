@@ -470,6 +470,12 @@ export const CONFIG = {
     color: { r: 0.05, g: 0.08, b: 0.09 },
     colorBlend: 0.45,
     /**
+     * NBB-166 (AV10-A+B): how opaque the surface is: `shoreAlpha` at the water's edge, rising to
+     * `deepAlpha` where it is `clearDepth` m deep or more (the bed and the fish show through the
+     * shallows; the deep keeps its dark reflection).
+     */
+    clarity: { shoreAlpha: 0.35, deepAlpha: 0.8, clearDepth: 3 },
+    /**
      * NBB-172 (AF1-A): the current's layer over the rivers: specks of foam (a texture `tileMeters`
      * m wide) carried by the current in cycles of `periodSeconds`, each smeared back about
      * `smearMeters` m into a streak, showing at most `opacity`, just above the water.
@@ -1157,16 +1163,16 @@ export const CONFIG = {
   /** NBB-142: cleaning a carcass (RF-35, CA1-B to CA4-A). */
   carcass: {
     /** CA1-B: hold E this long, standing still, with the knife in hand (CA2-A). */
-    harvestSeconds: { rabbit: 2, deer: 5 },
-    /** RF-30, CA4-A: what each animal gives. */
-    meat: { rabbit: 1, deer: 4 },
-    leather: { rabbit: 0, deer: 1 },
+    harvestSeconds: { rabbit: 2, deer: 5, fox: 3 },
+    /** RF-30, CA4-A: what each animal gives. AV1-A (NBB-166): the fox, 1 meat and 1 leather. */
+    meat: { rabbit: 1, deer: 4, fox: 1 },
+    leather: { rabbit: 0, deer: 1, fox: 1 },
     /** OB8-A, OB12 (NBB-156): the deer's skull, for the ritual. */
-    skull: { rabbit: 0, deer: 1 },
+    skull: { rabbit: 0, deer: 1, fox: 0 },
     /** PG2-A: fat, for torches. */
-    fat: { rabbit: 1, deer: 3 },
+    fat: { rabbit: 1, deer: 3, fox: 0 },
     /** E reaches a carcass this close (meters, to the middle of its body). */
-    reach: { rabbit: 1.5, deer: 2.2 },
+    reach: { rabbit: 1.5, deer: 2.2, fox: 1.8 },
   },
   /** NBB-142: the campfire (CZ1-A) and cooking on it (CZ2-A). */
   campfire: {
@@ -1465,16 +1471,39 @@ export const CONFIG = {
       rabbitRun: [1, 2, 3, 4, 5, 6].map((n) => `player/step-leaves-${n}.mp3`),
       /** FX14: a startled rabbit thumps the ground as it bolts. */
       rabbitThump: ["animals/rabbit-thump.mp3"],
+      /** S1-A (NBB-166): a startled fox screams as it bolts ("red fox screeching", CC0). */
+      foxScream: ["animals/fox-scream.mp3"],
     },
-    /** FX14: a rabbit dying cries with the deer's cry, higher and softer. */
-    volume: { alarm: 1, cry: 0.8, deer: 0.7, rabbit: 0.35, rabbitThump: 0.8, rabbitCry: 0.4 },
+    /**
+     * FX14: a rabbit dying cries with the deer's cry, higher and softer. NBB-166: the fox runs on
+     * the leaves like the rabbit, a little heavier, and dies with the same cry, less high.
+     */
+    volume: {
+      alarm: 1,
+      cry: 0.8,
+      deer: 0.7,
+      rabbit: 0.35,
+      fox: 0.45,
+      rabbitThump: 0.8,
+      rabbitCry: 0.4,
+      foxScream: 0.9,
+      foxCry: 0.5,
+    },
     /** Running pitch: the deer heavier, the rabbit lighter. */
-    rate: { deer: 0.8, rabbit: 1.4, rabbitCry: 1.6 },
+    rate: { deer: 0.8, rabbit: 1.4, fox: 1.15, rabbitCry: 1.6, foxCry: 1.3 },
     /** Seconds between beats, repeating: a gallop (three quick beats and a pause) and hops. */
-    rhythm: { deer: [0.09, 0.09, 0.26], rabbit: [0.07, 0.22] },
+    rhythm: { deer: [0.09, 0.09, 0.26], rabbit: [0.07, 0.22], fox: [0.08, 0.08, 0.2] },
     /** A deer group barks once; another bark only after this long (seconds). */
     alarmEvery: 4,
-    hearingDistance: { alarm: 70, cry: 40, deerRun: 40, rabbitRun: 18, rabbitThump: 25 },
+    hearingDistance: {
+      alarm: 70,
+      cry: 40,
+      deerRun: 40,
+      rabbitRun: 18,
+      foxRun: 25,
+      rabbitThump: 25,
+      foxScream: 60,
+    },
   },
   /** NBB-148: the backpack left where the player died (RF-60, MO1-A to MO3-A). */
   backpack: {
@@ -1504,12 +1533,18 @@ export const CONFIG = {
     rabbitsPerChunk: [1, 2],
     deerChance: 0.2,
     deerPerGroup: [1, 3],
+    /**
+     * AV1-A, AV6-A (NBB-166): a lone fox in ~1 of 8 chunks, in the pine forest, the broadleaf wood
+     * and the field (where the chunk's middle lies).
+     */
+    foxChance: 0.125,
+    foxBiomes: ["pineForest", "broadleaf", "field"] as const,
     /** How far apart the deer of a group graze. */
     groupSpread: 5,
     /** PR1: farther than this from the player they stand still, without thinking or animating. */
     activeDistance: 70,
     /** PR2: the deer is twice as wary: it hears and sees twice as far as the rabbit. */
-    senseFactor: { rabbit: 1, deer: 2 },
+    senseFactor: { rabbit: 1, deer: 2, fox: 1.5 },
     /**
      * FA1-A: while grazing they are distracted and hear only this fraction of a noise's radius
      * (a crouched step on leaves, 2.8 m, reaches a grazing rabbit only within 1.4 m).
@@ -1522,7 +1557,7 @@ export const CONFIG = {
     /** RF-31: they run for 10–15 s, then graze again. */
     fleeSeconds: [10, 15],
     /** PR4 (meters per second); also the speed at which each running animation looks right. */
-    fleeSpeed: { rabbit: 7, deer: 9 },
+    fleeSpeed: { rabbit: 7, deer: 9, fox: 9 },
     /** PR5: they run from the creature when it comes this close. */
     creatureFleeDistance: 20,
     /** PR3-A: grazing in place, turning now and then; the rabbit hops to a new spot. */
@@ -1532,7 +1567,7 @@ export const CONFIG = {
     hopSeconds: 0.8,
     hopSpeed: 1.5,
     /** Obstacle avoidance while running (IA1). */
-    bodyRadius: { rabbit: 0.15, deer: 0.35 },
+    bodyRadius: { rabbit: 0.15, deer: 0.35, fox: 0.22 },
     /**
      * NBB-164 (AG6-B): they keep out of water deeper than `maxDepth`. Grazing within
      * `drinkDistance` of water, now and then (`drinkChance` at each turn) they walk to the shore
@@ -1544,6 +1579,128 @@ export const CONFIG = {
       drinkChance: 0.3,
       drinkSeconds: [4, 8],
       walkSpeed: 1.2,
+    },
+  },
+  /**
+   * NBB-166 (AV2-A to AV6-A): the small animals (birds, fish, frogs). Not hunted: only to see and
+   * hear. Distances in meters, times in seconds.
+   */
+  wildlife: {
+    /** AV6-A: they move and think only this close to the player; farther they are hidden. */
+    activeDistance: 70,
+    birds: {
+      /** AV6-A: a flock in ~1 of 3 chunks, in a clearing (no tree this close) of these biomes. */
+      flockChance: 0.33,
+      biomes: ["pineForest", "broadleaf", "field"] as const,
+      clearing: 4,
+      /** Tries to find a clearing in the chunk. */
+      clearingTries: 8,
+      perFlock: [4, 8] as const,
+      /** How far apart the birds of a flock peck. */
+      spread: 2.5,
+      /** AV2-A: they take off when the player comes this close, or the creature. */
+      playerDistance: 12,
+      creatureDistance: 25,
+      /** AV2-A: their wings are a noise this big (RF-10), heard by the prey and the creature. */
+      noise: 15,
+      /** The flight: speed, how high the arc climbs, how far away they land. */
+      flightSpeed: 9,
+      flightHeight: 12,
+      landDistance: [45, 80] as const,
+      /** Each bird leaves up to this long after the first (they do not all go at once). */
+      takeoffSpread: 0.4,
+      /** Wing beats (radians of the beat per second); the last part of the flight is a glide. */
+      flapRate: 28,
+      glideShare: 0.15,
+      /** On the ground: each bird pecks now and then, and hops a little. */
+      peckEvery: [0.8, 3] as const,
+      peckSeconds: 0.3,
+      hopEvery: [3, 8] as const,
+      hopDistance: 0.25,
+      hopSeconds: 0.2,
+      /** Size against the model (a sparrow of ~15 cm). */
+      scale: 1.2,
+      /** S2-A: "Pigeon flock fly away" (TRP, CC0), heard from far: a warning (AV2-A). */
+      sound: "animals/bird-flock.mp3",
+      volume: 0.9,
+      hearingDistance: 90,
+    },
+    fish: {
+      /** AV6-A: one school every ~40 m of deep water (up to `tries` spots in each ~40 m cell). */
+      spacing: 40,
+      tries: 12,
+      /** Water at least this deep; they keep to water at least `roamDepth` deep. */
+      minDepth: 1.2,
+      roamDepth: 0.8,
+      perSchool: [3, 6] as const,
+      /** How far from the school's middle they wander. */
+      roam: 3,
+      /** They swim this far under the surface (shadows seen from the shore). */
+      swimDepth: 0.45,
+      speed: 0.5,
+      /** AV4-A: they flee when the player comes this close, or goes into the water this close. */
+      playerDistance: 4,
+      wadingDistance: 12,
+      fleeSpeed: 3,
+      fleeSeconds: 2.5,
+      fleeDistance: 6,
+      /** The tail's waving (radians per second; faster fleeing). */
+      tailRate: 9,
+      fleeTailRate: 22,
+      /**
+       * AV10-A+B: seen from the shore: now and then (`jumpChance` a second, per school within
+       * `jumpDistance`) a fish leaps out of the water with a splash; leaping and fleeing leave
+       * rings on the surface.
+       */
+      jumpDistance: 40,
+      jumpChance: 0.04,
+      jumpSeconds: 0.7,
+      jumpHeight: 0.35,
+      jumpLength: 0.8,
+      /** The splash: the frog's plop, softer. */
+      splashVolume: 0.35,
+      splashHearing: 20,
+      /**
+       * A ring spreads from `startSize` to `endSize` m wide in `seconds`, fading from `alpha`; its
+       * line is `thickness` of its width.
+       */
+      ring: { seconds: 1.4, startSize: 0.15, endSize: 1.6, alpha: 0.3, thickness: 0.012, pool: 10 },
+      /** On fleeing, rings where this many of the fish were. */
+      fleeRings: 3,
+    },
+    frogs: {
+      /** AV5-A: groups on the marsh's shores, this many per marsh chunk. */
+      groupsPerChunk: [1, 3] as const,
+      perGroup: [3, 6] as const,
+      /** Tries to find the water's edge for a group, and how far it looks for water. */
+      shoreTries: 16,
+      shoreReach: 2,
+      spread: 1.5,
+      /** AV5-A: the chorus stops when the player or the creature comes this close... */
+      quietDistance: 15,
+      /** ...and starts again this long after they leave. */
+      quietSeconds: 8,
+      /** AV5-A: they jump into the water when the player comes this close. */
+      jumpDistance: 5,
+      jumpSeconds: 0.45,
+      jumpHeight: 0.3,
+      jumpLength: 1.5,
+      /** Each frog jumps up to this long after the first. */
+      jumpSpread: 0.6,
+      /** Under the water this long, and until the player is farther than twice `jumpDistance`. */
+      hideSeconds: [15, 30] as const,
+      /** Breathing, and a little hop to turn now and then. */
+      turnEvery: [6, 15] as const,
+      scale: 1.3,
+      /** S3-B: "B.C. Frogs" (arcanegarden, CC0), in a loop; the nearest groups sing. */
+      chorus: "ambience/frog-chorus.mp3",
+      chorusVolume: 0.8,
+      chorusCount: 3,
+      chorusHearing: 45,
+      /** S4-A: "Rock In Water Splash-Plop 3" (jc144940, CC0). */
+      plop: "animals/frog-plop.mp3",
+      plopVolume: 0.5,
+      plopHearing: 15,
     },
   },
   /** SO4: sound. The player's volume control comes with the options menu (NBB-150). */
@@ -1680,6 +1837,15 @@ export const CONFIG = {
     deerLight: { r: 0.78, g: 0.7, b: 0.6 },
     /** Noses, hooves and eyes. */
     animalDark: { r: 0.06, g: 0.05, b: 0.05 },
+    /** NBB-166 (AV7-A): the fox (red, white chest and tail tip, dark legs), birds, fish, frogs. */
+    foxFur: { r: 0.6, g: 0.28, b: 0.1 },
+    foxLight: { r: 0.82, g: 0.78, b: 0.7 },
+    birdBody: { r: 0.32, g: 0.27, b: 0.22 },
+    birdBreast: { r: 0.55, g: 0.42, b: 0.3 },
+    /** AV10-A+B: grey-olive, to show against the dark bed and the murk (was 0.12/0.14/0.13). */
+    fishBack: { r: 0.42, g: 0.44, b: 0.36 },
+    frogSkin: { r: 0.3, g: 0.36, b: 0.16 },
+    frogBelly: { r: 0.62, g: 0.58, b: 0.4 },
     /** MA1, MA2: the player's coat sleeves and hands; the knife's steel and handle. */
     coat: { r: 0.16, g: 0.15, b: 0.12 },
     skin: { r: 0.7, g: 0.54, b: 0.44 },

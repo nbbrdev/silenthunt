@@ -101,6 +101,8 @@ export class WaterSurfaces {
     const positions: number[] = [];
     const indices: number[] = [];
     const uvs: number[] = [];
+    const colors: number[] = [];
+    const { shoreAlpha, deepAlpha, clearDepth } = CONFIG.waterSurface.clarity;
     const vertexOf = new Map<number, number>();
     const vertex = (row: number, col: number): number => {
       const key = row * (cells + 1) + col;
@@ -113,6 +115,11 @@ export class WaterSurfaces {
       const z = originZ + row * cell;
       positions.push(x, (levels[key] ?? base) - base, z);
       uvs.push(x / 8, z / 8);
+      // NBB-166 (AV10-A+B): shallow water lets the bed and the fish show through; deep water
+      // keeps its dark reflection.
+      const depth = (levels[key] ?? base) - this.terrain.heightAt(x, z);
+      const deep = Math.min(1, Math.max(0, depth / clearDepth));
+      colors.push(1, 1, 1, shoreAlpha + (deepAlpha - shoreAlpha) * deep);
       vertexOf.set(key, index);
       return index;
     };
@@ -151,7 +158,9 @@ export class WaterSurfaces {
     const normals: number[] = [];
     VertexData.ComputeNormals(positions, indices, normals);
     data.normals = normals;
+    data.colors = colors;
     data.applyToMesh(mesh, false);
+    mesh.hasVertexAlpha = true;
     mesh.position.y = base;
     mesh.material = this.material;
     mesh.isPickable = false;

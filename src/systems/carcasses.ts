@@ -54,6 +54,7 @@ export class CarcassSystem {
     this.templates = {
       deer: createRemainsModel(scene, "deer", seed),
       rabbit: createRemainsModel(scene, "rabbit", seed),
+      fox: createRemainsModel(scene, "fox", seed),
     };
     for (const template of Object.values(this.templates)) {
       template.hide.setEnabled(false);
@@ -89,7 +90,7 @@ export class CarcassSystem {
       return undefined;
     }
     const { animal, distance } = best;
-    const name = animal.kind === "deer" ? "cervo" : "coelho";
+    const name = { deer: "cervo", rabbit: "coelho", fox: "raposa" }[animal.kind];
     // CA2-A: only with the knife in hand.
     if (this.equipment.current !== "knife") {
       return { label: "Precisa da faca", distance };
