@@ -64,6 +64,7 @@ Regras numeradas (`RF-xx`) **nunca são renumeradas**: o que sair fica riscado c
   - O machado dá as mesmas madeiras; a árvore alta cai mais devagar (1,5 s × √(altura ÷ 11 m)).
 - **RF-74** **Detalhes no chão** (NBB-170; SL1-A a SL4): o chão tem manchas grandes, mais claras e mais escuras, mais verdes e mais secas, e grãos de terra de perto. Por cima, a até 35 m, grama viva, samambaias (pinheiral e bosque), folhas caídas (bosque), flores (campo), pedrinhas (serra) e cogumelos ao pé de algumas árvores, cada bioma com sua quantidade. Só visual: não bloqueiam, não escondem e não fazem barulho.
 - **RF-75** **Poste com placa** (NBB-171; PL1-A a PL5): postes de madeira velhos, raros (~1 a cada 300 a 500 m), fora do começo (260 m), da água e de perto das cabanas (60 m), com uma placa em seta escrita "Cabana" apontando a cabana mais próxima (qualquer uma, a até 700 m). Não se atravessam. **E** lê a placa ("Cabana a uns 150 m a sudoeste", arredondado a 50 m) e marca a cabana como destino do mapa e da bússola (com as 12 marcações cheias, a mais antiga dá lugar).
+- **RF-76** **Água com correnteza** (NBB-172; AF1-A a AF4): cada rio corre ao longo do leito, do lado mais alto para o mais baixo, a 0,5 m/s no plano, mais rápido na descida e o dobro a menos de 20 m de uma cachoeira (até 1,4 m/s); lagos e poços ficam parados. Pontinhos de espuma andam com a correnteza por cima da água, com um rastro curto, e as ondinhas têm duas escalas. Quem nada no rio é levado a 70% da velocidade da correnteza; nadando, dá para subir o rio.
 
 ## Furtividade
 
