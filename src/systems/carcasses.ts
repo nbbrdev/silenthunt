@@ -1,5 +1,5 @@
 import { TransformNode, type InstancedMesh, type Scene } from "@babylonjs/core";
-import type { PreyBrainBehavior, PreyKind } from "../ai/preyBrain";
+import type { HuntKind, Huntable } from "../ai/huntable";
 import { CONFIG } from "../config";
 import { createRemainsModel, type RemainsModel } from "../models/animals/remains";
 import type { Equipment } from "../player/equipment";
@@ -29,17 +29,17 @@ interface Remains {
  */
 export class CarcassSystem {
   private readonly scene: Scene;
-  private readonly prey: () => PreyBrainBehavior[];
+  private readonly prey: () => Huntable[];
   private readonly equipment: Equipment;
   private readonly inventory: Inventory;
   private readonly interactions: InteractionSystem;
-  private readonly templates: Record<PreyKind, RemainsModel>;
+  private readonly templates: Record<HuntKind, RemainsModel>;
   private readonly cleaned = new Set<string>();
   private readonly remains = new Map<string, Remains>();
 
   constructor(
     scene: Scene,
-    prey: () => PreyBrainBehavior[],
+    prey: () => Huntable[],
     chunks: ChunkManager,
     equipment: Equipment,
     inventory: Inventory,
@@ -55,6 +55,9 @@ export class CarcassSystem {
       deer: createRemainsModel(scene, "deer", seed),
       rabbit: createRemainsModel(scene, "rabbit", seed),
       fox: createRemainsModel(scene, "fox", seed),
+      wolf: createRemainsModel(scene, "wolf", seed),
+      boar: createRemainsModel(scene, "boar", seed),
+      bear: createRemainsModel(scene, "bear", seed),
     };
     for (const template of Object.values(this.templates)) {
       template.hide.setEnabled(false);
@@ -75,10 +78,10 @@ export class CarcassSystem {
       return undefined;
     }
     const settings = CONFIG.carcass;
-    let best: { animal: PreyBrainBehavior; distance: number } | undefined;
+    let best: { animal: Huntable; distance: number } | undefined;
     for (const animal of this.prey()) {
       const body = animal.attachedNode?.position;
-      if (!body || animal.state !== "dead" || !animal.isActive || this.cleaned.has(animal.id)) {
+      if (!body || !animal.isDead || !animal.isActive || this.cleaned.has(animal.id)) {
         continue;
       }
       const distance = Math.hypot(body.x - eye.x, body.z - eye.z);
@@ -90,7 +93,14 @@ export class CarcassSystem {
       return undefined;
     }
     const { animal, distance } = best;
-    const name = { deer: "cervo", rabbit: "coelho", fox: "raposa" }[animal.kind];
+    const name = {
+      deer: "cervo",
+      rabbit: "coelho",
+      fox: "raposa",
+      wolf: "lobo",
+      boar: "javali",
+      bear: "urso",
+    }[animal.kind];
     // CA2-A: only with the knife in hand.
     if (this.equipment.current !== "knife") {
       return { label: "Precisa da faca", distance };
@@ -110,7 +120,7 @@ export class CarcassSystem {
     };
   }
 
-  private clean(animal: PreyBrainBehavior): void {
+  private clean(animal: Huntable): void {
     const body = animal.attachedNode;
     if (!body) {
       return;
@@ -143,7 +153,7 @@ export class CarcassSystem {
   }
 
   /** RF-30, PG2-A, CA4-A: what an animal gives: meat, fat and, the deer, leather. */
-  private yield(animal: PreyBrainBehavior): Stack[] {
+  private yield(animal: Huntable): Stack[] {
     const settings = CONFIG.carcass;
     const items: Stack[] = [
       { item: "rawMeat", count: settings.meat[animal.kind] },

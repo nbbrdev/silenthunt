@@ -23,6 +23,10 @@ import { DayMessage } from "./ui/dayMessage";
 import { uiSounds, type UiSound } from "./ui/uiSounds";
 import { PreySounds } from "./systems/preySounds";
 import { Wildlife } from "./ai/wildlife";
+import type { HostileHooks } from "./ai/hostileBrain";
+import { HostileManager } from "./ai/hostileManager";
+import type { Huntable } from "./ai/huntable";
+import { HostileSounds } from "./systems/hostileSounds";
 import { CaughtSequence } from "./systems/caughtSequence";
 import { HidingSystem } from "./systems/hiding";
 import { ObjectiveSystem } from "./systems/objective";
@@ -254,6 +258,35 @@ async function start(): Promise<void> {
     audio
       .then((audio) => preySounds.loadSounds(audio))
       .catch((error: unknown) => console.warn("Sons dos animais não carregados:", error));
+    // NBB-167: the hostile animals (wolves, boars, bears), by day; their kills kept with the
+    // prey's. The fires and the walls are known later (see below).
+    const hostileSounds = new HostileSounds(scene);
+    audio
+      .then((audio) => hostileSounds.loadSounds(audio))
+      .catch((error: unknown) => console.warn("Sons dos animais hostis não carregados:", error));
+    const hostileHooks: HostileHooks = {
+      fires: () => [],
+      wallBetween: () => false,
+      play: (sound, at) => hostileSounds.play(sound, at),
+    };
+    const hostiles = new HostileManager(
+      {
+        scene,
+        player,
+        health,
+        visibility,
+        noise,
+        terrain: world.terrain,
+        chunks: world.chunks,
+        clock: world.clock,
+        creaturePosition: () => creatureModel.root.position,
+        hooks: hostileHooks,
+      },
+      CONFIG.world.defaultSeed,
+      prey,
+    );
+    /** Every animal the weapons can hit and the knife can clean: the prey and the hostile ones. */
+    const huntables = (): Huntable[] => [...prey.animals(), ...hostiles.animals()];
     // NBB-166: the small animals (bird flocks, fish schools, frogs), only to see and hear.
     const wildlife = new Wildlife(
       {
@@ -274,7 +307,7 @@ async function start(): Promise<void> {
       .catch((error: unknown) => console.warn("Sons dos bichos pequenos não carregados:", error));
     // NBB-139: the knife (RF-32, MA4).
     const knife = new KnifeAttack(scene, input, player, hands, noise, {
-      prey: () => prey.animals(),
+      prey: huntables,
       creature: creatureBrain,
     });
     // NBB-140: the bow and arrows; 1 and 2 switch between knife and bow (AR1, provisional).
@@ -284,7 +317,7 @@ async function start(): Promise<void> {
         terrain: world.terrain,
         chunks: world.chunks,
         noise,
-        prey: () => prey.animals(),
+        prey: huntables,
         creature: creatureBrain,
       },
       CONFIG.world.defaultSeed,
@@ -305,6 +338,8 @@ async function start(): Promise<void> {
     // NBB-145: the player's buildings and the building mode (B). Walls stop the creature's strike.
     const structures = new StructureManager(scene, world.terrain, world.chunks, interactions);
     creatureBrain.wallBetween = (ax, az, bx, bz) => structures.blocksLine(ax, az, bx, bz);
+    // AH4-A: walls and closed doors keep the hostile animals out too.
+    hostileHooks.wallBetween = (ax, az, bx, bz) => structures.blocksLine(ax, az, bx, bz);
     const building = new BuildingMode(
       scene,
       input,
@@ -403,7 +438,7 @@ async function start(): Promise<void> {
       hands,
       equipment,
       {
-        prey: () => prey.animals(),
+        prey: huntables,
         creature: creatureBrain,
         terrain: world.terrain,
         chunks: world.chunks,
@@ -426,7 +461,7 @@ async function start(): Promise<void> {
     // NBB-142: carcasses (meat, fat, leather) and the campfire (G, CZ1-A).
     const carcasses = new CarcassSystem(
       scene,
-      () => prey.animals(),
+      huntables,
       world.chunks,
       equipment,
       inventory,
@@ -441,6 +476,9 @@ async function start(): Promise<void> {
       equipment,
       interactions,
     });
+    // AH4-A: the hostile animals keep away from a lit campfire.
+    hostileHooks.fires = () =>
+      campfires.list.map(({ at, fuel }) => ({ x: at[0] ?? 0, z: at[2] ?? 0, lit: fuel > 0 }));
     const beds = new BedManager(
       scene,
       player,
@@ -1213,6 +1251,60 @@ async function start(): Promise<void> {
           },
           /** NBB-166: the small animals around (flocks, schools, frog groups) and the nearest. */
           wildlife: () => wildlife.debugState(player.position.x, player.position.z),
+          /** NBB-167: the hostile animals around, nearest first, and the sounds they made. */
+          hostiles: () => ({
+            animals: hostiles
+              .animals()
+              .map((animal) => animal.debugState() as { distance: number })
+              .sort((a, b) => a.distance - b.distance)
+              .slice(0, 8),
+            sounds: { ...hostileSounds.played },
+          }),
+          /** NBB-167: the nearest hostile animal takes a hit ("knife", "arrow" or "shotgun"). */
+          hitHostile: (weapon: "knife" | "arrow" | "shotgun") => {
+            const { x, z } = player.position;
+            const nearest = hostiles
+              .animals()
+              .filter((animal) => animal.isActive && !animal.isDead)
+              .sort((a, b) => {
+                const pa = a.attachedNode?.position;
+                const pb = b.attachedNode?.position;
+                return (
+                  Math.hypot((pa?.x ?? 0) - x, (pa?.z ?? 0) - z) -
+                  Math.hypot((pb?.x ?? 0) - x, (pb?.z ?? 0) - z)
+                );
+              })[0];
+            nearest?.hit(weapon);
+            return nearest?.debugState();
+          },
+          /**
+           * NBB-167: `distance` meters from the nearest hostile animal of a kind ("lobo",
+           * "javali" or "urso") among the loaded chunks, facing it.
+           */
+          goToHostile: (name: string, distance = 30) => {
+            const kind = { lobo: "wolf", javali: "boar", urso: "bear" }[name];
+            const { x, z } = player.position;
+            const target = hostiles
+              .animals()
+              .filter((animal) => animal.kind === kind && animal.isActive && !animal.isDead)
+              .map((animal) => animal.attachedNode?.position)
+              .filter((at) => at !== undefined)
+              .sort((a, b) => Math.hypot(a.x - x, a.z - z) - Math.hypot(b.x - x, b.z - z))[0];
+            if (!target) {
+              return "Nenhum por perto (use goToBiome e espere os pedaços carregarem)";
+            }
+            for (let turn = 0; turn < 16; turn++) {
+              const angle = (turn / 16) * Math.PI * 2;
+              const px = target.x + Math.sin(angle) * distance;
+              const pz = target.z + Math.cos(angle) * distance;
+              if (world.terrain.waterAt(px, pz).depth === 0) {
+                player.respawn(new Vector3(px, world.terrain.heightAt(px, pz) + 0.3, pz));
+                player.view = { yaw: Math.atan2(target.x - px, target.z - pz), pitch: 0.05 };
+                return { x: Math.round(target.x), z: Math.round(target.z) };
+              }
+            }
+            return "Sem chão seco em volta";
+          },
           /** NBB-166 (AV10-A+B): a fish of the nearest school leaps now. */
           fishLeap: () => wildlife.fish.debugLeap(player.position.x, player.position.z),
           /**

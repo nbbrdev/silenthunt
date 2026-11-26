@@ -1,4 +1,4 @@
-import type { TransformNode } from "@babylonjs/core";
+import { Observable, type TransformNode } from "@babylonjs/core";
 import { CONFIG } from "../config";
 import { createRandom, hashPosition, randomInRange, randomInt } from "../core/random";
 import { deer } from "../models/animals/deer";
@@ -42,11 +42,24 @@ export class PreyManager {
     return [...this.killed];
   }
 
+  /** NBB-167: a saved game's kills came back (the hostile animals take theirs away too). */
+  readonly onKillsRestored = new Observable<void>();
+
+  /** NBB-167: the hostile animals' deaths are kept here too, so the save keeps them. */
+  isKilled(id: string): boolean {
+    return this.killed.has(id);
+  }
+
+  markKilled(id: string): void {
+    this.killed.add(id);
+  }
+
   /** NBB-147: animals killed in a saved game; those already standing around are taken away. */
   restoreKilled(ids: readonly string[]): void {
     for (const id of ids) {
       this.killed.add(id);
     }
+    this.onKillsRestored.notifyObservers();
     for (const [key, animals] of this.byChunk) {
       const alive = animals.filter((animal) => {
         if (!this.killed.has(animal.brain.id)) {

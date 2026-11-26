@@ -12,9 +12,10 @@ const v = (x: number, y: number, z: number) => new Vector3(x, y, z);
 /**
  * NBB-166 (AV7-A): the fox's skeleton in its rest pose (meters, facing +Z, paws on the ground):
  * about 0.38 m at the shoulder and 0.7 m from nose to rump, the long tail behind. The same bone
- * names as the deer's, so its poses read alike.
+ * names as the deer's, so its poses read alike. NBB-167: the hostile animals are built on it,
+ * scaled (see quadruped.ts).
  */
-function foxBones(): BoneDef[] {
+export function foxBones(): BoneDef[] {
   const bones: BoneDef[] = [
     { name: "root", parent: null, head: v(0, 0, 0), tail: v(0, 0.05, 0) },
     { name: "pelvis", parent: "root", head: v(0, 0.36, -0.22), tail: v(0, 0.35, -0.05) },

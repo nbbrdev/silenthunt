@@ -7,7 +7,7 @@ import {
   type Mesh,
   type Scene,
 } from "@babylonjs/core";
-import type { PreyBrainBehavior } from "../ai/preyBrain";
+import type { Huntable } from "../ai/huntable";
 import { CONFIG } from "../config";
 import { frameSeconds, isPaused } from "../core/gameTime";
 import type { Input } from "../core/input";
@@ -40,7 +40,7 @@ export interface StoneWorld {
   terrain: Terrain;
   chunks: ChunkManager;
   noise: NoiseSystem;
-  prey: () => PreyBrainBehavior[];
+  prey: () => Huntable[];
 }
 
 /**
@@ -307,7 +307,7 @@ export class StoneThrowSystem {
     // PD5-B: a rabbit in the way dies; the stone drops beside it.
     for (const animal of this.world.prey()) {
       const body = animal.attachedNode?.position;
-      if (!body || !animal.isActive || animal.state === "dead" || animal.kind !== "rabbit") {
+      if (!body || !animal.isActive || animal.isDead || animal.kind !== "rabbit") {
         continue;
       }
       const center = body.add(new Vector3(0, 0.14, 0));

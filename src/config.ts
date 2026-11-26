@@ -1163,16 +1163,19 @@ export const CONFIG = {
   /** NBB-142: cleaning a carcass (RF-35, CA1-B to CA4-A). */
   carcass: {
     /** CA1-B: hold E this long, standing still, with the knife in hand (CA2-A). */
-    harvestSeconds: { rabbit: 2, deer: 5, fox: 3 },
-    /** RF-30, CA4-A: what each animal gives. AV1-A (NBB-166): the fox, 1 meat and 1 leather. */
-    meat: { rabbit: 1, deer: 4, fox: 1 },
-    leather: { rabbit: 0, deer: 1, fox: 1 },
+    harvestSeconds: { rabbit: 2, deer: 5, fox: 3, wolf: 4, boar: 5, bear: 8 },
+    /**
+     * RF-30, CA4-A: what each animal gives. AV1-A (NBB-166): the fox, 1 meat and 1 leather.
+     * AH3-A (NBB-167): wolf 2/1/1, boar 3/2/1, bear 6/4/2 (meat, fat, leather).
+     */
+    meat: { rabbit: 1, deer: 4, fox: 1, wolf: 2, boar: 3, bear: 6 },
+    leather: { rabbit: 0, deer: 1, fox: 1, wolf: 1, boar: 1, bear: 2 },
     /** OB8-A, OB12 (NBB-156): the deer's skull, for the ritual. */
-    skull: { rabbit: 0, deer: 1, fox: 0 },
+    skull: { rabbit: 0, deer: 1, fox: 0, wolf: 0, boar: 0, bear: 0 },
     /** PG2-A: fat, for torches. */
-    fat: { rabbit: 1, deer: 3, fox: 0 },
+    fat: { rabbit: 1, deer: 3, fox: 0, wolf: 1, boar: 2, bear: 4 },
     /** E reaches a carcass this close (meters, to the middle of its body). */
-    reach: { rabbit: 1.5, deer: 2.2, fox: 1.8 },
+    reach: { rabbit: 1.5, deer: 2.2, fox: 1.8, wolf: 2, boar: 2.2, bear: 2.8 },
   },
   /** NBB-142: the campfire (CZ1-A) and cooking on it (CZ2-A). */
   campfire: {
@@ -1582,6 +1585,163 @@ export const CONFIG = {
     },
   },
   /**
+   * NBB-167: where the weapons find each animal's body (meters): a ball `radius` wide at `height`
+   * above its feet, or two of them `along` apart on its length (0: one ball); the shotgun's ball
+   * (`shot`); how close to its middle the knife reaches (`reach`). The prey keep their old values.
+   */
+  huntBodies: {
+    rabbit: { height: 0.14, radius: 0.16, along: 0, shot: 0.16, reach: 0.15 },
+    fox: { height: 0.3, radius: 0.25, along: 0, shot: 0.25, reach: 0.22 },
+    deer: { height: 0.9, radius: 0.3, along: 0.35, shot: 0.45, reach: 0.35 },
+    wolf: { height: 0.62, radius: 0.28, along: 0.3, shot: 0.4, reach: 0.35 },
+    boar: { height: 0.5, radius: 0.33, along: 0.35, shot: 0.45, reach: 0.4 },
+    bear: { height: 0.85, radius: 0.45, along: 0.45, shot: 0.6, reach: 0.55 },
+  },
+  /**
+   * NBB-167 (AH1-A to AH9): the hostile animals: wolves, boars and bears, by day and at dusk.
+   * Distances in meters, times in seconds, speeds in meters per second.
+   */
+  hostile: {
+    /** AH6-A: they think and move only this close to the player. */
+    activeDistance: 90,
+    /**
+     * AH6-A: per chunk, the chance of a group where a spot drawn in it is of the right biome, and
+     * how many, this far apart.
+     */
+    spawn: {
+      wolf: { chance: 1 / 6, biome: "field", count: [3, 5] as const, spread: 6 },
+      boar: { chance: 1 / 3, biome: "broadleaf", count: [1, 3] as const, spread: 5 },
+      bear: { chance: 0.1, biome: "ridge", count: [1, 1] as const, spread: 0 },
+    },
+    /** AH3-A: a strike's damage, the chase speed and the slow walk. */
+    damage: { wolf: 12, boar: 20, bear: 40 },
+    runSpeed: { wolf: 6.5, boar: 7, bear: 6 },
+    walkSpeed: { wolf: 1.2, boar: 0.8, bear: 1 },
+    /** AH3-A: how many hits of each weapon kill each one. */
+    hitsToKill: {
+      wolf: { shotgun: 1, arrow: 2, knife: 2 },
+      boar: { shotgun: 1, arrow: 2, knife: 3 },
+      bear: { shotgun: 2, arrow: 4, knife: 6 },
+    },
+    /** For walking around trunks and rocks. */
+    bodyRadius: { wolf: 0.35, boar: 0.4, bear: 0.55 },
+    /** Wandering at home: a new spot this far from home every so often. */
+    wander: { radius: 15, every: [6, 14] as const },
+    /**
+     * AH1-A, AH2-A: the pack sees the player within `sightDistance` (and what the fog and the
+     * light allow), howls, then follows at `stalkDistance` for `stalkSeconds` and attacks all
+     * together: each wolf rushes in, bites within `biteReach`, backs off `backOff` and growls,
+     * and rushes again.
+     */
+    wolf: {
+      sightDistance: 45,
+      howlSeconds: 2.5,
+      stalkDistance: [12, 18] as const,
+      stalkSeconds: [6, 12] as const,
+      /** Stalking, the wolves spread this far apart round the player (radians) and circle. */
+      flankSpread: 0.8,
+      circleRate: 0.05,
+      biteReach: 1.8,
+      /** The bite lands this long into the "Morder" clip. */
+      biteAtSeconds: 0.25,
+      biteSeconds: 0.6,
+      backOff: 4,
+      growlSeconds: [0.8, 1.6] as const,
+      /** Half the pack dead: the rest run away. */
+      fleeWhenLeft: 0.5,
+    },
+    /**
+     * AH1-A, AH2-A: the boar grubs at home; the player within `warnDistance` (or a noise that
+     * reaches it, or a hit) makes it dig and grunt for `digSeconds`; still within `calmDistance`,
+     * it charges straight at where the player was (turning a little, `chargeTurnRate`), hits
+     * within `hitReach`, runs on `passDistance`, then flees `fleeDistance` and rests.
+     */
+    boar: {
+      warnDistance: 10,
+      calmDistance: 15,
+      digSeconds: 1.6,
+      chargeDistance: 24,
+      chargeTurnRate: 1.2,
+      hitReach: 1.5,
+      passDistance: 5,
+      fleeDistance: 18,
+      restSeconds: 8,
+    },
+    /**
+     * AH1-A, AH2-A: the bear guards its ground: the player within `warnDistance` makes it rear up
+     * and roar (`roarSeconds`); still within `attackDistance` after that, or hitting it, it
+     * charges; within `swipeReach` it swipes now and then; the player beyond `territory` from
+     * its home ends it, and it walks back.
+     */
+    bear: {
+      warnDistance: 18,
+      attackDistance: 12,
+      roarSeconds: 2.2,
+      territory: 40,
+      swipeReach: 2.4,
+      swipeAtSeconds: 0.4,
+      swipeSeconds: 0.7,
+      swipeEvery: [1.4, 2.2] as const,
+      /** After a warning, another one only after this long; ignoring this many, it attacks. */
+      warnEvery: 8,
+      warningsBeforeAttack: 2,
+    },
+    /** AH4-A: they give up a chase this long after it began. */
+    giveUpSeconds: 20,
+    /** AH4-A: none goes into water deeper than this; kept out this long, they give up. */
+    waterDepth: 1,
+    waterGiveUpSeconds: 6,
+    /** AH4-A: hidden in a bush, the player is found only by a wolf this close. */
+    sniffDistance: 2,
+    /** AH4-A: none comes closer to a lit campfire than this. */
+    fireKeepAway: 8,
+    /** AH4-A: a wall or a closed door between them this long, they give up. */
+    walledGiveUpSeconds: 5,
+    /** Lost the player (hidden), they look around this long, then go home. */
+    searchSeconds: 5,
+    /** AH5-A: they run from the creature when it comes this close. */
+    creatureFleeDistance: 25,
+    /** AH5-A: at night (or running away) they are gone once this far from the player. */
+    vanishDistance: 40,
+    /** Running away lasts this long at most (then they are gone). */
+    fleeSeconds: 12,
+    /** AH8-A, AH9: their sounds, all 3D. */
+    sounds: {
+      files: {
+        howl: "animals/wolf-howl.mp3",
+        growl: "animals/wolf-growl.mp3",
+        bite: "animals/wolf-bite.mp3",
+        wolfPain: "animals/wolf-yelp.mp3",
+        grunt: "animals/boar-grunt.mp3",
+        squeal: "animals/boar-squeal.mp3",
+        roar: "animals/bear-roar.mp3",
+        bearPain: "animals/bear-growl.mp3",
+      },
+      volume: {
+        howl: 1,
+        growl: 0.8,
+        bite: 0.9,
+        wolfPain: 0.8,
+        grunt: 0.9,
+        squeal: 0.8,
+        roar: 1,
+        bearPain: 0.9,
+      },
+      /** The bear's pain is its growl, lower. */
+      rate: { bearPain: 0.8 },
+      hearingDistance: {
+        howl: 150,
+        growl: 25,
+        bite: 20,
+        wolfPain: 40,
+        grunt: 35,
+        squeal: 50,
+        roar: 90,
+        bearPain: 60,
+      },
+    },
+  },
+  /**
    * NBB-166 (AV2-A to AV6-A): the small animals (birds, fish, frogs). Not hunted: only to see and
    * hear. Distances in meters, times in seconds.
    */
@@ -1846,6 +2006,18 @@ export const CONFIG = {
     fishBack: { r: 0.42, g: 0.44, b: 0.36 },
     frogSkin: { r: 0.3, g: 0.36, b: 0.16 },
     frogBelly: { r: 0.62, g: 0.58, b: 0.4 },
+    /**
+     * NBB-167 (AH7-A): the wolf (grey, a darker saddle, pale belly and muzzle), the boar (dark
+     * brown-grey with a black mane, a greyish snout) and the bear (brown, a paler muzzle).
+     */
+    wolfFur: { r: 0.4, g: 0.38, b: 0.35 },
+    wolfDark: { r: 0.2, g: 0.19, b: 0.18 },
+    wolfLight: { r: 0.68, g: 0.65, b: 0.6 },
+    boarFur: { r: 0.24, g: 0.19, b: 0.15 },
+    boarMane: { r: 0.1, g: 0.08, b: 0.07 },
+    boarSnout: { r: 0.42, g: 0.34, b: 0.32 },
+    bearFur: { r: 0.3, g: 0.2, b: 0.12 },
+    bearLight: { r: 0.5, g: 0.38, b: 0.26 },
     /** MA1, MA2: the player's coat sleeves and hands; the knife's steel and handle. */
     coat: { r: 0.16, g: 0.15, b: 0.12 },
     skin: { r: 0.7, g: 0.54, b: 0.44 },

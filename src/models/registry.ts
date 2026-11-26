@@ -2,6 +2,9 @@ import { deer } from "./animals/deer";
 import { rabbit } from "./animals/rabbit";
 import { fox } from "./animals/fox";
 import { bird, fish, frog } from "./animals/smallAnimals";
+import { bear } from "./animals/bear";
+import { boar } from "./animals/boar";
+import { wolf } from "./animals/wolf";
 import { remains } from "./animals/remains";
 import { meat } from "./items/meat";
 import { axe } from "./items/axe";
@@ -70,6 +73,10 @@ export const MODEL_REGISTRY: readonly ModelGenerator[] = [
   bird,
   fish,
   frog,
+  // AH7-A (NBB-167): the hostile animals.
+  wolf,
+  boar,
+  bear,
   knife,
   bow,
   arrow,

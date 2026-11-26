@@ -1,6 +1,6 @@
 import { Vector3, type Scene } from "@babylonjs/core";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
-import type { PreyBrainBehavior } from "../ai/preyBrain";
+import type { Huntable } from "../ai/huntable";
 import { CONFIG } from "../config";
 import { frameSeconds } from "../core/gameTime";
 import type { Input } from "../core/input";
@@ -11,7 +11,7 @@ import type { Player } from "./player";
 
 /** What the knife can hit. */
 export interface KnifeTargets {
-  prey: () => PreyBrainBehavior[];
+  prey: () => Huntable[];
   creature: CreatureBrainBehavior;
 }
 
@@ -95,14 +95,14 @@ export class KnifeAttack {
       return angle <= tolerance ? distance : undefined;
     };
 
-    let nearestPrey: PreyBrainBehavior | undefined;
+    let nearestPrey: Huntable | undefined;
     let nearestDistance = Infinity;
     for (const animal of this.targets.prey()) {
       const position = animal.attachedNode?.position;
-      if (!position || !animal.isActive || animal.state === "dead") {
+      if (!position || !animal.isActive || animal.isDead) {
         continue;
       }
-      const distance = reachOf(position.x, position.z, CONFIG.prey.bodyRadius[animal.kind]);
+      const distance = reachOf(position.x, position.z, CONFIG.huntBodies[animal.kind].reach);
       if (distance !== undefined && distance < nearestDistance) {
         nearestPrey = animal;
         nearestDistance = distance;
@@ -121,12 +121,9 @@ export class KnifeAttack {
     } else if (nearestPrey) {
       const position = nearestPrey.attachedNode?.position;
       this.sounds?.play("knifeHit", position);
-      // RF-32 / M8-A: the silent kill only works on prey that has not noticed the player.
-      if (nearestPrey.state === "graze") {
-        nearestPrey.kill();
-      } else if (nearestPrey.state === "alert") {
-        nearestPrey.flee("player");
-      }
+      // RF-32 / M8-A: the prey dies only if it had not noticed the player; AH3-A: the hostile
+      // ones take a few stabs.
+      nearestPrey.hit("knife");
     }
     this.noise.emit(this.player.feet, CONFIG.noise.radius.knife, "knife");
   }

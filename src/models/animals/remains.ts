@@ -6,7 +6,7 @@ import {
   type Mesh,
   type Scene,
 } from "@babylonjs/core";
-import type { PreyKind } from "../../ai/preyBrain";
+import type { HuntKind } from "../../ai/huntable";
 import { CONFIG } from "../../config";
 import { createRandom } from "../../core/random";
 import { assemble, jitter, paint, toColor } from "../lowPoly";
@@ -17,13 +17,26 @@ import { getFurMaterial } from "./parts";
 
 const v = (x: number, y: number, z: number) => new Vector3(x, y, z);
 
-/** The rabbit's and the fox's remains are the deer's, smaller. */
-const SCALE: Record<PreyKind, number> = { deer: 1, rabbit: 0.3, fox: 0.5 };
+/** Every animal's remains are the deer's, smaller or bigger. */
+const SCALE: Record<HuntKind, number> = {
+  deer: 1,
+  rabbit: 0.3,
+  fox: 0.5,
+  wolf: 0.85,
+  boar: 0.9,
+  bear: 1.3,
+};
 
-const FUR: Record<PreyKind, "deerFur" | "rabbitFur" | "foxFur"> = {
+const FUR: Record<
+  HuntKind,
+  "deerFur" | "rabbitFur" | "foxFur" | "wolfFur" | "boarFur" | "bearFur"
+> = {
   deer: "deerFur",
   rabbit: "rabbitFur",
   fox: "foxFur",
+  wolf: "wolfFur",
+  boar: "boarFur",
+  bear: "bearFur",
 };
 
 export interface RemainsModel {
@@ -38,7 +51,7 @@ export interface RemainsModel {
  * stain, the spine with a few ribs curving up, the hip, the skull and some leg bones scattered
  * around. Built in model space for a deer (about 1.4 m) and scaled down for a rabbit.
  */
-export function createRemainsModel(scene: Scene, kind: PreyKind, seed: number): RemainsModel {
+export function createRemainsModel(scene: Scene, kind: HuntKind, seed: number): RemainsModel {
   const random = createRandom(seed);
   const root = new TransformNode(`remains-${kind}`, scene);
   const fur = toColor(CONFIG.palette[FUR[kind]]);

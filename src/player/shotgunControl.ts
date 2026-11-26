@@ -12,7 +12,7 @@ import {
 } from "@babylonjs/core";
 import { Control, Ellipse, TextBlock, type AdvancedDynamicTexture } from "@babylonjs/gui";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
-import type { PreyBrainBehavior } from "../ai/preyBrain";
+import type { Huntable } from "../ai/huntable";
 import { CONFIG } from "../config";
 import { frameSeconds } from "../core/gameTime";
 import { soundUrl, type GameAudio } from "../core/audio";
@@ -29,7 +29,7 @@ import type { Player } from "./player";
 
 /** What the shot can hit and what can stop it. */
 export interface ShotgunWorld {
-  prey: () => PreyBrainBehavior[];
+  prey: () => Huntable[];
   creature: CreatureBrainBehavior;
   terrain: Terrain;
   chunks: ChunkManager;
@@ -274,13 +274,12 @@ export class ShotgunControl {
     };
     for (const animal of this.world.prey()) {
       const body = animal.attachedNode?.position;
-      if (!body || !animal.isActive || animal.state === "dead") {
+      if (!body || !animal.isActive || animal.isDead) {
         continue;
       }
-      const height = { rabbit: 0.14, fox: 0.3, deer: 0.9 }[animal.kind];
-      const radius = { rabbit: 0.16, fox: 0.25, deer: 0.45 }[animal.kind];
-      // RF-34: one shot kills any prey.
-      consider(body.add(new Vector3(0, height, 0)), radius, () => animal.kill());
+      const shape = CONFIG.huntBodies[animal.kind];
+      // RF-34: one shot kills any prey; AH3-A: the bear takes two.
+      consider(body.add(new Vector3(0, shape.height, 0)), shape.shot, () => animal.hit("shotgun"));
     }
     const creature = this.world.creature.attachedNode?.position;
     if (creature) {

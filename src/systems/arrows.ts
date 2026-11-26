@@ -1,6 +1,6 @@
 import { Quaternion, Vector3, type InstancedMesh, type Mesh, type Scene } from "@babylonjs/core";
 import type { CreatureBrainBehavior } from "../ai/creatureBrain";
-import type { PreyBrainBehavior } from "../ai/preyBrain";
+import type { Huntable } from "../ai/huntable";
 import { CONFIG } from "../config";
 import { frameSeconds } from "../core/gameTime";
 import { createRandom } from "../core/random";
@@ -34,7 +34,7 @@ export interface ArrowWorld {
   terrain: Terrain;
   chunks: ChunkManager;
   noise: NoiseSystem;
-  prey: () => PreyBrainBehavior[];
+  prey: () => Huntable[];
   creature: CreatureBrainBehavior;
 }
 
@@ -190,31 +190,24 @@ export class ArrowSystem {
     const targets: Target[] = [];
     for (const animal of this.world.prey()) {
       const body = animal.attachedNode?.position;
-      if (!body || !animal.isActive || animal.state === "dead") {
+      if (!body || !animal.isActive || animal.isDead) {
         continue;
       }
       if (flatDistanceToSegment(body, from, to) > 3) {
         continue;
       }
-      if (animal.kind === "rabbit" || animal.kind === "fox") {
-        // AV1-A (NBB-166): one arrow kills a fox too; its body is a bigger ball than the rabbit's.
-        const fox = animal.kind === "fox";
+      // NBB-167: each kind's body (a small one is one ball, a long one two); what the arrow does
+      // is up to the animal (RF-33: it kills a rabbit or a fox, wounds a deer; AH3-A).
+      const shape = CONFIG.huntBodies[animal.kind];
+      const heading = animal.attachedNode?.rotation.y ?? 0;
+      const along = new Vector3(Math.sin(heading), 0, Math.cos(heading)).scale(shape.along);
+      const offsets = shape.along > 0 ? [along, along.scale(-1)] : [Vector3.Zero()];
+      for (const offset of offsets) {
         targets.push({
-          center: body.add(new Vector3(0, fox ? 0.3 : 0.14, 0)),
-          radius: fox ? 0.25 : 0.16,
-          hit: () => animal.kill(),
+          center: body.add(new Vector3(0, shape.height, 0)).add(offset),
+          radius: shape.radius,
+          hit: () => animal.hit("arrow"),
         });
-      } else {
-        // RF-33: the first arrow wounds a deer, the second kills it. Its long body is two spheres.
-        const heading = animal.attachedNode?.rotation.y ?? 0;
-        const along = new Vector3(Math.sin(heading), 0, Math.cos(heading)).scale(0.35);
-        for (const offset of [along, along.scale(-1)]) {
-          targets.push({
-            center: body.add(new Vector3(0, 0.9, 0)).add(offset),
-            radius: 0.3,
-            hit: () => animal.wound(),
-          });
-        }
       }
     }
     const creature = this.world.creature.attachedNode?.position;

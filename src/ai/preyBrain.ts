@@ -16,6 +16,7 @@ import type { NoiseEvent, NoiseSystem } from "../systems/noise";
 import type { VisibilitySystem } from "../systems/visibility";
 import type { ChunkManager } from "../world/chunks";
 import type { Terrain } from "../world/terrain";
+import type { Huntable, Weapon } from "./huntable";
 import { avoidObstacles, normalized, pushOutOfObstacles, type FlatVector } from "./steering";
 
 /** AV1-A (NBB-166): the fox lives like the rabbit, but notices sooner and runs faster. */
@@ -46,7 +47,7 @@ type Threat = "player" | "creature" | FlatVector;
  * attached to the animal's root node. It grazes in place, hears the NoiseSystem, sees the player
  * through the VisibilitySystem (the deer twice as far), stops to look, and runs away.
  */
-export class PreyBrainBehavior implements Behavior<TransformNode> {
+export class PreyBrainBehavior implements Behavior<TransformNode>, Huntable {
   readonly name = "PreyBrain";
   attachedNode: Nullable<TransformNode> = null;
   /** Fired when it dies (the weapons call `kill`, NBB-139 to NBB-141). */
@@ -105,6 +106,27 @@ export class PreyBrainBehavior implements Behavior<TransformNode> {
 
   get isActive(): boolean {
     return this.active;
+  }
+
+  get isDead(): boolean {
+    return this.currentState === "dead";
+  }
+
+  /**
+   * NBB-167: a weapon's hit. RF-34: a shot kills any prey; RF-33: an arrow kills a rabbit or a
+   * fox and wounds a deer (see `wound`); RF-32 / M8-A: the knife kills only prey that has not
+   * noticed the player, and sends an alert one running.
+   */
+  hit(weapon: Weapon): void {
+    if (weapon === "shotgun") {
+      this.kill();
+    } else if (weapon === "arrow") {
+      this.wound();
+    } else if (this.currentState === "graze") {
+      this.kill();
+    } else if (this.currentState === "alert") {
+      this.flee("player");
+    }
   }
 
   init(): void {
